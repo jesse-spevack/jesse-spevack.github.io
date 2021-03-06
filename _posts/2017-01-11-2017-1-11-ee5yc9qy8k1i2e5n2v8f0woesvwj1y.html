@@ -1,0 +1,688 @@
+---
+layout: post
+title: 'Panning For Gold: How to Implement a Simple React Filter'
+categories:
+- Technical
+tags:
+- React
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '50'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1>How to Implement a Simple React Filter</h1>
+<p>I want to share my initial experience with React and demonstrate how to implement a simple search feature. If you have a lot of JavaScript and React experience, move along. This is not the blog post you are looking for. But, if you have been hunkered down in a backend coding program for the past few months and are finally starting to think about the front end, this blog is for you.</p>
+<h3>React: Initial Thoughts</h3>
+<p>React is a front end JavaScript framework written by the good folks at Facebook. I've been working in React for a few weeks now and I am beginning to really appreciate it. One piece that I like a lot is the idea that React Components have state, which makes the whole process of building a front end feel more object oriented. Imagine a &lt;div&gt; in a blog site that holds the contents of the article. With React, in addition to actually having the text of an article the div can hold state - or things like whether or not the logged in user has liked the article, how many comments have been posted in response, what categories the post belongs to, etc. </p>
+<p>If like me, you are coming from a heavy Rails background and just getting started in React, I highly recommend this <a target="_blank" href="https://github.com/applegrain/creact">Creact tutorial</a> published by <a target="_blank" href="https://twitter.com/applegrain">Lovisa Svallingson</a>.</p>
+<h3>ReactBox</h3>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1307px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:54.70543670654297%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484155786106-6I2N2ZDAOKISU0878P5P/ke17ZwdGBToddI8pDm48kPGgcSfmdx2Lix4NEoXdlF0UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKc3Yv6MFkMcsgbHCrUF4jmiBE5vfYRKQr1cfVWkl1rVP7EgD1YCqn8Tp04gBEWgOW6/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484155786106-6I2N2ZDAOKISU0878P5P/ke17ZwdGBToddI8pDm48kPGgcSfmdx2Lix4NEoXdlF0UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKc3Yv6MFkMcsgbHCrUF4jmiBE5vfYRKQr1cfVWkl1rVP7EgD1YCqn8Tp04gBEWgOW6/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484155786106-6I2N2ZDAOKISU0878P5P/ke17ZwdGBToddI8pDm48kPGgcSfmdx2Lix4NEoXdlF0UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKc3Yv6MFkMcsgbHCrUF4jmiBE5vfYRKQr1cfVWkl1rVP7EgD1YCqn8Tp04gBEWgOW6/image-asset.png" data-image-dimensions="1307x715" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="58766b892e69cfaf7ca3728d" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>For the purpose of showing how to implement a search feature using React, I'm going to be working off a simple tutorial app called ReactBox (<a target="_blank" href="https://github.com/PlanetEfficacy/reactBox">repo</a>). The one page app implements basic CRUD functionality for ideas without requiring a page refresh.</p>
+<p>In the app, I may have a list of ideas. Each idea has a title and a body. In addition to CRUDing ideas, we want our user to be able to search through their ideas by title and body text. So for example, if I type "awesome" into a textbox, I want to see only my ideas with the word "awesome" somewhere in the title or body.</p>
+<h3>Search Component</h3>
+<p>React is based on building small components that encompass bits of functionality. If you clone the above repo, you'll see that our app has three components:</p>
+<ol>
+<li>CreateIdeaForm.js - contains the functionality for creating an idea, which we save in local storage.</li>
+<li>IdeaList.js - contains the functionality to iterate through ideas.</li>
+<li>Idea.js - contains the functionality to render a single idea on the page.</li>
+</ol>
+<p>At the top of our component hierarchy is our App.js file.</p>
+<p>Let's start by adding a search component, which will be a search field that updates the state of our app. Note, I use className to apply style. They aren't necessary for basic functionality.</p>
+<p><code>touch src/components/Search.js</code></p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; ">// src/components/Search</span>
+<span style="color:#800000; font-weight:bold; ">import</span> React from <span style="color:#800000; ">'</span><span style="color:#0000e6; ">react</span><span style="color:#800000; ">'</span><span style="color:#800080; ">;</span>
+
+<span style="color:#800000; font-weight:bold; ">class</span> Search <span style="color:#800000; font-weight:bold; ">extends</span> React<span style="color:#808030; ">.</span>Component <span style="color:#800080; ">{</span>
+  render<span style="color:#808030; ">(</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span>
+    <span style="color:#800000; font-weight:bold; ">return</span> <span style="color:#808030; ">(</span>
+      <span style="color:#808030; ">&lt;</span>div className<span style="color:#808030; ">=</span><span style="color:#800000; ">"</span><span style="color:#0000e6; ">row</span><span style="color:#800000; ">"</span><span style="color:#808030; ">&gt;</span>
+        Hello World<span style="color:#808030; ">!</span>
+      <span style="color:#808030; ">&lt;</span><span style="color:#808030; ">/</span>div<span style="color:#808030; ">&gt;</span>
+    <span style="color:#808030; ">)</span>
+  <span style="color:#800080; ">}</span>
+<span style="color:#800080; ">}</span>
+
+<span style="color:#800000; font-weight:bold; ">export</span> <span style="color:#800000; font-weight:bold; ">default</span> Search<span style="color:#800080; ">;</span>
+</pre>
+<p>The above component is just going to show a "Hello World!" message when we add it to our app. Let's add it to the app, just to make sure everything is wired up correctly. Notice that in addition to adding the &lt;Search /&gt; component, we also have to import the component at the top of our App.js file.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; ">// App.js</span>
+
+<span style="color:#800000; font-weight:bold; ">import</span> React from <span style="color:#800000; ">'</span><span style="color:#0000e6; ">react</span><span style="color:#800000; ">'</span><span style="color:#800080; ">;</span>
+<span style="color:#800000; font-weight:bold; ">import</span> CreateIdeaForm from <span style="color:#800000; ">'</span><span style="color:#0000e6; ">./components/CreateIdeaForm</span><span style="color:#800000; ">'</span>
+<span style="color:#800000; font-weight:bold; ">import</span> IdeaList from <span style="color:#800000; ">'</span><span style="color:#0000e6; ">./components/IdeaList</span><span style="color:#800000; ">'</span>
+<span style="color:#800000; font-weight:bold; ">import</span> Search from <span style="color:#800000; ">'</span><span style="color:#0000e6; ">./components/Search</span><span style="color:#800000; ">'</span>
+
+<span style="color:#800000; font-weight:bold; ">class</span> App <span style="color:#800000; font-weight:bold; ">extends</span> React<span style="color:#808030; ">.</span>Component <span style="color:#800080; ">{</span>
+ <span style="color:#808030; ">.</span><span style="color:#808030; ">.</span><span style="color:#808030; ">.</span>
+  render<span style="color:#808030; ">(</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span>
+    <span style="color:#800000; font-weight:bold; ">return</span> <span style="color:#808030; ">(</span>
+      <span style="color:#808030; ">&lt;</span>div className<span style="color:#808030; ">=</span><span style="color:#800000; ">'</span><span style="color:#0000e6; ">container</span><span style="color:#800000; ">'</span><span style="color:#808030; ">&gt;</span>
+        <span style="color:#808030; ">&lt;</span>CreateIdeaForm saveIdea<span style="color:#808030; ">=</span><span style="color:#800080; ">{</span> <span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">.</span>storeIdea<span style="color:#808030; ">.</span>bind<span style="color:#808030; ">(</span><span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span><span style="color:#808030; ">/</span><span style="color:#808030; ">&gt;</span>
+        <span style="color:#808030; ">&lt;</span>Search <span style="color:#808030; ">/</span><span style="color:#808030; ">&gt;</span>
+        <span style="color:#808030; ">&lt;</span>IdeaList ideas<span style="color:#808030; ">=</span><span style="color:#800080; ">{</span><span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">.</span>state<span style="color:#808030; ">.</span>ideas<span style="color:#800080; ">}</span>
+                  destroy<span style="color:#808030; ">=</span><span style="color:#800080; ">{</span><span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">.</span>destroyIdea<span style="color:#808030; ">.</span>bind<span style="color:#808030; ">(</span><span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">)</span><span style="color:#800080; ">}</span>
+                  updateTitle<span style="color:#808030; ">=</span><span style="color:#800080; ">{</span><span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">.</span>updateTitle<span style="color:#808030; ">.</span>bind<span style="color:#808030; ">(</span><span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">)</span><span style="color:#800080; ">}</span>
+                  updateBody<span style="color:#808030; ">=</span><span style="color:#800080; ">{</span><span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">.</span>updateBody<span style="color:#808030; ">.</span>bind<span style="color:#808030; ">(</span><span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">)</span><span style="color:#800080; ">}</span><span style="color:#808030; ">/</span><span style="color:#808030; ">&gt;</span>
+      <span style="color:#808030; ">&lt;</span><span style="color:#808030; ">/</span>div<span style="color:#808030; ">&gt;</span>
+    <span style="color:#808030; ">)</span><span style="color:#800080; ">;</span>
+  <span style="color:#800080; ">}</span>
+</pre>
+<p>And when we reload the app, we see our hello message:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1362px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:30.76358413696289%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484159296783-GSXNEXHI19D1XJ4OS6US/ke17ZwdGBToddI8pDm48kDWy1wCl9TE_CT-xoo7HeEkUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcJJtt0NdlzG3FX2P-vj0ozTFyeb_cM7Fvln95zNTqOyHyeQ3QsniBqcmFMUSE-xqm/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484159296783-GSXNEXHI19D1XJ4OS6US/ke17ZwdGBToddI8pDm48kDWy1wCl9TE_CT-xoo7HeEkUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcJJtt0NdlzG3FX2P-vj0ozTFyeb_cM7Fvln95zNTqOyHyeQ3QsniBqcmFMUSE-xqm/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484159296783-GSXNEXHI19D1XJ4OS6US/ke17ZwdGBToddI8pDm48kDWy1wCl9TE_CT-xoo7HeEkUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcJJtt0NdlzG3FX2P-vj0ozTFyeb_cM7Fvln95zNTqOyHyeQ3QsniBqcmFMUSE-xqm/image-asset.png" data-image-dimensions="1362x419" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5876794017bffc46dbe492b5" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Now that we see our search component, it's time to make it actually a text input. So we'll go into our Search component and write:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; ">// src/components/Search</span>
+<span style="color:#800000; font-weight:bold; ">import</span> React from <span style="color:#800000; ">'</span><span style="color:#0000e6; ">react</span><span style="color:#800000; ">'</span><span style="color:#800080; ">;</span>
+
+<span style="color:#800000; font-weight:bold; ">class</span> Search <span style="color:#800000; font-weight:bold; ">extends</span> React<span style="color:#808030; ">.</span>Component <span style="color:#800080; ">{</span>
+  render<span style="color:#808030; ">(</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span>
+    <span style="color:#800000; font-weight:bold; ">return</span> <span style="color:#808030; ">(</span>
+      <span style="color:#808030; ">&lt;</span>div className<span style="color:#808030; ">=</span><span style="color:#800000; ">"</span><span style="color:#0000e6; ">row</span><span style="color:#800000; ">"</span><span style="color:#808030; ">&gt;</span>
+        <span style="color:#808030; ">&lt;</span>div className<span style="color:#808030; ">=</span><span style="color:#800000; ">"</span><span style="color:#0000e6; ">input-field</span><span style="color:#800000; ">"</span><span style="color:#808030; ">&gt;</span>
+          <span style="color:#808030; ">&lt;</span>label<span style="color:#808030; ">&gt;</span>Search<span style="color:#808030; ">&lt;</span><span style="color:#808030; ">/</span>label<span style="color:#808030; ">&gt;</span>
+          <span style="color:#808030; ">&lt;</span><span style="color:#797997; ">input</span> type<span style="color:#808030; ">=</span><span style="color:#800000; ">"</span><span style="color:#0000e6; ">text</span><span style="color:#800000; ">"</span><span style="color:#808030; ">/</span><span style="color:#808030; ">&gt;</span>
+        <span style="color:#808030; ">&lt;</span><span style="color:#808030; ">/</span>div<span style="color:#808030; ">&gt;</span>
+      <span style="color:#808030; ">&lt;</span><span style="color:#808030; ">/</span>div<span style="color:#808030; ">&gt;</span>
+    <span style="color:#808030; ">)</span>
+  <span style="color:#800080; ">}</span>
+<span style="color:#800080; ">}</span>
+
+<span style="color:#800000; font-weight:bold; ">export</span> <span style="color:#800000; font-weight:bold; ">default</span> Search<span style="color:#800080; ">;</span>
+</pre>
+<p>And now when we look at the page, we have a beautiful search field:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1314px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:61.796043395996094%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484159576961-L798TZ9A2VGA8VHMNP5P/ke17ZwdGBToddI8pDm48kIzFeF2aIpOvAlzHhMvno5oUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcuS5-lxFKNOjjGTQLr6cD_JFUcbAE1Cmdz2_9qTyVi2_YcxNc5Ago_vyr5RMO0TO2/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484159576961-L798TZ9A2VGA8VHMNP5P/ke17ZwdGBToddI8pDm48kIzFeF2aIpOvAlzHhMvno5oUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcuS5-lxFKNOjjGTQLr6cD_JFUcbAE1Cmdz2_9qTyVi2_YcxNc5Ago_vyr5RMO0TO2/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484159576961-L798TZ9A2VGA8VHMNP5P/ke17ZwdGBToddI8pDm48kIzFeF2aIpOvAlzHhMvno5oUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcuS5-lxFKNOjjGTQLr6cD_JFUcbAE1Cmdz2_9qTyVi2_YcxNc5Ago_vyr5RMO0TO2/image-asset.png" data-image-dimensions="1314x812" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="58767a5803596ec731df16bc" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Of course, the search field is pretty, but it currently does not do anything. Let's build our search functionality. We are going to want our search to refresh the idea list every time the user triggers a key up event. Key up events mean that when the user is typing in the search field a event is triggered each time a new key is released. This will make the search feel snappy and mean that we will not need a search button.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; ">// src/components/Search</span>
+<span style="color:#800000; font-weight:bold; ">import</span> React from <span style="color:#800000; ">'</span><span style="color:#0000e6; ">react</span><span style="color:#800000; ">'</span><span style="color:#800080; ">;</span>
+
+<span style="color:#800000; font-weight:bold; ">class</span> Search <span style="color:#800000; font-weight:bold; ">extends</span> React<span style="color:#808030; ">.</span>Component <span style="color:#800080; ">{</span>
+
+  handleSearch<span style="color:#808030; ">(</span>event<span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span>
+    console<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">log</span><span style="color:#808030; ">(</span><span style="color:#800000; ">"</span><span style="color:#0000e6; ">we sure are handling that search....</span><span style="color:#800000; ">"</span><span style="color:#808030; ">)</span>
+  <span style="color:#800080; ">}</span>
+
+  render<span style="color:#808030; ">(</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span>
+    <span style="color:#800000; font-weight:bold; ">return</span> <span style="color:#808030; ">(</span>
+      <span style="color:#808030; ">&lt;</span>div className<span style="color:#808030; ">=</span><span style="color:#800000; ">"</span><span style="color:#0000e6; ">row</span><span style="color:#800000; ">"</span><span style="color:#808030; ">&gt;</span>
+        <span style="color:#808030; ">&lt;</span>div className<span style="color:#808030; ">=</span><span style="color:#800000; ">"</span><span style="color:#0000e6; ">input-field</span><span style="color:#800000; ">"</span><span style="color:#808030; ">&gt;</span>
+          <span style="color:#808030; ">&lt;</span>label<span style="color:#808030; ">&gt;</span>Search<span style="color:#808030; ">&lt;</span><span style="color:#808030; ">/</span>label<span style="color:#808030; ">&gt;</span>
+          <span style="color:#808030; ">&lt;</span><span style="color:#797997; ">input</span> type<span style="color:#808030; ">=</span><span style="color:#800000; ">"</span><span style="color:#0000e6; ">text</span><span style="color:#800000; ">"</span> onKeyUp<span style="color:#808030; ">=</span><span style="color:#800080; ">{</span><span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">.</span>handleSearch<span style="color:#808030; ">.</span>bind<span style="color:#808030; ">(</span><span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">)</span><span style="color:#800080; ">}</span><span style="color:#808030; ">/</span><span style="color:#808030; ">&gt;</span>
+        <span style="color:#808030; ">&lt;</span><span style="color:#808030; ">/</span>div<span style="color:#808030; ">&gt;</span>
+      <span style="color:#808030; ">&lt;</span><span style="color:#808030; ">/</span>div<span style="color:#808030; ">&gt;</span>
+    <span style="color:#808030; ">)</span>
+  <span style="color:#800080; ">}</span>
+<span style="color:#800080; ">}</span>
+
+<span style="color:#800000; font-weight:bold; ">export</span> <span style="color:#800000; font-weight:bold; ">default</span> Search<span style="color:#800080; ">;</span>
+</pre>
+<p>Now when we look at our app, and start typing in the search field, we should see the message "We sure are handling that search...." in our console which tells us that the onKeyUp event is triggering our handleSearch function. Notice how the message is logged nine times below because I typed nine letters into my search and each key up fires off the handleSearch function.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:968px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:58.36777114868164%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484159957171-WUUGHJ0EAHB7GAJB30B9/ke17ZwdGBToddI8pDm48kGimUQWHJ02J75vIv4IxssNZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIyLt_9l6EV8fdTfvYyZfqXj_-Ab01WzqiAw1FIkSKrzY/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484159957171-WUUGHJ0EAHB7GAJB30B9/ke17ZwdGBToddI8pDm48kGimUQWHJ02J75vIv4IxssNZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIyLt_9l6EV8fdTfvYyZfqXj_-Ab01WzqiAw1FIkSKrzY/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484159957171-WUUGHJ0EAHB7GAJB30B9/ke17ZwdGBToddI8pDm48kGimUQWHJ02J75vIv4IxssNZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIyLt_9l6EV8fdTfvYyZfqXj_-Ab01WzqiAw1FIkSKrzY/image-asset.png" data-image-dimensions="968x565" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="58767bd5440243a264421d0d" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>We can register a change to the search field, but now we need to figure out what is in the search field. To do so, we'll need to examine the event object that is automatically passed into our handleSearch function. The event has a target property, which refers to the element from which the event was triggered. In this case, the target is the entire search field. In jQuery when we have an input element and want to get its value, we call $('selector').val(). In React we call .value. Let's log the contents of the search field on keyup now.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; ">// src/components/Search</span>
+<span style="color:#800000; font-weight:bold; ">import</span> React from <span style="color:#800000; ">'</span><span style="color:#0000e6; ">react</span><span style="color:#800000; ">'</span><span style="color:#800080; ">;</span>
+
+<span style="color:#800000; font-weight:bold; ">class</span> Search <span style="color:#800000; font-weight:bold; ">extends</span> React<span style="color:#808030; ">.</span>Component <span style="color:#800080; ">{</span>
+
+  handleSearch<span style="color:#808030; ">(</span>event<span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span>
+    console<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">log</span><span style="color:#808030; ">(</span>event<span style="color:#808030; ">.</span>target<span style="color:#808030; ">.</span>value<span style="color:#808030; ">)</span>
+  <span style="color:#800080; ">}</span>
+
+  render<span style="color:#808030; ">(</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span>
+    <span style="color:#800000; font-weight:bold; ">return</span> <span style="color:#808030; ">(</span>
+      <span style="color:#808030; ">&lt;</span>div className<span style="color:#808030; ">=</span><span style="color:#800000; ">"</span><span style="color:#0000e6; ">row</span><span style="color:#800000; ">"</span><span style="color:#808030; ">&gt;</span>
+        <span style="color:#808030; ">&lt;</span>div className<span style="color:#808030; ">=</span><span style="color:#800000; ">"</span><span style="color:#0000e6; ">input-field</span><span style="color:#800000; ">"</span><span style="color:#808030; ">&gt;</span>
+          <span style="color:#808030; ">&lt;</span>label<span style="color:#808030; ">&gt;</span>Search<span style="color:#808030; ">&lt;</span><span style="color:#808030; ">/</span>label<span style="color:#808030; ">&gt;</span>
+          <span style="color:#808030; ">&lt;</span><span style="color:#797997; ">input</span> type<span style="color:#808030; ">=</span><span style="color:#800000; ">"</span><span style="color:#0000e6; ">text</span><span style="color:#800000; ">"</span> onKeyUp<span style="color:#808030; ">=</span><span style="color:#800080; ">{</span><span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">.</span>handleSearch<span style="color:#808030; ">.</span>bind<span style="color:#808030; ">(</span><span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">)</span><span style="color:#800080; ">}</span><span style="color:#808030; ">/</span><span style="color:#808030; ">&gt;</span>
+        <span style="color:#808030; ">&lt;</span><span style="color:#808030; ">/</span>div<span style="color:#808030; ">&gt;</span>
+      <span style="color:#808030; ">&lt;</span><span style="color:#808030; ">/</span>div<span style="color:#808030; ">&gt;</span>
+    <span style="color:#808030; ">)</span>
+  <span style="color:#800080; ">}</span>
+<span style="color:#800080; ">}</span>
+
+<span style="color:#800000; font-weight:bold; ">export</span> <span style="color:#800000; font-weight:bold; ">default</span> Search<span style="color:#800080; ">;</span>
+</pre>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:968px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:66.1156997680664%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484160450411-VJS7TJJI2GHQAJN78Y85/ke17ZwdGBToddI8pDm48kBP5KzDrNiRdOEfKnKjBD_BZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIfhYLqEz0gIWaBVm_UVdOKXx1Vl_wrlw4Snr_eIqyLLc/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484160450411-VJS7TJJI2GHQAJN78Y85/ke17ZwdGBToddI8pDm48kBP5KzDrNiRdOEfKnKjBD_BZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIfhYLqEz0gIWaBVm_UVdOKXx1Vl_wrlw4Snr_eIqyLLc/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484160450411-VJS7TJJI2GHQAJN78Y85/ke17ZwdGBToddI8pDm48kBP5KzDrNiRdOEfKnKjBD_BZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIfhYLqEz0gIWaBVm_UVdOKXx1Vl_wrlw4Snr_eIqyLLc/image-asset.png" data-image-dimensions="968x640" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="58767dc2cd0f689c9814ca66" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>This is fun, but we are still not searching. What we want to really do next is send the query we get from our search field back up to our App. We want to go into our App.js file because our search component is a sibling of the idea list. With React, my understanding is that messages get passed from child to parent component, but not between siblings. So our search component should not change the state of its sister component IdeaList.</p>
+<p>We'll add a searchIdeas function to our app and then pass it into the Search component as a property called search Ideas. In the code below "searchIdeas" is the property name. We then use curly brackets to pass in the function searchIdeas. We call searchIdeas from the object 'this' because the function belongs to our App. I think of it in pseudo code as doing App.searchIdeas. We are also binding this to the function call, because when the function is invoked we want to be able to access all the properties and state of the App. I think understanding the notion of 'this' is the toughest part of React.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; ">// App.js</span>
+  searchIdeas<span style="color:#808030; ">(</span>query<span style="color:#808030; ">)</span><span style="color:#800080; ">{</span>
+    console<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">log</span><span style="color:#808030; ">(</span><span style="color:#800000; ">"</span><span style="color:#0000e6; ">Our App knows the query: </span><span style="color:#800000; ">"</span> <span style="color:#808030; ">+</span> query<span style="color:#808030; ">)</span>
+  <span style="color:#800080; ">}</span>
+
+  render<span style="color:#808030; ">(</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span>
+    <span style="color:#800000; font-weight:bold; ">return</span> <span style="color:#808030; ">(</span>
+      <span style="color:#808030; ">&lt;</span>div className<span style="color:#808030; ">=</span><span style="color:#800000; ">'</span><span style="color:#0000e6; ">container</span><span style="color:#800000; ">'</span><span style="color:#808030; ">&gt;</span>
+        <span style="color:#808030; ">&lt;</span>CreateIdeaForm saveIdea<span style="color:#808030; ">=</span><span style="color:#800080; ">{</span> <span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">.</span>storeIdea<span style="color:#808030; ">.</span>bind<span style="color:#808030; ">(</span><span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span><span style="color:#808030; ">/</span><span style="color:#808030; ">&gt;</span>
+        <span style="color:#808030; ">&lt;</span>Search searchIdeas<span style="color:#808030; ">=</span><span style="color:#800080; ">{</span><span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">.</span>searchIdeas<span style="color:#808030; ">.</span>bind<span style="color:#808030; ">(</span><span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">)</span><span style="color:#800080; ">}</span><span style="color:#808030; ">/</span><span style="color:#808030; ">&gt;</span>
+        <span style="color:#808030; ">&lt;</span>IdeaList ideas<span style="color:#808030; ">=</span><span style="color:#800080; ">{</span><span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">.</span>state<span style="color:#808030; ">.</span>ideas<span style="color:#800080; ">}</span>
+                  destroy<span style="color:#808030; ">=</span><span style="color:#800080; ">{</span><span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">.</span>destroyIdea<span style="color:#808030; ">.</span>bind<span style="color:#808030; ">(</span><span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">)</span><span style="color:#800080; ">}</span>
+                  updateTitle<span style="color:#808030; ">=</span><span style="color:#800080; ">{</span><span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">.</span>updateTitle<span style="color:#808030; ">.</span>bind<span style="color:#808030; ">(</span><span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">)</span><span style="color:#800080; ">}</span>
+                  updateBody<span style="color:#808030; ">=</span><span style="color:#800080; ">{</span><span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">.</span>updateBody<span style="color:#808030; ">.</span>bind<span style="color:#808030; ">(</span><span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">)</span><span style="color:#800080; ">}</span><span style="color:#808030; ">/</span><span style="color:#808030; ">&gt;</span>
+      <span style="color:#808030; ">&lt;</span><span style="color:#808030; ">/</span>div<span style="color:#808030; ">&gt;</span>
+    <span style="color:#808030; ">)</span><span style="color:#800080; ">;</span>
+  <span style="color:#800080; ">}</span>
+</pre>
+<p>Now back in our search component, we'll pass our query string up to the searchIdeas function in our App. To access the searchIdeas function we pass into the Search component, we need to use the props property on the Search component. We'll do so by writing:</p>
+<pre style="color:#000000;background:#ffffff;">handleSearch<span style="color:#808030; ">(</span>event<span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span>
+    <span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">.</span>props<span style="color:#808030; ">.</span>searchIdeas<span style="color:#808030; ">(</span>event<span style="color:#808030; ">.</span>target<span style="color:#808030; ">.</span>value<span style="color:#808030; ">)</span>
+  <span style="color:#800080; ">}</span>
+</pre>
+<p>Here 'this' is our Search component. We created our Search component with the property "searchIdeas". This property points to the searchIdeas function in our App and expects a string argument.</p>
+<p>If everything is wired up, we should still be logging the query on key up, but the logging is happening in the app, not the handleSearch function in our Search component.</p>
+<p>Next we need to actually search our ideas. To do so we are going to need to understand a little more about how ideas are actually stored in this application. We are using local storage to hold the ideas so that when a user comes back to the page or refreshes they still can see their ideas. </p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; ">// App.js</span>
+  componentDidMount<span style="color:#808030; ">(</span><span style="color:#808030; ">)</span><span style="color:#800080; ">{</span>
+    <span style="color:#800000; font-weight:bold; ">const</span> ideas <span style="color:#808030; ">=</span> JSON<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">parse</span><span style="color:#808030; ">(</span>localStorage<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">getItem</span><span style="color:#808030; ">(</span><span style="color:#800000; ">'</span><span style="color:#0000e6; ">ideas</span><span style="color:#800000; ">'</span><span style="color:#808030; ">)</span><span style="color:#808030; ">)</span> <span style="color:#808030; ">||</span> <span style="color:#808030; ">[</span><span style="color:#808030; ">]</span>
+    <span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">.</span>setState<span style="color:#808030; ">(</span><span style="color:#800080; ">{</span> ideas<span style="color:#800080; ">:</span> ideas<span style="color:#808030; ">,</span> allIdeas<span style="color:#800080; ">:</span> ideas<span style="color:#800080; ">}</span><span style="color:#808030; ">)</span>
+  <span style="color:#800080; ">}</span>
+</pre>
+<p>Our App.js component has a componentDidMount function, which is part of React. This function is automatically run just before the component is rendered on the page. In this function we are saying go into local storage, find the ideas and store them in the state of the application. We are storing them twice, first as the ideas property of our App's state and second as the allIdeas property. I think this makes getting all the ideas back on the page once a user is finished searching pretty simple.</p>
+<p>Let's add the following code to our searchIdeas function.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; ">// App.js</span>
+  searchIdeas<span style="color:#808030; ">(</span>query<span style="color:#808030; ">)</span><span style="color:#800080; ">{</span>
+    <span style="color:#800000; font-weight:bold; ">let</span> ideas <span style="color:#808030; ">=</span> <span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">.</span>state<span style="color:#808030; ">.</span>allIdeas<span style="color:#808030; ">.</span>filter<span style="color:#808030; ">(</span><span style="color:#808030; ">(</span>idea<span style="color:#808030; ">)</span> <span style="color:#808030; ">=</span><span style="color:#808030; ">&gt;</span> <span style="color:#800080; ">{</span>
+      <span style="color:#800000; font-weight:bold; ">return</span> idea<span style="color:#808030; ">.</span>title<span style="color:#808030; ">.</span>includes<span style="color:#808030; ">(</span>query<span style="color:#808030; ">)</span> <span style="color:#808030; ">||</span> idea<span style="color:#808030; ">.</span>body<span style="color:#808030; ">.</span>includes<span style="color:#808030; ">(</span>query<span style="color:#808030; ">)</span>
+    <span style="color:#800080; ">}</span><span style="color:#808030; ">)</span><span style="color:#800080; ">;</span>
+    console<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">log</span><span style="color:#808030; ">(</span>ideas<span style="color:#808030; ">)</span>
+  <span style="color:#800080; ">}</span>
+</pre>
+<p>In the above code, we are creating a variable called ideas. We are setting ideas to equal a filtered list of allIdeas stored in state. We are filtering for title or body text that includes our search query. Next we are logging these ideas to the console.  When I test out my search with the query '4' I should see all of the ideas with the string '4' in either the title or the body logged to console:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:995px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:54.67336654663086%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484162828304-YGOU72PTV2WURYVWTC7K/ke17ZwdGBToddI8pDm48kEwv6OgLSJ7PdKkmNvgp6NNZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PILYtmG_MbcpWM7hGCE3aq70QSQySOf9JhIEO3au0mVJw/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484162828304-YGOU72PTV2WURYVWTC7K/ke17ZwdGBToddI8pDm48kEwv6OgLSJ7PdKkmNvgp6NNZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PILYtmG_MbcpWM7hGCE3aq70QSQySOf9JhIEO3au0mVJw/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484162828304-YGOU72PTV2WURYVWTC7K/ke17ZwdGBToddI8pDm48kEwv6OgLSJ7PdKkmNvgp6NNZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PILYtmG_MbcpWM7hGCE3aq70QSQySOf9JhIEO3au0mVJw/image-asset.png" data-image-dimensions="995x544" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5876870c1e5b6cf2528cb57d" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Notice how there is one object in the ideas array that is logging to console. That is because only one of my ideas has the string '4' in either the title or the body. If I type 'great' I get three ideas logged to console because three ideas have the word 'great' in the title or body.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1630px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:33.12883377075195%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484162940940-3Z9LO28WG34W2LI8UU6K/ke17ZwdGBToddI8pDm48kMpKSJIXJCIvOjz6fdlhWZcUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dkRSfJ5OImVnZ10LmCZqs7IlxabPNuAhntAJr33T17viCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484162940940-3Z9LO28WG34W2LI8UU6K/ke17ZwdGBToddI8pDm48kMpKSJIXJCIvOjz6fdlhWZcUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dkRSfJ5OImVnZ10LmCZqs7IlxabPNuAhntAJr33T17viCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484162940940-3Z9LO28WG34W2LI8UU6K/ke17ZwdGBToddI8pDm48kMpKSJIXJCIvOjz6fdlhWZcUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dkRSfJ5OImVnZ10LmCZqs7IlxabPNuAhntAJr33T17viCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1630x540" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5876877c9de4bbfaebb6cf91" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>We are filtering! Now the only thing left to do is update the page so only ideas that match our search criteria are visible. This is where React really shines. In jQuery I'd have to hide or show each idea, but React just does that for us. All we need to do is update the state of our App and the entire App will render any new changes. It is magic.</p>
+<pre style="color:#000000;background:#ffffff;">searchIdeas<span style="color:#808030; ">(</span>query<span style="color:#808030; ">)</span><span style="color:#800080; ">{</span>
+    <span style="color:#800000; font-weight:bold; ">let</span> ideas <span style="color:#808030; ">=</span> <span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">.</span>state<span style="color:#808030; ">.</span>allIdeas<span style="color:#808030; ">.</span>filter<span style="color:#808030; ">(</span><span style="color:#808030; ">(</span>idea<span style="color:#808030; ">)</span> <span style="color:#808030; ">=</span><span style="color:#808030; ">&gt;</span> <span style="color:#800080; ">{</span>
+      <span style="color:#800000; font-weight:bold; ">return</span> idea<span style="color:#808030; ">.</span>title<span style="color:#808030; ">.</span>includes<span style="color:#808030; ">(</span>query<span style="color:#808030; ">)</span> <span style="color:#808030; ">||</span> idea<span style="color:#808030; ">.</span>body<span style="color:#808030; ">.</span>includes<span style="color:#808030; ">(</span>query<span style="color:#808030; ">)</span>
+    <span style="color:#800080; ">}</span><span style="color:#808030; ">)</span><span style="color:#800080; ">;</span>
+    <span style="color:#800000; font-weight:bold; ">this</span><span style="color:#808030; ">.</span>setState<span style="color:#808030; ">(</span><span style="color:#800080; ">{</span>ideas<span style="color:#800080; ">:</span> ideas<span style="color:#800080; ">}</span><span style="color:#808030; ">)</span>
+  <span style="color:#800080; ">}</span>
+</pre>
+<p>The this.setState function automatically re-renders the app on the page for us. Now when I search for the word 'great' I will only see the ideas with that string in their title or body.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1352px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:45.48816680908203%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484163141872-B6H8NPEIY1BB27KYUG5U/ke17ZwdGBToddI8pDm48kM83cEgbqWt7ca35dDg2mbcUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcr1pZyl_6yq1ZKS5zIIADc9JVE3118WRcWnqYMqCh-UPE1Deyz1J-vl-m1X9OU_yS/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484163141872-B6H8NPEIY1BB27KYUG5U/ke17ZwdGBToddI8pDm48kM83cEgbqWt7ca35dDg2mbcUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcr1pZyl_6yq1ZKS5zIIADc9JVE3118WRcWnqYMqCh-UPE1Deyz1J-vl-m1X9OU_yS/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1484163141872-B6H8NPEIY1BB27KYUG5U/ke17ZwdGBToddI8pDm48kM83cEgbqWt7ca35dDg2mbcUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcr1pZyl_6yq1ZKS5zIIADc9JVE3118WRcWnqYMqCh-UPE1Deyz1J-vl-m1X9OU_yS/image-asset.png" data-image-dimensions="1352x615" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="58768845579fb3ba209c5f88" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>The change to the page feels instantaneous.</p>
+<h3>Final thoughts</h3>
+<p dir="ltr">React is such an interesting technology. I'm really enjoying learning it and getting a better understanding of the advantages it offers. Thanks for following along!</p>
+</body></html>

@@ -1,0 +1,539 @@
+---
+layout: post
+title: CarrierWave, Fog, and Google Cloud Storage
+categories:
+- Technical
+tags:
+- Rails
+- Ruby
+- CarrierWave
+- Google Cloud
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '72'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1>How to Integrate CarrierWave, Fog, and Google Cloud Storage for all of your Photo Upload needs</h1>
+<p>In this post I will outline the steps necessary to implement a photo upload feature in a Rails application using CarrierWave, Fog, and Google Cloud Storage. <a href="https://github.com/carrierwaveuploader/carrierwave">CarrierWave</a> is "a simple and extremely flexible way to upload files from Ruby applications." <a href="https://github.com/fog/fog">Fog</a> "is the Ruby cloud services library", and <a href="https://cloud.google.com/storage/?utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=2015-q2-cloud-na-storage-bkws-freetrial-en&amp;gclid=Cj0KEQiA2uDEBRDxurOO77Cp-7kBEiQAOUgKV3I_qTDDTJkdWUTwkI2IA5-yW5nTFryh0oy1hyuyi6saAq1q8P8HAQ">Google Cloud Storage</a> is something I seem to be obsessed with while everyone else prefers AWS.</p>
+<h3>Gems</h3>
+<p>Let's start by adding some gems to our Gemfile:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'carrierwave'</span>
+<span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'fog'</span>
+<span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'mini_magick'</span>
+</pre>
+<p>Mini_magick will be used to handle any image processing we may want to implement. There are other options, I went with Mini_magick. Next from terminal run:</p>
+<p><code>Bundle</code></p>
+<h3>TESTING</h3>
+<p>Next we'll write a feature test to drive our development.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/features/photo__upload_spec.rb</span>
+require <span style="color:#0000e6; ">'rails_helper'</span>
+
+RSpec<span style="color:#808030; ">.</span>feature <span style="color:#0000e6; ">"admin uploads photo"</span><span style="color:#800000; font-weight:bold; "> do</span>
+  context <span style="color:#0000e6; ">"completes the photos#new form"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    it <span style="color:#0000e6; ">"redirects to the new photo's show page"</span><span style="color:#800000; font-weight:bold; "> do</span>
+      Fog<span style="color:#808030; ">.</span>mock!
+      Fog<span style="color:#808030; ">::</span>Mock<span style="color:#808030; ">.</span>delay <span style="color:#808030; ">=</span> <span style="color:#008c00; ">0</span>
+      service <span style="color:#808030; ">=</span> Fog<span style="color:#808030; ">::</span>Storage<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#800080; ">{</span>
+        <span style="color:#005fd2; ">provider</span>: <span style="color:#0000e6; ">'Google'</span><span style="color:#808030; ">,</span>
+        <span style="color:#005fd2; ">google_storage_access_key_id</span>: ENV<span style="color:#808030; ">[</span><span style="color:#0000e6; ">'google_storage_access_key_id'</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span>
+        <span style="color:#005fd2; ">google_storage_secret_access_key</span>: ENV<span style="color:#808030; ">[</span><span style="color:#0000e6; ">'google_storage_secret_access_key'</span><span style="color:#808030; ">]</span>
+      <span style="color:#800080; ">}</span><span style="color:#808030; ">)</span>
+      service<span style="color:#808030; ">.</span>directories<span style="color:#808030; ">.</span>create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">key</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">'photo-of-the-day'</span><span style="color:#808030; ">)</span>
+      admin <span style="color:#808030; ">=</span> create :<span style="color:#005fd2; ">admin</span>
+      sign_in admin
+      visit new_photo_path
+
+      fill_in <span style="color:#0000e6; ">"Title"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">"My photo title"</span>
+      fill_in <span style="color:#0000e6; ">"Caption"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">"My photo caption"</span>
+      fill_in <span style="color:#0000e6; ">"Date"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">"2015-12-29"</span>
+      attach_file <span style="color:#0000e6; ">"photo[image]"</span><span style="color:#808030; ">,</span> Rails<span style="color:#808030; ">.</span>root <span style="color:#808030; ">+</span> <span style="color:#0000e6; ">"spec/fixtures/dummy.png"</span>
+      click_button <span style="color:#0000e6; ">"Upload"</span>
+
+      expect<span style="color:#808030; ">(</span>current_path<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span>photo_path<span style="color:#808030; ">(</span>Photo<span style="color:#808030; ">.</span><span style="color:#400000; ">last</span><span style="color:#808030; ">)</span><span style="color:#808030; ">)</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Ignoring the Fog.mock! and admin stuff for a second and just starting with:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/features/photo__upload_spec.rb</span>
+require <span style="color:#0000e6; ">'rails_helper'</span>
+
+RSpec<span style="color:#808030; ">.</span>feature <span style="color:#0000e6; ">"admin uploads photo"</span><span style="color:#800000; font-weight:bold; "> do</span>
+  context <span style="color:#0000e6; ">"completes the photos#new form"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    it <span style="color:#0000e6; ">"redirects to the new photo's show page"</span><span style="color:#800000; font-weight:bold; "> do</span>
+      <span style="color:#808030; ">.</span><span style="color:#808030; ">.</span><span style="color:#808030; ">.</span>
+      visit new_photo_path
+
+      fill_in <span style="color:#0000e6; ">"Title"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">"My photo title"</span>
+      fill_in <span style="color:#0000e6; ">"Caption"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">"My photo caption"</span>
+      fill_in <span style="color:#0000e6; ">"Date"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">"2015-12-29"</span>
+      attach_file <span style="color:#0000e6; ">"photo[image]"</span><span style="color:#808030; ">,</span> Rails<span style="color:#808030; ">.</span>root <span style="color:#808030; ">+</span> <span style="color:#0000e6; ">"spec/fixtures/dummy.png"</span>
+      click_button <span style="color:#0000e6; ">"Upload"</span>
+
+      expect<span style="color:#808030; ">(</span>current_path<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span>photo_path<span style="color:#808030; ">(</span>Photo<span style="color:#808030; ">.</span><span style="color:#400000; ">last</span><span style="color:#808030; ">)</span><span style="color:#808030; ">)</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>This should look like a fairly straightforward RSpec feature test with capybara. We are having capybara fill in a title, caption, date, and then attach a file, which we have stored in our spec/fixtures directory. Lastly we have capybara click the "upload" button and then we assert that the current path should be the photo show page for the photo we just created.</p>
+<p>Next let's take a closer look at the admin piece.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/features/photo__upload_spec.rb</span>
+
+require <span style="color:#0000e6; ">'rails_helper'</span>
+
+RSpec<span style="color:#808030; ">.</span>feature <span style="color:#0000e6; ">"admin uploads photo"</span><span style="color:#800000; font-weight:bold; "> do</span>
+  context <span style="color:#0000e6; ">"completes the photos#new form"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    it <span style="color:#0000e6; ">"redirects to the new photo's show page"</span><span style="color:#800000; font-weight:bold; "> do</span>
+      <span style="color:#808030; ">.</span><span style="color:#808030; ">.</span><span style="color:#808030; ">.</span>
+      admin <span style="color:#808030; ">=</span> create :<span style="color:#005fd2; ">admin</span>
+      sign_in admin
+      <span style="color:#808030; ">.</span><span style="color:#808030; ">.</span><span style="color:#808030; ">.</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>These two lines of code are just meant to create an admin type user using <a href="https://github.com/thoughtbot/factory_girl">FactoryGirl</a> and then sign the admin into the application using the <a href="https://github.com/plataformatec/devise">Devise</a> sign_in method. In my application, I want only admin to be able to use this feature, hence the authorization portion of this feature test. If all users should be able to upload photos, these lines would not be necessary.</p>
+<p>Now the fun part. Fog has a mock feature which allows you to run your test without actually uploading a file to your cloud storage destination of choice. It is important to mock this feature in order to speed up the test suite and keep your online cloud storage bucket free of detritus. </p>
+<p>The configuration for Fog.mock! is actually very simple. You can extract this into a spec_helper file if that makes more sense to you, but since I only have one photo upload feature, I only have this one test to mock.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/features/photo__upload_spec.rb</span>
+
+require <span style="color:#0000e6; ">'rails_helper'</span>
+
+RSpec<span style="color:#808030; ">.</span>feature <span style="color:#0000e6; ">"admin uploads photo"</span><span style="color:#800000; font-weight:bold; "> do</span>
+  context <span style="color:#0000e6; ">"completes the photos#new form"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    it <span style="color:#0000e6; ">"redirects to the new photo's show page"</span><span style="color:#800000; font-weight:bold; "> do</span>
+      Fog<span style="color:#808030; ">.</span>mock!
+      Fog<span style="color:#808030; ">::</span>Mock<span style="color:#808030; ">.</span>delay <span style="color:#808030; ">=</span> <span style="color:#008c00; ">0</span>
+      service <span style="color:#808030; ">=</span> Fog<span style="color:#808030; ">::</span>Storage<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#800080; ">{</span>
+        <span style="color:#005fd2; ">provider</span>: <span style="color:#0000e6; ">'Google'</span><span style="color:#808030; ">,</span>
+        <span style="color:#005fd2; ">google_storage_access_key_id</span>: ENV<span style="color:#808030; ">[</span><span style="color:#0000e6; ">'google_storage_access_key_id'</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span>
+        <span style="color:#005fd2; ">google_storage_secret_access_key</span>: ENV<span style="color:#808030; ">[</span><span style="color:#0000e6; ">'google_storage_secret_access_key'</span><span style="color:#808030; ">]</span>
+      <span style="color:#800080; ">}</span><span style="color:#808030; ">)</span>
+      service<span style="color:#808030; ">.</span>directories<span style="color:#808030; ">.</span>create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">key</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">'photo-of-the-day'</span><span style="color:#808030; ">)</span>
+      <span style="color:#808030; ">.</span><span style="color:#808030; ">.</span><span style="color:#808030; ">.</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The above configuration says that first, we are going to run Fog in mock mode. Next we are going to apply a delay of 0, which I believe means that Fog will not mimic the actual delay required to upload a photo to a cloud storage provider. Next we provide our cloud storage credentials. This is the most important part. The credentials must match the credentials that we use for the actual upload. I have chosen to store my credentials with the <a href="https://github.com/laserlemon/figaro">Figaro</a> gem as environment variables. There are other ways to do this, but this is my preferred method.</p>
+<h3>CarrierWave Configuration</h3>
+<p>Next let's set up our CarrierWave initializer. Start by creating a config/carrierwave.rb file. </p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; ">#config/carrierwave.rb</span>
+CarrierWave<span style="color:#808030; ">.</span>configure<span style="color:#800000; font-weight:bold; "> do</span> |config|
+  config<span style="color:#808030; ">.</span>fog_credentials <span style="color:#808030; ">=</span> <span style="color:#800080; ">{</span>
+    <span style="color:#005fd2; ">provider</span>: <span style="color:#0000e6; ">'Google'</span><span style="color:#808030; ">,</span>
+    <span style="color:#005fd2; ">google_storage_access_key_id</span>: ENV<span style="color:#808030; ">[</span><span style="color:#0000e6; ">'google_storage_access_key_id'</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span>
+    <span style="color:#005fd2; ">google_storage_secret_access_key</span>: ENV<span style="color:#808030; ">[</span><span style="color:#0000e6; ">'google_storage_secret_access_key'</span><span style="color:#808030; ">]</span>
+  <span style="color:#800080; ">}</span>
+  config<span style="color:#808030; ">.</span>fog_directory <span style="color:#808030; ">=</span> <span style="color:#0000e6; ">'photo-of-the-day'</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Add a credentials hash to your config (config.fog_credentials = {}). Again I use my environment variables just as I did in the test. The config.fog_directory is the name of the cloud storage bucket into which I would like to upload my files.</p>
+<h3>Google Cloud</h3>
+<p>Setting up Cloud Storage on Google's Cloud platform is nicely documented <a href="https://cloud.google.com/storage/docs/creating-buckets">here</a>. Once you have a Cloud Storage instance up and running, you just need to get an API key and secret, which can be a little hard to find.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:924px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:65.69264221191406%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1486431481227-BGK8AWW76U6GSEFASP04/ke17ZwdGBToddI8pDm48kC2B9OjHeG1ZfVS8W7BMHRRZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PILkRdlBzoVbMpsdzp0Y_SI4bYddO3OtsDu2HmRBikA18KMshLAGzx4R3EDFOm1kBS/image-asset.jpeg" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1486431481227-BGK8AWW76U6GSEFASP04/ke17ZwdGBToddI8pDm48kC2B9OjHeG1ZfVS8W7BMHRRZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PILkRdlBzoVbMpsdzp0Y_SI4bYddO3OtsDu2HmRBikA18KMshLAGzx4R3EDFOm1kBS/image-asset.jpeg" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1486431481227-BGK8AWW76U6GSEFASP04/ke17ZwdGBToddI8pDm48kC2B9OjHeG1ZfVS8W7BMHRRZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PILkRdlBzoVbMpsdzp0Y_SI4bYddO3OtsDu2HmRBikA18KMshLAGzx4R3EDFOm1kBS/image-asset.jpeg" data-image-dimensions="924x607" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="589924f820099e826d2a304f" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>From Cloud Storage, go to settings, and then interoperability. Click "Create a new key". Boom. Again, I put this information in my application.yml file using Figaro so I can reference these codes securely throughout my application.</p>
+<h3>Generate an Uploader</h3>
+<p>I've already set up my photo model with a handy:</p>
+<p><code>rails g model Photo title caption date:date image</code></p>
+<p>The above command after running your migration will yield the following schema:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; ">#db/schema.rb</span>
+  create_table <span style="color:#0000e6; ">"photos"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">force</span>: :<span style="color:#005fd2; ">cascade</span><span style="color:#800000; font-weight:bold; "> do</span> |t|
+    t<span style="color:#808030; ">.</span><span style="color:#400000; ">string</span>   <span style="color:#0000e6; ">"title"</span>
+    t<span style="color:#808030; ">.</span><span style="color:#400000; ">string</span>   <span style="color:#0000e6; ">"caption"</span>
+    t<span style="color:#808030; ">.</span>date     <span style="color:#0000e6; ">"date"</span>
+    t<span style="color:#808030; ">.</span><span style="color:#400000; ">string</span>   <span style="color:#0000e6; ">"image"</span>
+    t<span style="color:#808030; ">.</span>datetime <span style="color:#0000e6; ">"created_at"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">null</span>: <span style="color:#800000; font-weight:bold; ">false</span>
+    t<span style="color:#808030; ">.</span>datetime <span style="color:#0000e6; ">"updated_at"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">null</span>: <span style="color:#800000; font-weight:bold; ">false</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>For my application  I want every photo object to have a title, caption, and date (which could be different from the created_at / updated_at timestamps). Then I will actually store the photo under the attribute "image" which is of datatype string.</p>
+<p>So now we'll follow the CarrierWave documentation and run:</p>
+<p><code>rails generate uploader Image</code></p>
+<p>"Image" corresponds to the image attribute on our photo model. Running this command will create an "app/uploaders" directory with a "image_uploader.rb" file. Here are the contents of my image_uploader.rb file:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># app/uploaders/image_uploader.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> ImageUploader &lt; CarrierWave<span style="color:#808030; ">::</span>Uploader<span style="color:#808030; ">::</span>Base
+
+  include CarrierWave<span style="color:#808030; ">::</span>MiniMagick
+  storage :<span style="color:#005fd2; ">fog</span>
+  <span style="color:#800000; font-weight:bold; ">def</span> store_dir
+  <span style="color:#800000; font-weight:bold; ">end</span>
+  version :<span style="color:#005fd2; ">thumb</span><span style="color:#800000; font-weight:bold; "> do</span>
+    process <span style="color:#005fd2; ">resize_to_fit</span>: <span style="color:#808030; ">[</span><span style="color:#008c00; ">300</span><span style="color:#808030; ">,</span> <span style="color:#008c00; ">300</span><span style="color:#808030; ">]</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">def</span> extension_whitelist
+    <span style="color:#0000e6; ">%w(jpg jpeg gif png)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">def</span> filename
+    <span style="color:#0000e6; ">"</span><span style="color:#000000; background:#ffffe8; ">#{model</span><span style="color:#808030; background:#ffffe8; ">.</span><span style="color:#000000; background:#ffffe8; ">date}</span><span style="color:#0000e6; ">-</span><span style="color:#000000; background:#ffffe8; ">#{model</span><span style="color:#808030; background:#ffffe8; ">.</span><span style="color:#000000; background:#ffffe8; ">title}</span><span style="color:#0000e6; ">-</span><span style="color:#000000; background:#ffffe8; ">#{</span><span style="color:#bb7977; background:#ffffe8; font-weight:bold; ">Time</span><span style="color:#808030; background:#ffffe8; ">.</span><span style="color:#400000; background:#ffffe8; ">now</span><span style="color:#808030; background:#ffffe8; ">.</span><span style="color:#400000; background:#ffffe8; ">getutc</span><span style="color:#808030; background:#ffffe8; ">.</span><span style="color:#400000; background:#ffffe8; ">to_s</span><span style="color:#000000; background:#ffffe8; ">}</span><span style="color:#0000e6; ">"</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>When the file generates, there will be lots of commented out documentation to help you customize the CarrierWave configuration. Let's go line by line to understand what is going on.</p>
+<p>First I'm including MiniMagick to handle image processing because in addition to the original version of the image, I also want to have a thumbnail of the image created upon upload.</p>
+<p>Next I am telling CarrierWave that I want to use ":fog" as my storage. CarrierWave plays nicely with Fog and a great number of cloud storage providers.</p>
+<p>Next I describe the thumbnail version of the photo that I want to create which is sized at 300 x 300.</p>
+<p>Next I list the file types I would like CarrierWave to handle. So with this configuration CarrierWave will reject non-image file types.</p>
+<p>Last I describe the file naming convention I would like to apply. In this case it is a concatenation of the image's date, title, and then the current time.</p>
+<h3>Add Uploader to the Model</h3>
+<p>Next we have to add the uploader we just created to our Photo model. To do so we'll just add the following code.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># app/models/photo.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> Photo &lt; ApplicationRecord
+  mount_uploader :<span style="color:#005fd2; ">image</span><span style="color:#808030; ">,</span> ImageUploader
+
+  validates_presence_of :<span style="color:#005fd2; ">title</span>
+  validates_presence_of :<span style="color:#005fd2; ">caption</span>
+  validates_presence_of :<span style="color:#005fd2; ">date</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The validations are clearly application specific, but there is one notable point to make here. Notice how I validate for presence of all of my photo attributes except :image. Calling photo.image will actually return nil, so the validation test with <a href="https://github.com/thoughtbot/shoulda-matchers">shoulda_matchers</a> will fail. To determine if an image is attached to the photo, the CarrierWave documentation suggests calling photo.image.file.nil?</p>
+<h3>Routes</h3>
+<p>Let's add the following line to our config/routes.rb file.</p>
+<p><code>resources :photos, only: [:new, :create, :show]</code></p>
+<h3>Photo Controller</h3>
+<p>Moving on to our app/controller/photos_controller.rb we see there is not anything special we need to do, CarrierWave and Fog make the magic happen.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># app/controller/photos_controller.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> PhotosController &lt; ApplicationController
+  <span style="color:#800000; font-weight:bold; ">def</span> new
+    @photo <span style="color:#808030; ">=</span> Photo<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> create
+    @photo <span style="color:#808030; ">=</span> Photo<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span>photo_params<span style="color:#808030; ">)</span>
+<span style="color:#800000; font-weight:bold; ">    if</span> @photo<span style="color:#808030; ">.</span>save
+      redirect_to photo_path<span style="color:#808030; ">(</span>@photo<span style="color:#808030; ">)</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> show
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  private
+
+  <span style="color:#800000; font-weight:bold; ">def</span> photo_params
+    params<span style="color:#808030; ">.</span>require<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">photo</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>permit<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">title</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">caption</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">date</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">image</span><span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<h3>Add Views</h3>
+<p>First lets add an app/view/photos/new.html.erb view to hold our upload form.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># app/views/photos/new.html.erb</span>
+&lt;<span style="color:#400000; ">div</span> <span style="color:#800000; font-weight:bold; ">class</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"container"</span>&gt;
+  &lt;h3&gt;New Photo of the Day&lt;<span style="color:#808030; ">/</span>h3&gt;
+  &lt;<span style="color:#400000; ">div</span> <span style="color:#800000; font-weight:bold; ">class</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"row"</span>&gt;
+    &lt;<span style="color:#3f5fbf; ">%= form_for @photo, multiple: true do |f| %&gt;</span>
+<span style="color:#3f5fbf; "></span>
+<span style="color:#3f5fbf; ">      &lt;div class=</span><span style="color:#0000e6; ">"input-field"</span>&gt;
+        &lt;<span style="color:#3f5fbf; ">%= f.label :title %&gt;</span>
+<span style="color:#3f5fbf; ">        &lt;%=</span> f<span style="color:#808030; ">.</span>text_field :<span style="color:#005fd2; ">title</span> %&gt;
+      &lt;<span style="color:#808030; ">/</span><span style="color:#400000; ">div</span>&gt;
+
+      &lt;<span style="color:#400000; ">div</span> <span style="color:#800000; font-weight:bold; ">class</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"input-field"</span>&gt;
+        &lt;<span style="color:#3f5fbf; ">%= f.label :caption %&gt;</span>
+<span style="color:#3f5fbf; ">        &lt;%=</span> f<span style="color:#808030; ">.</span>text_area :<span style="color:#005fd2; ">caption</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">class</span>: <span style="color:#0000e6; ">"materialize-textarea"</span> %&gt;
+      &lt;<span style="color:#808030; ">/</span><span style="color:#400000; ">div</span>&gt;
+
+      &lt;<span style="color:#3f5fbf; ">%= f.label :date %&gt;</span>
+<span style="color:#3f5fbf; ">      &lt;%=</span> f<span style="color:#808030; ">.</span>date_field :<span style="color:#005fd2; ">date</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">class</span>: <span style="color:#0000e6; ">"datepicker"</span>%&gt;
+
+      &lt;<span style="color:#400000; ">div</span> <span style="color:#800000; font-weight:bold; ">class</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"file-field input-field"</span>&gt;
+        &lt;<span style="color:#400000; ">div</span> <span style="color:#800000; font-weight:bold; ">class</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"btn btn-flat waves-effect waves-light cyan accent-2"</span>&gt;
+          &lt;span&gt;<span style="color:#bb7977; font-weight:bold; ">File</span>&lt;<span style="color:#808030; ">/</span>span&gt;
+          &lt;<span style="color:#3f5fbf; ">%= f.file_field :image %&gt;</span>
+<span style="color:#3f5fbf; ">        &lt;/div&gt;</span>
+<span style="color:#3f5fbf; ">        &lt;div class=</span><span style="color:#0000e6; ">"file-path-wrapper"</span>&gt;
+          &lt;input <span style="color:#800000; font-weight:bold; ">class</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"file-path validate"</span> type<span style="color:#808030; ">=</span><span style="color:#0000e6; ">"text"</span>&gt;
+        &lt;<span style="color:#808030; ">/</span><span style="color:#400000; ">div</span>&gt;
+      &lt;<span style="color:#808030; ">/</span><span style="color:#400000; ">div</span>&gt;
+
+      &lt;<span style="color:#400000; ">div</span> <span style="color:#800000; font-weight:bold; ">class</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"input-field center-align"</span>&gt;
+        &lt;<span style="color:#3f5fbf; ">%= f.submit "Upload", class: "btn waves-effect waves-light cyan darken-3"  %&gt;</span>
+<span style="color:#3f5fbf; ">      &lt;/div&gt;</span>
+<span style="color:#3f5fbf; "></span>
+<span style="color:#3f5fbf; ">    &lt;% end %&gt;</span>
+<span style="color:#3f5fbf; ">  &lt;/div&gt;</span>
+<span style="color:#3f5fbf; ">&lt;/div&gt;</span>
+</pre>
+<p>And we'll just add app/view/photos/show.html.erb view, which for now we'll leave blank because our test does not specifically look for any content on this page.</p>
+<h3>Run the test</h3>
+<p>Next I comment out the Fog.mock!, run the test, and check my Cloud Storage for the file. I do this to make sure that the test runs and actually uploads an image into Cloud Storage.</p>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'rails_helper'</span>
+
+RSpec<span style="color:#808030; ">.</span>feature <span style="color:#0000e6; ">"admin uploads photo"</span><span style="color:#800000; font-weight:bold; "> do</span>
+  context <span style="color:#0000e6; ">"completes the photos#new form"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    it <span style="color:#0000e6; ">"redirects to the new photo's show page"</span><span style="color:#800000; font-weight:bold; "> do</span>
+      <span style="color:#696969; "># Fog.mock!</span>
+      <span style="color:#696969; "># Fog::Mock.delay = 0</span>
+      <span style="color:#696969; "># service = Fog::Storage.new({</span>
+      <span style="color:#696969; ">#   provider: 'Google',</span>
+      <span style="color:#696969; ">#   google_storage_access_key_id: ENV['google_storage_access_key_id'],</span>
+      <span style="color:#696969; ">#   google_storage_secret_access_key: ENV['google_storage_secret_access_key']</span>
+      <span style="color:#696969; "># })</span>
+      <span style="color:#696969; "># service.directories.create(:key =&gt; 'photo-of-the-day')</span>
+      admin <span style="color:#808030; ">=</span> create :<span style="color:#005fd2; ">admin</span>
+      sign_in admin
+      visit new_photo_path
+
+      fill_in <span style="color:#0000e6; ">"Title"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">"My photo title"</span>
+      fill_in <span style="color:#0000e6; ">"Caption"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">"My photo caption"</span>
+      fill_in <span style="color:#0000e6; ">"Date"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">"2015-12-29"</span>
+      attach_file <span style="color:#0000e6; ">"photo[image]"</span><span style="color:#808030; ">,</span> Rails<span style="color:#808030; ">.</span>root <span style="color:#808030; ">+</span> <span style="color:#0000e6; ">"spec/fixtures/dummy.png"</span>
+      click_button <span style="color:#0000e6; ">"Upload"</span>
+
+      expect<span style="color:#808030; ">(</span>current_path<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span>photo_path<span style="color:#808030; ">(</span>Photo<span style="color:#808030; ">.</span><span style="color:#400000; ">last</span><span style="color:#808030; ">)</span><span style="color:#808030; ">)</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Notice that the run time below is 1.61 seconds without mocking the actual file upload.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:9.800000190734863%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1486439014237-0D8WRSNLT7YB82EC2PMX/ke17ZwdGBToddI8pDm48kCDd56_DyzdcJYmV5crYJjMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnM1DFoveIsjZa5s-6aNTcO-JBzoQwTJjGWmwXKT7Em-_3ZlFYu4yFJOEIjRLrzWKxg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1486439014237-0D8WRSNLT7YB82EC2PMX/ke17ZwdGBToddI8pDm48kCDd56_DyzdcJYmV5crYJjMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnM1DFoveIsjZa5s-6aNTcO-JBzoQwTJjGWmwXKT7Em-_3ZlFYu4yFJOEIjRLrzWKxg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1486439014237-0D8WRSNLT7YB82EC2PMX/ke17ZwdGBToddI8pDm48kCDd56_DyzdcJYmV5crYJjMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnM1DFoveIsjZa5s-6aNTcO-JBzoQwTJjGWmwXKT7Em-_3ZlFYu4yFJOEIjRLrzWKxg/image-asset.png" data-image-dimensions="2500x245" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="589942642994ca38f17970ad" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>And here are the two files, the uploaded original copy and the processed thumbnail in my cloud storage.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:19.32000160217285%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1486439027530-WS8QO8CA7218M24H58U7/ke17ZwdGBToddI8pDm48kJEeivKg7bg29GGEfa86h8kUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnAz8IF_rNBs_igPr7eJC_MOekWvYvuM9NgfjgcMazuiTXvJb2CCuHoOga6t81A-Tzw/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1486439027530-WS8QO8CA7218M24H58U7/ke17ZwdGBToddI8pDm48kJEeivKg7bg29GGEfa86h8kUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnAz8IF_rNBs_igPr7eJC_MOekWvYvuM9NgfjgcMazuiTXvJb2CCuHoOga6t81A-Tzw/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1486439027530-WS8QO8CA7218M24H58U7/ke17ZwdGBToddI8pDm48kJEeivKg7bg29GGEfa86h8kUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnAz8IF_rNBs_igPr7eJC_MOekWvYvuM9NgfjgcMazuiTXvJb2CCuHoOga6t81A-Tzw/image-asset.png" data-image-dimensions="2500x483" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="589942715016e157fa925b4a" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Then uncommenting out the Fog.mock! lines and running the test gives us:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:9.480000495910645%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1486439151554-ZZP6K8XIQXIVDU473YBU/ke17ZwdGBToddI8pDm48kJFiLJVwE9I-axgCn4_ccyQUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnAmpsLj6_7w2fgeksNCHEXKpXZfoisvmvEW71XSzHbPp7hRAuZ9SpNv-Z_fi5jzNeg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1486439151554-ZZP6K8XIQXIVDU473YBU/ke17ZwdGBToddI8pDm48kJFiLJVwE9I-axgCn4_ccyQUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnAmpsLj6_7w2fgeksNCHEXKpXZfoisvmvEW71XSzHbPp7hRAuZ9SpNv-Z_fi5jzNeg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1486439151554-ZZP6K8XIQXIVDU473YBU/ke17ZwdGBToddI8pDm48kJFiLJVwE9I-axgCn4_ccyQUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnAmpsLj6_7w2fgeksNCHEXKpXZfoisvmvEW71XSzHbPp7hRAuZ9SpNv-Z_fi5jzNeg/image-asset.png" data-image-dimensions="2500x237" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="589942ec197aeaa28bcf9dda" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Notice that the run this time took only .66 seconds, a full second faster when we mock the file upload. Also note, if you look at your cloud storage after running the test with Fog.mock! you will not see any new files.</p>
+<p>If you made it this far, thanks for sticking with me. CarrierWave, Fog and Google Cloud Storage is a great solution for photo uploading needs and I hope that this post elucidates the process slightly for newcomers to the challenge.</p>
+</body></html>

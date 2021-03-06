@@ -1,0 +1,1204 @@
+---
+layout: post
+title: Turn a Google Form Response into a Google Calendar Event
+categories:
+- Technical
+tags:
+- Google Apps Scripts
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '28'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h2>Objective</h2>
+<p>Readers will be able to use Google Apps Script to take a response from a Google Form and turn it into a Google Calendar event.</p>
+<h3>WHY THIS MATTERS</h3>
+<p>Google Forms are incredibly useful for collecting information from users. By creating a form with date, start time, and end time fields we can use Google Apps Script to convert each new form response into a Google Calendar event. This is useful for creating low cost booking and reservation systems. In schools, teachers or administrators can set this up to book shared spaces like gymnasiums, auditoriums, etc. or shared resources like computer carts.</p>
+<h3>Prerequisite Knowledge</h3>
+<p>Advanced beginner JavaScript, Google Apps Script.</p>
+<h3>INTRODUCTION</h3>
+<p>I recently completed a freelance job for a music studio in England. The company rents studio space and wanted to use a Google Form to collect studio reservations. To make it easy to see which rooms were booked at particular times, the company wanted the form to create calendar events for each booking on an internal Google Calendar. </p>
+<h3>Initial Setup</h3>
+<p>To get started we need a Google Form that collects a date, start time, and end time. The form can collect additional information, such as location, guests, descriptions, etc. that can be used in any of the various fields in a Google Calendar event. <a target="_blank" href="https://docs.google.com/forms/d/1YYngHERafN_DRqwww_Grw3fhGa9c2oBXBXxmyVm4nw0/viewform">Below</a> is the form I have created for this tutorial. <a href="https://docs.google.com/spreadsheets/d/1hd-FfG8XWJHMatS7Pj2XYnjoxwV7SLHO6v8rf1Vinl8/edit?usp=sharing">Here</a> is the spreadsheet containing form responses. Below you can demo the system by completing the form. Once the form is submitted a new event will be created on the calendar. The webpage will need to be refreshed before the newly created event is visible.</p>
+<iframe src="https://docs.google.com/forms/d/1YYngHERafN_DRqwww_Grw3fhGa9c2oBXBXxmyVm4nw0/viewform?embedded=true" width="700" height="1375" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe><iframe src="https://calendar.google.com/calendar/embed?showTitle=0&amp;showPrint=0&amp;mode=WEEK&amp;height=600&amp;wkst=1&amp;bgcolor=%23FFFFFF&amp;src=p0prere6vsq4510kojq9v74vk8%40group.calendar.google.com&amp;color=%23711616&amp;ctz=America%2FDenver" style="border-width:0" width="700" height="600" frameborder="0" scrolling="no"></iframe><p> </p>
+<h3>GEtting Started with the Script Editor</h3>
+<p>From the Spreadsheet Responses, click Tools and then Script Editor to open the Script Editor. If you have not used the Script Editor before, I recommend checking out Google's <a href="https://developers.google.com/apps-script/overview">Overview of Google Apps Script</a>.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1408px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:64.0625%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455040132308-2X40YX31C6NKER42UXDB/ke17ZwdGBToddI8pDm48kF1M-1eyugQ50cDsfAJ8z14UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcbOKajm9rmuJpjpqa6bZGnYZEkTZRIn-44jb8Q1Mc0Z56zLngyhXeSMHqTmlVVbBG/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455040132308-2X40YX31C6NKER42UXDB/ke17ZwdGBToddI8pDm48kF1M-1eyugQ50cDsfAJ8z14UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcbOKajm9rmuJpjpqa6bZGnYZEkTZRIn-44jb8Q1Mc0Z56zLngyhXeSMHqTmlVVbBG/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455040132308-2X40YX31C6NKER42UXDB/ke17ZwdGBToddI8pDm48kF1M-1eyugQ50cDsfAJ8z14UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcbOKajm9rmuJpjpqa6bZGnYZEkTZRIn-44jb8Q1Mc0Z56zLngyhXeSMHqTmlVVbBG/image-asset.png" data-image-dimensions="1408x902" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="56ba2682e32140329f72666b" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Once in the Script Editor, name your project by clicking on "Untitled project" at the top left of the screen - just like you would name a Google Doc or Spreadsheet. Clicking on "Untitled project" will launch the "Edit Project Name" dialogue.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:982px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:42.566192626953125%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455040432848-VNU5X66HJMXN9C6NNWYJ/ke17ZwdGBToddI8pDm48kPeRaPVr_1WrO_9ATwAM9vpZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PI7ZqYjHaIZKlBwr85Iw6hKdFaRlQEEvVuVjJuBh9LJoE/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455040432848-VNU5X66HJMXN9C6NNWYJ/ke17ZwdGBToddI8pDm48kPeRaPVr_1WrO_9ATwAM9vpZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PI7ZqYjHaIZKlBwr85Iw6hKdFaRlQEEvVuVjJuBh9LJoE/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455040432848-VNU5X66HJMXN9C6NNWYJ/ke17ZwdGBToddI8pDm48kPeRaPVr_1WrO_9ATwAM9vpZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PI7ZqYjHaIZKlBwr85Iw6hKdFaRlQEEvVuVjJuBh9LJoE/image-asset.png" data-image-dimensions="982x418" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="56ba27b062cd9478a0053419" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<h3>Moment.js</h3>
+<p>For some reason I have a hard time wrapping my head around the date object in JavaScript. Whenever I build scripts involving times and dates, I always leverage a JavaScript Library called Moment.js, which makes time make sense in JavaScript. That said, it is totally possible to create a form to calendar script without using the Moment.js library. Google Engineer, Eric Koleda posted on <a target="_blank" href="https://plus.google.com/+EricKoleda/posts/ThnVjUgU3E9">Google Plus how to use Moment.js with Google Apps Script back in 2013</a>. The first step is to include Eric's Moment.js App Script library into your project. The library key is:</p>
+<p class="text-align-center"><strong>MHMchiX6c1bwSqGM1PZiW_PxhMjh3Sh48</strong><span style="font-size:14px">. </span></p>
+<p>To include the library, click on "Resources" and then "Libraries"</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1088px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:43.19852828979492%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455042519847-IVP3ZY9BBN82LSR67QOS/ke17ZwdGBToddI8pDm48kM1nl1UmGECyUCRqgDwvG8kUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcGGPXX7cYfgfwj9Y48XN64IunF0oWgwMILL9H7xVeX4Tjb3ihprtOm_IDqOIb8WOd/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455042519847-IVP3ZY9BBN82LSR67QOS/ke17ZwdGBToddI8pDm48kM1nl1UmGECyUCRqgDwvG8kUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcGGPXX7cYfgfwj9Y48XN64IunF0oWgwMILL9H7xVeX4Tjb3ihprtOm_IDqOIb8WOd/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455042519847-IVP3ZY9BBN82LSR67QOS/ke17ZwdGBToddI8pDm48kM1nl1UmGECyUCRqgDwvG8kUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcGGPXX7cYfgfwj9Y48XN64IunF0oWgwMILL9H7xVeX4Tjb3ihprtOm_IDqOIb8WOd/image-asset.png" data-image-dimensions="1088x470" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="56ba2fd7f699bb10a0509a49" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Copy and paste the Moment.js library key into the "Find a Library" field. Click "Select" and then choose the latest version of the code and click "Save".</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1414px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:60.113155364990234%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455042570052-AXVXVJGXJQIMX0G9YYBY/ke17ZwdGBToddI8pDm48kPl24pz7esjWT7g3rNc03EcUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKci-2NbcLFHGm1MWMXfU-2HH7KxZmeHrQeNhf4qONNgc-kxpXAoFnqQcvn1BJDS38T/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455042570052-AXVXVJGXJQIMX0G9YYBY/ke17ZwdGBToddI8pDm48kPl24pz7esjWT7g3rNc03EcUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKci-2NbcLFHGm1MWMXfU-2HH7KxZmeHrQeNhf4qONNgc-kxpXAoFnqQcvn1BJDS38T/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455042570052-AXVXVJGXJQIMX0G9YYBY/ke17ZwdGBToddI8pDm48kPl24pz7esjWT7g3rNc03EcUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKci-2NbcLFHGm1MWMXfU-2HH7KxZmeHrQeNhf4qONNgc-kxpXAoFnqQcvn1BJDS38T/image-asset.png" data-image-dimensions="1414x850" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="56ba300945bf21a3bf2724d0" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p id="yui_3_17_2_4_1455042319305_11372"><br></p>
+<p id="yui_3_17_2_4_1455042319305_9412">To load the library, include the following code at the top of your project.</p>
+<pre class="source-code"><span class="cm-comment">// Load the library once.</span>
+<span class="cm-keyword">var</span> <span class="cm-variable">moment</span> <span class="cm-operator">=</span> <span class="cm-variable">Moment</span>.<span class="cm-property">load</span>();</pre>
+<h3>Global Variables</h3>
+<p>I have read that using global variables in JavaScript is not considered best practice, but it's something that I rely on frequently. I use the following global variable object to store data that I will need in multiple functions or that I want to be able edit quickly without hunting through my entire code.</p>
+<pre class="source-code"><span class="cm-keyword">var</span> <span class="cm-variable">GLOBAL</span> <span class="cm-operator">=</span> {
+  <span class="cm-comment">//the id of the form we will use to create calendar events </span>
+  <span class="cm-property">formId</span> : <span class="cm-string">"1YYngHERafN_DRqwww_Grw3fhGa9c2oBXBXxmyVm4nw0"</span>,  
+  
+  <span class="cm-comment">//the id of the calendar we will create events on</span>
+  <span class="cm-property">calendarId</span> : <span class="cm-string">"p0prere6vsq4510kojq9v74vk8@group.calendar.google.com"</span>,
+  
+  <span class="cm-comment">//a mapping of form item titles to sections of the </span>
+  <span class="cm-comment">//calendar event</span>
+  <span class="cm-property">formMap</span> : {
+    <span class="cm-property">eventTitle</span>: <span class="cm-string">"Event Title"</span>,
+    <span class="cm-property">startTime</span> : <span class="cm-string">"Event Date and Start Time"</span>,
+    <span class="cm-property">endTime</span>: <span class="cm-string">"Event End Time"</span>,
+    <span class="cm-property">description</span>: <span class="cm-string">"Event Description"</span>,
+    <span class="cm-property">location</span>: <span class="cm-string">"Event Location"</span>,
+    <span class="cm-property">email</span>: <span class="cm-string">"Add Guests"</span>,
+    
+  },
+}</pre>
+<p>Form Id is the unique identifier associated with every Google Form. It is a string of letters, numbers, and underscores. To find your form's id, look at the form URL of the live form and copy the string of text in between the backslashes as shown below.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1545px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:67.83171081542969%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455068984438-AZUUB4B6NXXMHGDJOERD/ke17ZwdGBToddI8pDm48kBLFST6lFhSIf-W_Ds6XX-R7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UbgyLUGkNspzYPpTbR4Ynkas53qbzLTZjgblGnAo3DMeOpYghpI-Ha_TwZsqqmJXng/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455068984438-AZUUB4B6NXXMHGDJOERD/ke17ZwdGBToddI8pDm48kBLFST6lFhSIf-W_Ds6XX-R7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UbgyLUGkNspzYPpTbR4Ynkas53qbzLTZjgblGnAo3DMeOpYghpI-Ha_TwZsqqmJXng/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455068984438-AZUUB4B6NXXMHGDJOERD/ke17ZwdGBToddI8pDm48kBLFST6lFhSIf-W_Ds6XX-R7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UbgyLUGkNspzYPpTbR4Ynkas53qbzLTZjgblGnAo3DMeOpYghpI-Ha_TwZsqqmJXng/image-asset.png" data-image-dimensions="1545x1048" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="56ba45b79f726695ab780eaf" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<h3>Functional Javascript</h3>
+<p>The key steps of this script are to first get an incoming form response and then second, turn the form response into a calendar event. We will write two functions to accomplish these two steps and wrap them in an onFormSubmit function, which will be triggered to run on form submit.</p>
+<pre class="source-code"><span class="cm-comment">//function called by the form submission event</span>
+<span class="cm-keyword">function</span> <span class="cm-variable">onFormSubmit</span>() {
+  <span class="cm-comment">//store incoming form responses in an event object variable</span>
+  <span class="cm-keyword">var</span> <span class="cm-def">eventObject</span> <span class="cm-operator">=</span> <span class="cm-variable">getFormResponse</span>();
+  <span class="cm-comment">//use the event object to create a new calendar event</span>
+  <span class="cm-comment">//store the event in a variable called event</span>
+  <span class="cm-keyword">var</span> <span class="cm-def">event</span> <span class="cm-operator">=</span> <span class="cm-variable">createCalendarEvent</span>(<span class="cm-variable-2">eventObject</span>);
+}</pre>
+<h3>get form Response</h3>
+<p>Google Apps Script includes a <a target="_blank" href="https://developers.google.com/apps-script/reference/forms/">Forms Service</a>. Whenever I am writing scripts for Google Forms, I make sure that Google's documentation is never more than a browser tab away.</p>
+<p>In the Script Editor, create a function called "getFormResponse":</p>
+<pre class="source-code"><span class="cm-keyword">function</span> <span class="cm-variable">getFormResponse</span>() {
+  
+  
+}</pre>
+<p>The first thing we will do is declare some variables to store the form and all the responses so we can iterate through the responses.</p>
+<pre class="source-code">  <span class="cm-comment">// Get a form object by opening the form using the</span>
+  <span class="cm-comment">// form id stored in the GLOBAL variable object</span>
+  <span class="cm-keyword">var</span> <span class="cm-variable">form</span> <span class="cm-operator">=</span> <span class="cm-variable">FormApp</span>.<span class="cm-property">openById</span>(<span class="cm-variable">GLOBAL</span>.<span class="cm-property">formId</span>),
+      <span class="cm-comment">//Get all responses from the form. </span>
+      <span class="cm-comment">//This method returns an array of form responses</span>
+      <span class="cm-variable">responses</span> <span class="cm-operator">=</span> <span class="cm-variable">form</span>.<span class="cm-property">getResponses</span>(),
+      <span class="cm-comment">//find the length of the responses array</span>
+      <span class="cm-variable">length</span> <span class="cm-operator">=</span> <span class="cm-variable">responses</span>.<span class="cm-property">length</span>,
+      <span class="cm-comment">//find the index of the most recent form response</span>
+      <span class="cm-comment">//since arrays are zero indexed, the last response </span>
+      <span class="cm-comment">//is the total number of responses minus one</span>
+      <span class="cm-variable">lastResponse</span> <span class="cm-operator">=</span> <span class="cm-variable">responses</span>[<span class="cm-variable">length</span><span class="cm-operator">-</span><span class="cm-number">1</span>],
+      <span class="cm-comment">//get an array of responses to every question item </span>
+      <span class="cm-comment">//within the form</span>
+      <span class="cm-variable">itemResponses</span> <span class="cm-operator">=</span> <span class="cm-variable">lastResponse</span>.<span class="cm-property">getItemResponses</span>(),
+      <span class="cm-comment">//create an empty object to store data from the </span>
+      <span class="cm-comment">//last form response </span>
+      <span class="cm-variable">eventObject</span> <span class="cm-operator">=</span> {};</pre>
+<p>Using the debugger, we can see where this code takes us:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1870px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:72.62032318115234%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455058031859-WT9E3WG4OKR6D34FM6NT/ke17ZwdGBToddI8pDm48kJ5wEQHRHCQMX7RT-FoWgDF7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UXdWUWAKLONI3wQ4xDPCc-1jdvmEnZ0CLNSC1NP57G52MW9u6oXQZQicHHG1WEE6fg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455058031859-WT9E3WG4OKR6D34FM6NT/ke17ZwdGBToddI8pDm48kJ5wEQHRHCQMX7RT-FoWgDF7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UXdWUWAKLONI3wQ4xDPCc-1jdvmEnZ0CLNSC1NP57G52MW9u6oXQZQicHHG1WEE6fg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455058031859-WT9E3WG4OKR6D34FM6NT/ke17ZwdGBToddI8pDm48kJ5wEQHRHCQMX7RT-FoWgDF7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UXdWUWAKLONI3wQ4xDPCc-1jdvmEnZ0CLNSC1NP57G52MW9u6oXQZQicHHG1WEE6fg/image-asset.png" data-image-dimensions="1870x1358" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="56ba6c6dd51cd4edaa395e01" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Notice we have a "responses" array that contains two objects. Each object represents a form response, or one form submission. The length of the responses array is 2.0 because my test form has two response submissions. The lastResponse variable contains the object representing the most recent of the two form submissions. The itemResponses is an array of objects representing the lastResponse. The array has six objects representing the six questions in the sample form.</p>
+<p>The next step is to iterate through each question in the last response and map it to the eventObject, from which we will create our calendar event. If you look back at the GLOBAL.formMap object we defined earlier, you will notice that each question title is mapped to a property key. For example, the formMap property eventTitle is paired to the value "Event Title", which is the title of a question in the sample form.</p>
+<pre class="source-code"><span class="cm-keyword">for</span> (<span class="cm-keyword">var</span> <span class="cm-variable">i</span> <span class="cm-operator">=</span> <span class="cm-number">0</span>, <span class="cm-variable">x</span> <span class="cm-operator">=</span> <span class="cm-variable">itemResponses</span>.<span class="cm-property">length</span>; <span class="cm-variable">i</span><span class="cm-operator">&lt;</span><span class="cm-variable">x</span>; <span class="cm-variable">i</span><span class="cm-operator">++</span>) {
+    <span class="cm-comment">//Get the title of the form item being iterated on</span>
+    <span class="cm-keyword">var</span> <span class="cm-variable">thisItem</span> <span class="cm-operator">=</span> <span class="cm-variable">itemResponses</span>[<span class="cm-variable">i</span>].<span class="cm-property">getItem</span>().<span class="cm-property">getTitle</span>(),
+        <span class="cm-comment">//get the submitted response to the form item being</span>
+        <span class="cm-comment">//iterated on</span>
+        <span class="cm-variable">thisResponse</span> <span class="cm-operator">=</span> <span class="cm-variable">itemResponses</span>[<span class="cm-variable">i</span>].<span class="cm-property">getResponse</span>();
+    </pre>
+<p>Adding a debugger after these few lines of code and then running the code in debug mode will yield the following results:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1878px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:84.9840316772461%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455058525658-9VQG7OV0RUWVB73U6AN4/ke17ZwdGBToddI8pDm48kE5LUA50PO_tuIUKIqolpeZ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1URFHMPAwJrKGv7YixvM93Fo0fO-gsSKLoATuaEprHqRFG6v6ULRah83RgHXAWD5lbQ/Screen+Shot+2016-02-09+at+3.46.47+PM.png" alt="Screen Shot 2016-02-09 at 3.46.47 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455058525658-9VQG7OV0RUWVB73U6AN4/ke17ZwdGBToddI8pDm48kE5LUA50PO_tuIUKIqolpeZ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1URFHMPAwJrKGv7YixvM93Fo0fO-gsSKLoATuaEprHqRFG6v6ULRah83RgHXAWD5lbQ/Screen+Shot+2016-02-09+at+3.46.47+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455058525658-9VQG7OV0RUWVB73U6AN4/ke17ZwdGBToddI8pDm48kE5LUA50PO_tuIUKIqolpeZ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1URFHMPAwJrKGv7YixvM93Fo0fO-gsSKLoATuaEprHqRFG6v6ULRah83RgHXAWD5lbQ/Screen+Shot+2016-02-09+at+3.46.47+PM.png" data-image-dimensions="1878x1596" data-image-focal-point="0.5,0.5" alt="Screen Shot 2016-02-09 at 3.46.47 PM.png" data-load="false" data-image-id="56ba6e5b746fb933e67aa304" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Remember, we are iterating through each question in the most recent form response (six items total). On the first run, where i = 0, the variable thisItem holds the value "Event Date and Start Time", which is the title of the first question. The variable thisResponse holds the value "2016-02-09 10:00", which is the response to the first question in the most recent form submission.</p>
+<p>We will next use a switch statement to look at the item title (thisItem) and assign the response value (thisResponse) to a property in our eventObject. </p>
+<pre class="source-code">    <span class="cm-comment">//based on the form question title, map the response of the </span>
+    <span class="cm-comment">//item being iterated on into our eventObject variable</span>
+    <span class="cm-comment">//use the GLOBAL variable formMap sub object to match form</span>
+    <span class="cm-comment">//question titles to property keys in the event object</span>
+    <span class="cm-keyword">switch</span> (<span class="cm-variable">thisItem</span>) {
+      <span class="cm-keyword">case</span> <span class="cm-variable">GLOBAL</span>.<span class="cm-property">formMap</span>.<span class="cm-property">eventTitle</span>:
+        <span class="cm-variable">eventObject</span>.<span class="cm-property">title</span> <span class="cm-operator">=</span> <span class="cm-variable">thisResponse</span>;
+        <span class="cm-keyword">break</span>;
+      <span class="cm-keyword">case</span> <span class="cm-variable">GLOBAL</span>.<span class="cm-property">formMap</span>.<span class="cm-property">startTime</span>:
+        <span class="cm-variable">eventObject</span>.<span class="cm-property">startTime</span> <span class="cm-operator">=</span> <span class="cm-variable">thisResponse</span>;
+        <span class="cm-keyword">break</span>;
+      <span class="cm-keyword">case</span> <span class="cm-variable">GLOBAL</span>.<span class="cm-property">formMap</span>.<span class="cm-property">endTime</span>:
+        <span class="cm-variable">eventObject</span>.<span class="cm-property">endTime</span> <span class="cm-operator">=</span> <span class="cm-variable">thisResponse</span>;
+        <span class="cm-keyword">break</span>; 
+      <span class="cm-keyword">case</span> <span class="cm-variable">GLOBAL</span>.<span class="cm-property">formMap</span>.<span class="cm-property">description</span>:
+        <span class="cm-variable">eventObject</span>.<span class="cm-property">description</span> <span class="cm-operator">=</span> <span class="cm-variable">thisResponse</span>;
+        <span class="cm-keyword">break</span>;
+      <span class="cm-keyword">case</span> <span class="cm-variable">GLOBAL</span>.<span class="cm-property">formMap</span>.<span class="cm-property">location</span>:
+        <span class="cm-variable">eventObject</span>.<span class="cm-property">location</span> <span class="cm-operator">=</span> <span class="cm-variable">thisResponse</span>;
+        <span class="cm-keyword">break</span>;
+      <span class="cm-keyword">case</span> <span class="cm-variable">GLOBAL</span>.<span class="cm-property">formMap</span>.<span class="cm-property">email</span>:
+        <span class="cm-variable">eventObject</span>.<span class="cm-property">email</span> <span class="cm-operator">=</span> <span class="cm-variable">thisResponse</span>;
+        <span class="cm-keyword">break</span>;
+    } 
+  }</pre>
+<p>Throwing a debugger at the end of the for loop and running in debug mode will yield:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1908px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:112.9979019165039%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455058922710-FNH9EYT1PM40HYZU8SPE/ke17ZwdGBToddI8pDm48kNramEDTHkoalioSGwRVdgh7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UbeveuwloMwWDq3HPSIxFzkVErB6u9H_P22sou8nJFzIZtJ3qR9G2BYeA0wOAaeYNg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455058922710-FNH9EYT1PM40HYZU8SPE/ke17ZwdGBToddI8pDm48kNramEDTHkoalioSGwRVdgh7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UbeveuwloMwWDq3HPSIxFzkVErB6u9H_P22sou8nJFzIZtJ3qR9G2BYeA0wOAaeYNg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455058922710-FNH9EYT1PM40HYZU8SPE/ke17ZwdGBToddI8pDm48kNramEDTHkoalioSGwRVdgh7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UbeveuwloMwWDq3HPSIxFzkVErB6u9H_P22sou8nJFzIZtJ3qR9G2BYeA0wOAaeYNg/image-asset.png" data-image-dimensions="1908x2156" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="56ba6fe922482ec75e38a279" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Notice that we have iterated over all six items, i = 6. Our eventObject is complete and we can now return this object and use it as the input for our next function, createCalendarEvent. The full function for getFormResponse() is:</p>
+<pre class="source-code"><span class="cm-keyword">function</span> <span class="cm-variable">getFormResponse</span>() {
+  <span class="cm-comment">// Get a form object by opening the form using the</span>
+  <span class="cm-comment">// form id stored in the GLOBAL variable object</span>
+  <span class="cm-keyword">var</span> <span class="cm-def">form</span> <span class="cm-operator">=</span> <span class="cm-variable">FormApp</span>.<span class="cm-property">openById</span>(<span class="cm-variable">GLOBAL</span>.<span class="cm-property">formId</span>),
+      <span class="cm-comment">//Get all responses from the form. </span>
+      <span class="cm-comment">//This method returns an array of form responses</span>
+      <span class="cm-def">responses</span> <span class="cm-operator">=</span> <span class="cm-variable-2">form</span>.<span class="cm-property">getResponses</span>(),
+      <span class="cm-comment">//find the length of the responses array</span>
+      <span class="cm-def">length</span> <span class="cm-operator">=</span> <span class="cm-variable-2">responses</span>.<span class="cm-property">length</span>,
+      <span class="cm-comment">//find the index of the most recent form response</span>
+      <span class="cm-comment">//since arrays are zero indexed, the last response </span>
+      <span class="cm-comment">//is the total number of responses minus one</span>
+      <span class="cm-def">lastResponse</span> <span class="cm-operator">=</span> <span class="cm-variable-2">responses</span>[<span class="cm-variable-2">length</span><span class="cm-operator">-</span><span class="cm-number">1</span>],
+      <span class="cm-comment">//get an array of responses to every question item </span>
+      <span class="cm-comment">//within the form for which the respondent provided </span>
+      <span class="cm-comment">//an answer</span>
+      <span class="cm-def">itemResponses</span> <span class="cm-operator">=</span> <span class="cm-variable-2">lastResponse</span>.<span class="cm-property">getItemResponses</span>(),
+      <span class="cm-comment">//create an empty object to store data from the last form</span>
+      <span class="cm-comment">//response that will be used to create a calendar event</span>
+      <span class="cm-def">eventObject</span> <span class="cm-operator">=</span> {};
+  <span class="cm-comment">//Loop through each item response in the item response array</span>
+  <span class="cm-keyword">for</span> (<span class="cm-keyword">var</span> <span class="cm-def">i</span> <span class="cm-operator">=</span> <span class="cm-number">0</span>, <span class="cm-def">x</span> <span class="cm-operator">=</span> <span class="cm-variable-2">itemResponses</span>.<span class="cm-property">length</span>; <span class="cm-variable-2">i</span><span class="cm-operator">&lt;</span><span class="cm-variable-2">x</span>; <span class="cm-variable-2">i</span><span class="cm-operator">++</span>) {
+    <span class="cm-comment">//Get the title of the form item being iterated on</span>
+    <span class="cm-keyword">var</span> <span class="cm-def">thisItem</span> <span class="cm-operator">=</span> <span class="cm-variable-2">itemResponses</span>[<span class="cm-variable-2">i</span>].<span class="cm-property">getItem</span>().<span class="cm-property">getTitle</span>(),
+        <span class="cm-comment">//get the submitted response to the form item being </span>
+        <span class="cm-comment">//iterated on</span>
+        <span class="cm-def">thisResponse</span> <span class="cm-operator">=</span> <span class="cm-variable-2">itemResponses</span>[<span class="cm-variable-2">i</span>].<span class="cm-property">getResponse</span>();
+    <span class="cm-comment">//based on the form question title, map the response of the </span>
+    <span class="cm-comment">//item being iterated on into our eventObject variable</span>
+    <span class="cm-comment">//use the GLOBAL variable formMap sub object to match </span>
+    <span class="cm-comment">//form question titles to property keys in the event object</span>
+    <span class="cm-keyword">switch</span> (<span class="cm-variable-2">thisItem</span>) {
+      <span class="cm-keyword">case</span> <span class="cm-variable">GLOBAL</span>.<span class="cm-property">formMap</span>.<span class="cm-property">eventTitle</span>:
+        <span class="cm-variable-2">eventObject</span>.<span class="cm-property">title</span> <span class="cm-operator">=</span> <span class="cm-variable-2">thisResponse</span>;
+        <span class="cm-keyword">break</span>;
+      <span class="cm-keyword">case</span> <span class="cm-variable">GLOBAL</span>.<span class="cm-property">formMap</span>.<span class="cm-property">startTime</span>:
+        <span class="cm-variable-2">eventObject</span>.<span class="cm-property">startTime</span> <span class="cm-operator">=</span> <span class="cm-variable-2">thisResponse</span>;
+        <span class="cm-keyword">break</span>;
+      <span class="cm-keyword">case</span> <span class="cm-variable">GLOBAL</span>.<span class="cm-property">formMap</span>.<span class="cm-property">endTime</span>:
+        <span class="cm-variable-2">eventObject</span>.<span class="cm-property">endTime</span> <span class="cm-operator">=</span> <span class="cm-variable-2">thisResponse</span>;
+        <span class="cm-keyword">break</span>; 
+      <span class="cm-keyword">case</span> <span class="cm-variable">GLOBAL</span>.<span class="cm-property">formMap</span>.<span class="cm-property">description</span>:
+        <span class="cm-variable-2">eventObject</span>.<span class="cm-property">description</span> <span class="cm-operator">=</span> <span class="cm-variable-2">thisResponse</span>;
+        <span class="cm-keyword">break</span>;
+      <span class="cm-keyword">case</span> <span class="cm-variable">GLOBAL</span>.<span class="cm-property">formMap</span>.<span class="cm-property">phone</span>:
+        <span class="cm-variable-2">eventObject</span>.<span class="cm-property">phone</span> <span class="cm-operator">=</span> <span class="cm-variable-2">thisResponse</span>;
+        <span class="cm-keyword">break</span>;
+      <span class="cm-keyword">case</span> <span class="cm-variable">GLOBAL</span>.<span class="cm-property">formMap</span>.<span class="cm-property">email</span>:
+        <span class="cm-variable-2">eventObject</span>.<span class="cm-property">email</span> <span class="cm-operator">=</span> <span class="cm-variable-2">thisResponse</span>;
+        <span class="cm-keyword">break</span>;
+    } 
+  }
+  <span class="cm-keyword">return</span> <span class="cm-variable-2">eventObject</span>;
+}</pre>
+<h3>Create Calendar Event</h3>
+<p>Google Apps Script includes a <a href="https://developers.google.com/apps-script/reference/calendar/">Calendar Service</a>, which we will use to create our calendar event.</p>
+<p>In the Script Editor, create a function called "createCalendarEvent()" that takes the output from getFormResponse() as its input:</p>
+<pre class="source-code"><span class="cm-keyword">function</span> <span class="cm-variable">createCalendarEvent</span>(<span class="cm-def">eventObject</span>) {
+
+}</pre>
+<p>Looking at the documentation for the createEvent() method we see that the method accepts four arguments, title, startTime, endTime, and an options object.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1772px;">
+          
+        
+        
+
+        
+          <a class="
+                sqs-block-image-link
+                
+          
+        
+              " href="https://developers.google.com/apps-script/reference/calendar/calendar#createEvent(String,Date,Date,Object)" target="_blank">
+            
+          <div style="padding-bottom:113.2054214477539%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455059604883-Z4G0THLQW6Z6NTXDWJAY/ke17ZwdGBToddI8pDm48kBjLfZ-nb4jjDI7t2jUOMO17gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UXuBBMjYDx5hxmq7QJTFG2MRSXjBTT5hD51LKPB0D-ad7zs2yPjc1ECvpa5Zm_kMqw/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455059604883-Z4G0THLQW6Z6NTXDWJAY/ke17ZwdGBToddI8pDm48kBjLfZ-nb4jjDI7t2jUOMO17gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UXuBBMjYDx5hxmq7QJTFG2MRSXjBTT5hD51LKPB0D-ad7zs2yPjc1ECvpa5Zm_kMqw/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455059604883-Z4G0THLQW6Z6NTXDWJAY/ke17ZwdGBToddI8pDm48kBjLfZ-nb4jjDI7t2jUOMO17gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UXuBBMjYDx5hxmq7QJTFG2MRSXjBTT5hD51LKPB0D-ad7zs2yPjc1ECvpa5Zm_kMqw/image-asset.png" data-image-dimensions="1772x2006" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="56ba7293859fd0d3d317b976" data-type="image">
+          </div>
+        
+          </a>
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Let's create a variable for each of the createEvent() arguments and set them equal to the appropriate values in our eventObject input that we created in the getFormResponse() function. We will use Moment.js to make sure that our start time and end times are properly formatted as dates.</p>
+<pre class="source-code">  <span class="cm-comment">//Get a calendar object by opening the calendar using the</span>
+  <span class="cm-comment">//calendar id stored in the GLOBAL variable object</span>
+  <span class="cm-keyword">var</span> <span class="cm-variable">calendar</span> <span class="cm-operator">=</span> <span class="cm-variable">CalendarApp</span>.<span class="cm-property">getCalendarById</span>(<span class="cm-variable">GLOBAL</span>.<span class="cm-property">calendarId</span>),
+      <span class="cm-comment">//The title for the event that will be created</span>
+      <span class="cm-variable">title</span> <span class="cm-operator">=</span> <span class="cm-variable">eventObject</span>.<span class="cm-property">title</span>,
+      <span class="cm-comment">//The start time and date of the event that will be created</span>
+      <span class="cm-variable">startTime</span> <span class="cm-operator">=</span> <span class="cm-variable">moment</span>(<span class="cm-variable">eventObject</span>.<span class="cm-property">startTime</span>).<span class="cm-property">toDate</span>(),
+      <span class="cm-comment">//The end time and date of the event that will be created</span>
+      <span class="cm-variable">endTime</span> <span class="cm-operator">=</span> <span class="cm-variable">moment</span>(<span class="cm-variable">eventObject</span>.<span class="cm-property">endTime</span>).<span class="cm-property">toDate</span>();
+  <span class="cm-comment">//an options object containing the description and guest list</span>
+  <span class="cm-comment">//for the event that will be created</span>
+  <span class="cm-keyword">var</span> <span class="cm-variable">options</span> <span class="cm-operator">=</span> {
+    <span class="cm-property">description</span> : <span class="cm-variable">eventObject</span>.<span class="cm-property">description</span>,
+    <span class="cm-property">guests</span> : <span class="cm-variable">eventObject</span>.<span class="cm-property">email</span>,        
+    <span class="cm-property">location</span> : <span class="cm-variable">eventObject</span>.<span class="cm-property">location</span>
+  };</pre>
+<p>To test this section of code we can run the entire script from the onFormSubmit function, which will first run the getFormResponse and pass the eventObject return value into our createCalendarEvent() function.</p>
+<pre class="source-code"><span class="cm-keyword">function</span> <span class="cm-variable">onFormSubmit</span>() {
+  <span class="cm-keyword">var</span> <span class="cm-def">eventObject</span> <span class="cm-operator">=</span> <span class="cm-variable">getFormResponse</span>();
+  <span class="cm-keyword">var</span> <span class="cm-def">event</span> <span class="cm-operator">=</span> <span class="cm-variable">createCalendarEvent</span>(<span class="cm-variable-2">eventObject</span>);
+}</pre>
+<p>Using debug mode we get:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1884px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:53.92781448364258%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455060956017-U2ED6HRPAN3ADBD3OD9U/ke17ZwdGBToddI8pDm48kKdvu793nr78vgb0wom6sTZ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UXFH7ubP2cMex7Zt0iRxi__EFIHBcA6J3V1ruB2xRlLnOpYghpI-Ha_TwZsqqmJXng/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455060956017-U2ED6HRPAN3ADBD3OD9U/ke17ZwdGBToddI8pDm48kKdvu793nr78vgb0wom6sTZ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UXFH7ubP2cMex7Zt0iRxi__EFIHBcA6J3V1ruB2xRlLnOpYghpI-Ha_TwZsqqmJXng/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455060956017-U2ED6HRPAN3ADBD3OD9U/ke17ZwdGBToddI8pDm48kKdvu793nr78vgb0wom6sTZ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UXFH7ubP2cMex7Zt0iRxi__EFIHBcA6J3V1ruB2xRlLnOpYghpI-Ha_TwZsqqmJXng/image-asset.png" data-image-dimensions="1884x1016" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="56ba77d98259b5fc1ed54143" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>The variables for the createEvent method are all set. Our title is set to "My amazing event", which is the latest response to the event title item on our form. The start and end times are properly formatted as dates, which correspond to the responses for the start and end time questions in our form. Our options object contains a description and a guest email address, also corresponding to the latest form response.</p>
+<p>It is good practice to wrap the createEvent() method in a try catch, that way if for some reason there is an invalid email address, the script will fail more gracefully. Notice how in the catch, we delete the guest property from our options object.</p>
+<pre class="source-code"><span class="cm-keyword">try</span> {
+    <span class="cm-comment">//create a calendar event with given title, start time, </span>
+    <span class="cm-comment">//end time, and description and guests stored in an </span>
+    <span class="cm-comment">//options argument</span>
+    <span class="cm-keyword">var</span> <span class="cm-variable">event</span> <span class="cm-operator">=</span> <span class="cm-variable">calendar</span>.<span class="cm-property">createEvent</span>(<span class="cm-variable">title</span>, <span class="cm-variable">startTime</span>, 
+                                     <span class="cm-variable">endTime</span>, <span class="cm-variable">options</span>)
+    } <span class="cm-keyword">catch</span> (<span class="cm-def">e</span>) {
+      <span class="cm-comment">//delete the guest property from the options </span>
+      <span class="cm-comment">//variable, as an invalid email address with cause</span>
+      <span class="cm-comment">//this method to throw an error.</span>
+      <span class="cm-keyword">delete</span> <span class="cm-variable">options</span>.<span class="cm-property">guests</span>
+      <span class="cm-comment">//create the event without including the guest</span>
+      <span class="cm-keyword">var</span> <span class="cm-def">event</span> <span class="cm-operator">=</span> <span class="cm-variable">calendar</span>.<span class="cm-property">createEvent</span>(<span class="cm-variable">title</span>, <span class="cm-variable">startTime</span>, 
+                                       <span class="cm-variable">endTime</span>, <span class="cm-variable">options</span>)
+      }
+  <span class="cm-keyword">return</span> <span class="cm-variable">event</span>;   </pre>
+<p>All together the createCalendarEvent() looks like:</p>
+<pre class="source-code">
+<span class="cm-keyword">function</span> <span class="cm-variable">createCalendarEvent</span>(<span class="cm-def">eventObject</span>) {
+  <span class="cm-comment">//Get a calendar object by opening the calendar using the</span>
+  <span class="cm-comment">//calendar id stored in the GLOBAL variable object</span>
+  <span class="cm-keyword">var</span> <span class="cm-def">calendar</span> <span class="cm-operator">=</span> <span class="cm-variable">CalendarApp</span>.<span class="cm-property">getCalendarById</span>(<span class="cm-variable">GLOBAL</span>.<span class="cm-property">calendarId</span>),
+      <span class="cm-comment">//The title for the event that will be created</span>
+      <span class="cm-def">title</span> <span class="cm-operator">=</span> <span class="cm-variable-2">eventObject</span>.<span class="cm-property">title</span>,
+      <span class="cm-comment">//The start time and date of the event that will be created</span>
+      <span class="cm-def">startTime</span> <span class="cm-operator">=</span> <span class="cm-variable">moment</span>(<span class="cm-variable-2">eventObject</span>.<span class="cm-property">startTime</span>).<span class="cm-property">toDate</span>(),
+      <span class="cm-comment">//The end time and date of the event that will be created</span>
+      <span class="cm-def">endTime</span> <span class="cm-operator">=</span> <span class="cm-variable">moment</span>(<span class="cm-variable-2">eventObject</span>.<span class="cm-property">endTime</span>).<span class="cm-property">toDate</span>();
+  <span class="cm-comment">//an options object containing the description and guest list</span>
+  <span class="cm-comment">//for the event that will be created</span>
+  <span class="cm-keyword">var</span> <span class="cm-def">options</span> <span class="cm-operator">=</span> {
+    <span class="cm-property">description</span> : <span class="cm-variable-2">eventObject</span>.<span class="cm-property">description</span>,
+    <span class="cm-property">guests</span> : <span class="cm-variable-2">eventObject</span>.<span class="cm-property">email</span>, 
+    <span class="cm-property">lcoation</span>: <span class="cm-variable-2">eventObject</span>.<span class="cm-property">location</span>,
+  };
+  <span class="cm-keyword">try</span> {
+    <span class="cm-comment">//create a calendar event with given title, start time, end time,</span>
+    <span class="cm-comment">//and description and guests stored in an options argument</span>
+    <span class="cm-keyword">var</span> <span class="cm-def">event</span> <span class="cm-operator">=</span> <span class="cm-variable-2">calendar</span>.<span class="cm-property">createEvent</span>(<span class="cm-variable-2">title</span>, <span class="cm-variable-2">startTime</span>, 
+                                     <span class="cm-variable-2">endTime</span>, <span class="cm-variable-2">options</span>)
+    } <span class="cm-keyword">catch</span> (<span class="cm-def">e</span>) {
+      <span class="cm-comment">//delete the guest property from the options variable, </span>
+      <span class="cm-comment">//as an invalid email address with cause this method </span>
+      <span class="cm-comment">//to throw an error.</span>
+      <span class="cm-keyword">delete</span> <span class="cm-variable-2">options</span>.<span class="cm-property">guests</span>
+      <span class="cm-comment">//create the event without including the guest</span>
+      <span class="cm-keyword">var</span> <span class="cm-def">event</span> <span class="cm-operator">=</span> <span class="cm-variable-2">calendar</span>.<span class="cm-property">createEvent</span>(<span class="cm-variable-2">title</span>, <span class="cm-variable-2">startTime</span>, 
+                                       <span class="cm-variable-2">endTime</span>, <span class="cm-variable-2">options</span>)
+      }
+  <span class="cm-keyword">return</span> <span class="cm-variable-2">event</span>;   
+}</pre>
+<h3>Set a Trigger</h3>
+<p>We want the onFormSubmit trigger to run every time a new form response comes in. To do so we will create a trigger by clicking on the Current project's triggers icon. </p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:611px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:37.8068733215332%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455061707293-4JIZOOLGXMASSELDOK6Q/ke17ZwdGBToddI8pDm48kP97wht2QgvtFBeXCviSK4BZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpxsEaaQW8Lyxupp-abz3Wrv6LilShlm9pa3NycFudHBEppOGcqgspGRVdg3XPw2aco/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455061707293-4JIZOOLGXMASSELDOK6Q/ke17ZwdGBToddI8pDm48kP97wht2QgvtFBeXCviSK4BZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpxsEaaQW8Lyxupp-abz3Wrv6LilShlm9pa3NycFudHBEppOGcqgspGRVdg3XPw2aco/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455061707293-4JIZOOLGXMASSELDOK6Q/ke17ZwdGBToddI8pDm48kP97wht2QgvtFBeXCviSK4BZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpxsEaaQW8Lyxupp-abz3Wrv6LilShlm9pa3NycFudHBEppOGcqgspGRVdg3XPw2aco/image-asset.png" data-image-dimensions="611x231" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="56ba7acb555986520337f81a" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Next click the link "No triggers set up. Click here to add one now."</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1728px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:22.685184478759766%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455062356153-O6LQQ7GZKSPC7VE3NZ0G/ke17ZwdGBToddI8pDm48kKlaZjZzfsZmKs5tSJb1WbsUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2ds1KwAjdlEEGhGSl8M6AI3YOotMpRjao_aa6OHupXbUuCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455062356153-O6LQQ7GZKSPC7VE3NZ0G/ke17ZwdGBToddI8pDm48kKlaZjZzfsZmKs5tSJb1WbsUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2ds1KwAjdlEEGhGSl8M6AI3YOotMpRjao_aa6OHupXbUuCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455062356153-O6LQQ7GZKSPC7VE3NZ0G/ke17ZwdGBToddI8pDm48kKlaZjZzfsZmKs5tSJb1WbsUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2ds1KwAjdlEEGhGSl8M6AI3YOotMpRjao_aa6OHupXbUuCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1728x392" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="56ba7d53859fd0d3d3180b4d" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Choose the onFormSubmit function in the first drop down. Next choose "From spreadsheet" from the next drop down. Choose "On form submit" from the third drop down and then click "Save." Now whenever a new form submission comes in, the onFormSubmit function we've written will run. </p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1740px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:29.655174255371094%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455062516701-ONUW7LSFRBED6U6H5YUP/ke17ZwdGBToddI8pDm48kNTLOaqkmZPMn8xx0RTVbSkUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dv7jnrcv8MNE5x-74QdP-YC5NLOCTTcMhXBJZvmh541UCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455062516701-ONUW7LSFRBED6U6H5YUP/ke17ZwdGBToddI8pDm48kNTLOaqkmZPMn8xx0RTVbSkUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dv7jnrcv8MNE5x-74QdP-YC5NLOCTTcMhXBJZvmh541UCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1455062516701-ONUW7LSFRBED6U6H5YUP/ke17ZwdGBToddI8pDm48kNTLOaqkmZPMn8xx0RTVbSkUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dv7jnrcv8MNE5x-74QdP-YC5NLOCTTcMhXBJZvmh541UCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1740x516" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="56ba7df459827ed03bb95476" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+
+<p>Please note that whichever email address you are logged into when you set this trigger is the email address that will run the script. That means:</p>
+<ol>
+<li>The email address must be a collaborator on the form otherwise the script will throw an error when it tries to open the form by the form id.</li>
+<li>The email address must have editing rights to the calendar otherwise the script will throw an error when it tries to open the calendar by the calendar id.</li>
+</ol>
+<p>The lines of code that will throw errors if the user account running the script does not have editing rights to the form and or calendar are:</p>
+<pre class="source-code"><span class="cm-keyword">var</span> <span class="cm-variable">form</span> <span class="cm-operator">=</span> <span class="cm-variable">FormApp</span>.<span class="cm-property">openById</span>(<span class="cm-variable">GLOBAL</span>.<span class="cm-property">formId</span>),</pre>
+<pre class="source-code"><span class="cm-keyword">var</span> <span class="cm-variable">calendar</span> <span class="cm-operator">=</span> <span class="cm-variable">CalendarApp</span>.<span class="cm-property">getCalendarById</span>(<span class="cm-variable">GLOBAL</span>.<span class="cm-property">calendarId</span>),</pre>
+<h3>Conclusion</h3>
+<p dir="ltr">I really enjoyed putting this build together. I hope that this post helps burgeoning scripters.</p>
+<h3>Full Code:</h3>
+<pre class="source-code"><span class="cm-comment">//Load the Moment.js library once.</span>
+<span class="cm-keyword">var</span> <span class="cm-variable">moment</span> <span class="cm-operator">=</span> <span class="cm-variable">Moment</span>.<span class="cm-property">load</span>();
+
+<span class="cm-keyword">var</span> <span class="cm-variable">GLOBAL</span> <span class="cm-operator">=</span> {
+  <span class="cm-comment">//the id of the form we will use to create calendar events </span>
+  <span class="cm-property">formId</span> : <span class="cm-string">"1YYngHERafN_DRqwww_Grw3fhGa9c2oBXBXxmyVm4nw0"</span>,  
+  
+  <span class="cm-comment">//the id of the calendar we will create events on</span>
+  <span class="cm-property">calendarId</span> : <span class="cm-string">"p0prere6vsq4510kojq9v74vk8@group.calendar.google.com"</span>,
+  
+  <span class="cm-comment">//a mapping of form item titles to sections of the calendar event</span>
+  <span class="cm-property">formMap</span> : {
+    <span class="cm-property">eventTitle</span>: <span class="cm-string">"Event Title"</span>,
+    <span class="cm-property">startTime</span> : <span class="cm-string">"Event Date and Start Time"</span>,
+    <span class="cm-property">endTime</span>: <span class="cm-string">"Event End Time"</span>,
+    <span class="cm-property">description</span>: <span class="cm-string">"Event Description"</span>,
+    <span class="cm-property">location</span>: <span class="cm-string">"Event Location"</span>,
+    <span class="cm-property">email</span>: <span class="cm-string">"Add Guests"</span>,
+    
+  },
+}
+
+<span class="cm-keyword">function</span> <span class="cm-variable">onFormSubmit</span>() {
+  <span class="cm-keyword">var</span> <span class="cm-def">eventObject</span> <span class="cm-operator">=</span> <span class="cm-variable">getFormResponse</span>();
+  <span class="cm-keyword">var</span> <span class="cm-def">event</span> <span class="cm-operator">=</span> <span class="cm-variable">createCalendarEvent</span>(<span class="cm-variable-2">eventObject</span>);
+}
+
+<span class="cm-keyword">function</span> <span class="cm-variable">getFormResponse</span>() {
+  <span class="cm-comment">// Get a form object by opening the form using the</span>
+  <span class="cm-comment">// form id stored in the GLOBAL variable object</span>
+  <span class="cm-keyword">var</span> <span class="cm-def">form</span> <span class="cm-operator">=</span> <span class="cm-variable">FormApp</span>.<span class="cm-property">openById</span>(<span class="cm-variable">GLOBAL</span>.<span class="cm-property">formId</span>),
+      <span class="cm-comment">//Get all responses from the form. </span>
+      <span class="cm-comment">//This method returns an array of form responses</span>
+      <span class="cm-def">responses</span> <span class="cm-operator">=</span> <span class="cm-variable-2">form</span>.<span class="cm-property">getResponses</span>(),
+      <span class="cm-comment">//find the length of the responses array</span>
+      <span class="cm-def">length</span> <span class="cm-operator">=</span> <span class="cm-variable-2">responses</span>.<span class="cm-property">length</span>,
+      <span class="cm-comment">//find the index of the most recent form response</span>
+      <span class="cm-comment">//since arrays are zero indexed, the last response </span>
+      <span class="cm-comment">//is the total number of responses minus one</span>
+      <span class="cm-def">lastResponse</span> <span class="cm-operator">=</span> <span class="cm-variable-2">responses</span>[<span class="cm-variable-2">length</span><span class="cm-operator">-</span><span class="cm-number">1</span>],
+      <span class="cm-comment">//get an array of responses to every question item </span>
+      <span class="cm-comment">//within the form for which the respondent provided an answer</span>
+      <span class="cm-def">itemResponses</span> <span class="cm-operator">=</span> <span class="cm-variable-2">lastResponse</span>.<span class="cm-property">getItemResponses</span>(),
+      <span class="cm-comment">//create an empty object to store data from the last </span>
+      <span class="cm-comment">//form response</span>
+      <span class="cm-comment">//that will be used to create a calendar event</span>
+      <span class="cm-def">eventObject</span> <span class="cm-operator">=</span> {};
+  <span class="cm-comment">//Loop through each item response in the item response array</span>
+  <span class="cm-keyword">for</span> (<span class="cm-keyword">var</span> <span class="cm-def">i</span> <span class="cm-operator">=</span> <span class="cm-number">0</span>, <span class="cm-def">x</span> <span class="cm-operator">=</span> <span class="cm-variable-2">itemResponses</span>.<span class="cm-property">length</span>; <span class="cm-variable-2">i</span><span class="cm-operator">&lt;</span><span class="cm-variable-2">x</span>; <span class="cm-variable-2">i</span><span class="cm-operator">++</span>) {
+    <span class="cm-comment">//Get the title of the form item being iterated on</span>
+    <span class="cm-keyword">var</span> <span class="cm-def">thisItem</span> <span class="cm-operator">=</span> <span class="cm-variable-2">itemResponses</span>[<span class="cm-variable-2">i</span>].<span class="cm-property">getItem</span>().<span class="cm-property">getTitle</span>(),
+        <span class="cm-comment">//get the submitted response to the form item being</span>
+        <span class="cm-comment">//iterated on</span>
+        <span class="cm-def">thisResponse</span> <span class="cm-operator">=</span> <span class="cm-variable-2">itemResponses</span>[<span class="cm-variable-2">i</span>].<span class="cm-property">getResponse</span>();
+    <span class="cm-comment">//based on the form question title, map the response of the </span>
+    <span class="cm-comment">//item being iterated on into our eventObject variable</span>
+    <span class="cm-comment">//use the GLOBAL variable formMap sub object to match </span>
+    <span class="cm-comment">//form question titles to property keys in the event object</span>
+    <span class="cm-keyword">switch</span> (<span class="cm-variable-2">thisItem</span>) {
+      <span class="cm-keyword">case</span> <span class="cm-variable">GLOBAL</span>.<span class="cm-property">formMap</span>.<span class="cm-property">eventTitle</span>:
+        <span class="cm-variable-2">eventObject</span>.<span class="cm-property">title</span> <span class="cm-operator">=</span> <span class="cm-variable-2">thisResponse</span>;
+        <span class="cm-keyword">break</span>;
+      <span class="cm-keyword">case</span> <span class="cm-variable">GLOBAL</span>.<span class="cm-property">formMap</span>.<span class="cm-property">startTime</span>:
+        <span class="cm-variable-2">eventObject</span>.<span class="cm-property">startTime</span> <span class="cm-operator">=</span> <span class="cm-variable-2">thisResponse</span>;
+        <span class="cm-keyword">break</span>;
+      <span class="cm-keyword">case</span> <span class="cm-variable">GLOBAL</span>.<span class="cm-property">formMap</span>.<span class="cm-property">endTime</span>:
+        <span class="cm-variable-2">eventObject</span>.<span class="cm-property">endTime</span> <span class="cm-operator">=</span> <span class="cm-variable-2">thisResponse</span>;
+        <span class="cm-keyword">break</span>; 
+      <span class="cm-keyword">case</span> <span class="cm-variable">GLOBAL</span>.<span class="cm-property">formMap</span>.<span class="cm-property">description</span>:
+        <span class="cm-variable-2">eventObject</span>.<span class="cm-property">description</span> <span class="cm-operator">=</span> <span class="cm-variable-2">thisResponse</span>;
+        <span class="cm-keyword">break</span>;
+      <span class="cm-keyword">case</span> <span class="cm-variable">GLOBAL</span>.<span class="cm-property">formMap</span>.<span class="cm-property">location</span>:
+        <span class="cm-variable-2">eventObject</span>.<span class="cm-property">location</span> <span class="cm-operator">=</span> <span class="cm-variable-2">thisResponse</span>;
+        <span class="cm-keyword">break</span>;
+      <span class="cm-keyword">case</span> <span class="cm-variable">GLOBAL</span>.<span class="cm-property">formMap</span>.<span class="cm-property">email</span>:
+        <span class="cm-variable-2">eventObject</span>.<span class="cm-property">email</span> <span class="cm-operator">=</span> <span class="cm-variable-2">thisResponse</span>;
+        <span class="cm-keyword">break</span>;
+    } 
+  }
+  <span class="cm-keyword">return</span> <span class="cm-variable-2">eventObject</span>;
+}
+
+<span class="cm-keyword">function</span> <span class="cm-variable">createCalendarEvent</span>(<span class="cm-def">eventObject</span>) {
+  <span class="cm-comment">//Get a calendar object by opening the calendar using the</span>
+  <span class="cm-comment">//calendar id stored in the GLOBAL variable object</span>
+  <span class="cm-keyword">var</span> <span class="cm-def">calendar</span> <span class="cm-operator">=</span> <span class="cm-variable">CalendarApp</span>.<span class="cm-property">getCalendarById</span>(<span class="cm-variable">GLOBAL</span>.<span class="cm-property">calendarId</span>),
+      <span class="cm-comment">//The title for the event that will be created</span>
+      <span class="cm-def">title</span> <span class="cm-operator">=</span> <span class="cm-variable-2">eventObject</span>.<span class="cm-property">title</span>,
+      <span class="cm-comment">//The start time and date of the event that will be created</span>
+      <span class="cm-def">startTime</span> <span class="cm-operator">=</span> <span class="cm-variable">moment</span>(<span class="cm-variable-2">eventObject</span>.<span class="cm-property">startTime</span>).<span class="cm-property">toDate</span>(),
+      <span class="cm-comment">//The end time and date of the event that will be created</span>
+      <span class="cm-def">endTime</span> <span class="cm-operator">=</span> <span class="cm-variable">moment</span>(<span class="cm-variable-2">eventObject</span>.<span class="cm-property">endTime</span>).<span class="cm-property">toDate</span>();
+  <span class="cm-comment">//an options object containing the description and guest list</span>
+  <span class="cm-comment">//for the event that will be created</span>
+  <span class="cm-keyword">var</span> <span class="cm-def">options</span> <span class="cm-operator">=</span> {
+    <span class="cm-property">description</span> : <span class="cm-variable-2">eventObject</span>.<span class="cm-property">description</span>,
+    <span class="cm-property">guests</span> : <span class="cm-variable-2">eventObject</span>.<span class="cm-property">email</span>,
+    <span class="cm-property">location</span>: <span class="cm-variable-2">eventObject</span>.<span class="cm-property">location</span>,
+  };
+  <span class="cm-keyword">try</span> {
+    <span class="cm-comment">//create a calendar event with given title, start time,</span>
+    <span class="cm-comment">//end time, and description and guests stored in an </span>
+    <span class="cm-comment">//options argument</span>
+    <span class="cm-keyword">var</span> <span class="cm-def">event</span> <span class="cm-operator">=</span> <span class="cm-variable-2">calendar</span>.<span class="cm-property">createEvent</span>(<span class="cm-variable-2">title</span>, <span class="cm-variable-2">startTime</span>, 
+                                     <span class="cm-variable-2">endTime</span>, <span class="cm-variable-2">options</span>)
+    } <span class="cm-keyword">catch</span> (<span class="cm-def">e</span>) {
+      <span class="cm-comment">//delete the guest property from the options variable, </span>
+      <span class="cm-comment">//as an invalid email address with cause this method to </span>
+      <span class="cm-comment">//throw an error.</span>
+      <span class="cm-keyword">delete</span> <span class="cm-variable-2">options</span>.<span class="cm-property">guests</span>
+      <span class="cm-comment">//create the event without including the guest</span>
+      <span class="cm-keyword">var</span> <span class="cm-def">event</span> <span class="cm-operator">=</span> <span class="cm-variable-2">calendar</span>.<span class="cm-property">createEvent</span>(<span class="cm-variable-2">title</span>, <span class="cm-variable-2">startTime</span>, 
+                                       <span class="cm-variable-2">endTime</span>, <span class="cm-variable-2">options</span>)
+      }
+  <span class="cm-keyword">return</span> <span class="cm-variable-2">event</span>;   
+}</pre>
+</body></html>

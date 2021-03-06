@@ -1,0 +1,1532 @@
+---
+layout: post
+title: Merging data in Google Sheets with the Triumvirate of ARRAYFORMULA(), VLOOKUP(),
+  and MATCH()
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  structured_content: '{"oembed":{},"overlay":true}'
+  _thumbnail_id: '1'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h3><span style="font-size:14.6667px">Objective </span></h3>
+<p><span style="font-size:14.6667px">Readers will be able to use the ARRAYFORMULA(), VLOOKUP() and MATCH() functions in Google Sheets to combine multiple </span><span style="font-size:14.6667px">sources of data on to a single sheet.</span></p>
+<h3><span style="font-size:14.6667px">Why this matters</span></h3>
+<p><span style="font-size:14.6667px">Schools may have multiple core data systems with limited integration. Getting an accurate understanding of a child's progress towards key benchmarks can make taming lions look like a walk in the park. For many educators, getting attendance, testing, course performance, and behavioral data for one student means logging into up to four different systems and a lot of screen real estate. In order to get a complete </span><span style="font-size:14.6667px">picture of a student's performance, it is important to be able to aggregate data from multiple systems into one view.</span></p>
+<h3><span style="font-size:14.6667px">Prerequisite knowledge</span></h3>
+<p><span style="font-size:14.6667px">Importing data into Google Spreadsheets, creating a Google Spreadsheet, navigating a Google </span><span style="font-size:14.6667px">Spreadsheet, basic understanding of how spreadsheet functions work.</span></p>
+<h3><span style="font-size:14.6667px">Introduction</span></h3>
+<p><span style="font-size:14.6667px">In this tutorial we will use three Google Spreadsheet functions to robustly combine data from multiple child sheets into </span><span style="font-size:14.6667px">a single master sheet. First I will describe the initial setup of a Google Spreadsheet containing multiple data sheets.  </span><span style="font-size:14.6667px">Second, I will introduce MATCH() and VLOOKUP(), their syntax, purpose, and examples of their use. Next, I will describe how to combine MATCH() and VLOOKUP(). After that, I will introduce ARRAYFORMULA() and in the end, I will describe </span><span style="font-size:14.6667px">how to combine the three functions to create a single sheet view of all the disparate data. One view to rule them all, as the saying goes.</span></p>
+<h3><span style="font-size:14.6667px">Initial Setup</span></h3>
+<ol>
+<li><span style="font-size:14.6667px">Create a new Google Spreadsheet.</span></li>
+<li><span style="font-size:14.6667px">Use the <a target="_blank" href="https://support.google.com/docs/answer/40608?hl=en">import CSV feature</a> in the "File" menu to upload multiple data sets, such as test scores, attendance, behavior data, etc. All data must have a common unique identifier associated with each record. In this case, each student has a unique student identification number. The unique identifier must be in a column to the left of the data that will be aggregated from each import.</span></li>
+<li><span style="font-size:14.6667px">Create a parent sheet in the Google Spreadsheet, which we will call "Student Data".</span></li>
+<li><span style="font-size:14.6667px">Create a student record list by pasting a complete list of student IDs, first names, and lastnames into the first columns of the "Student Data" sheet with clearly titled column headers. While this example uses student records, clients, customers, vendors, etc. could be used as records to aggregate data on as well.</span></li>
+<li><span style="font-size:14.6667px">Title columns to the right of the initial student record list. In this example we will aggregate student GPA, attendance, and standardized test scores. The titles of each column must match the titles of the columns in the child sheets containing the imported data from step 2. For example, if the attendance child sheet contains a column header called "Year to Date Att" that I want to include in the "Student Data" sheet, I will create a column header in the "Student Data" sheet called "Year to Date Att".</span></li>
+</ol>
+<p><span style="font-size:14.6667px">Once the spreadsheet child sheets are all imported and the master "Student Data" sheet contains a row for each record and column headers that match desired data from the child data sheets, we are ready to move on and use the MATCH(), VLOOKUP(), and ARRAYFORMULA() functions to aggregate child sheet data on the "Student Data" sheet.</span></p>
+<p><strong><em><span style="font-size:14.6667px">You can make a copy of a pre-built demo spreadsheet with all of the above steps already accomplished <a target="_blank" href="https://docs.google.com/spreadsheets/d/1CznSNcSyaLy4lWEygy_yH3Hk8bJnvGcXtJH2lXKDpa4/copy">here</a>.</span></em></strong></p>
+<h3>Match()</h3>
+<p style="margin-left:40px">Arguments: MATCH(search_key, range, [search_type])</p>
+<p style="margin-left:40px">Summary: Returns the relative position of an item in a range that matches a specified value.</p>
+<p style="margin-left:80px"><em>search_key</em>: The value to search for.</p>
+<p style="margin-left:80px"><em>range</em>: The one-dimensional array to be searched. Or, more simply a list of items. </p>
+<p style="margin-left:80px"><em>search_type</em>: The manner in which to search. In 99% of use cases for this function, I've always needed an exact match, so the search type is 0 or FALSE.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1776px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:56.41891860961914%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450890473335-KOCBF8PHDP66Y4TO9CMG/ke17ZwdGBToddI8pDm48kCZcAomwKc-wiK-MpTLtZkB7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UT6SWs5FKbWY5UQu-hY2KpADq7NO6SKQ-vzqv6ddasTr3WUfc_ZsVm9Mi1E6FasEnQ/image-asset.png" alt="Figure 1:&amp;nbsp;Using MATCH() to return the relative position of the contents of cell D1, &quot;Year to Date Att&quot;, in the range 'Attendance Import CSV'!1:1, the first row of the Attendance Import CSV child sheet, using an exact match (false)."></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450890473335-KOCBF8PHDP66Y4TO9CMG/ke17ZwdGBToddI8pDm48kCZcAomwKc-wiK-MpTLtZkB7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UT6SWs5FKbWY5UQu-hY2KpADq7NO6SKQ-vzqv6ddasTr3WUfc_ZsVm9Mi1E6FasEnQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450890473335-KOCBF8PHDP66Y4TO9CMG/ke17ZwdGBToddI8pDm48kCZcAomwKc-wiK-MpTLtZkB7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UT6SWs5FKbWY5UQu-hY2KpADq7NO6SKQ-vzqv6ddasTr3WUfc_ZsVm9Mi1E6FasEnQ/image-asset.png" data-image-dimensions="1776x1002" data-image-focal-point="0.5,0.5" alt="Figure 1:&amp;nbsp;Using MATCH() to return the relative position of the contents of cell D1, &quot;Year to Date Att&quot;, in the range 'Attendance Import CSV'!1:1, the first row of the Attendance Import CSV child sheet, using an exact match (false)." data-load="false" data-image-id="567ad4e89cadb6b9979738dc" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Figure 1: Using MATCH() to return the relative position of the contents of cell D1, "Year to Date Att", in the range 'Attendance Import CSV'!1:1, the first row of the Attendance Import CSV child sheet, using an exact match (false).</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1390px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:37.553958892822266%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450890878470-N8IEUH5EM6J9A6756FJH/ke17ZwdGBToddI8pDm48kOFjEvnF_a79vwAr71wblToUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKczstxlNL2xnYSjF6TgsCWb-rWdZLL_Lzrno7IGcn4e0rMq5U2Rwrun-FHjSLlO5L6/Screen+Shot+2015-12-23+at+10.14.15+AM.png" alt="Figure 2: The MATCH() in Figure 1 returns a 4, which is the relative position of the search key, &quot;Year to Date Att&quot; in the range 'Attendance Import CSV'!1:1, the first row of the Attendance Import CSV child sheet."></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450890878470-N8IEUH5EM6J9A6756FJH/ke17ZwdGBToddI8pDm48kOFjEvnF_a79vwAr71wblToUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKczstxlNL2xnYSjF6TgsCWb-rWdZLL_Lzrno7IGcn4e0rMq5U2Rwrun-FHjSLlO5L6/Screen+Shot+2015-12-23+at+10.14.15+AM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450890878470-N8IEUH5EM6J9A6756FJH/ke17ZwdGBToddI8pDm48kOFjEvnF_a79vwAr71wblToUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKczstxlNL2xnYSjF6TgsCWb-rWdZLL_Lzrno7IGcn4e0rMq5U2Rwrun-FHjSLlO5L6/Screen+Shot+2015-12-23+at+10.14.15+AM.png" data-image-dimensions="1390x522" data-image-focal-point="0.5,0.5" alt="Figure 2: The MATCH() in Figure 1 returns a 4, which is the relative position of the search key, &quot;Year to Date Att&quot; in the range 'Attendance Import CSV'!1:1, the first row of the Attendance Import CSV child sheet." data-load="false" data-image-id="567ad67cdc5cb4689752dab7" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Figure 2: The MATCH() in Figure 1 returns a 4, which is the relative position of the search key, "Year to Date Att" in the range 'Attendance Import CSV'!1:1, the first row of the Attendance Import CSV child sheet.</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2034px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:25.073745727539062%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450891055292-TDYUXEW9NXR9AS6LWVA3/ke17ZwdGBToddI8pDm48kN1K_UnNPYKKGc5mCNc3ALMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dsQ100SV0DQrteHf5_e7W2kMHmhO2DSPmsCAnx6qe3uZCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt='Figure 3: Notice that "Year to Date Att" is the fourth value in the one-dimensional range in row 1 of the Attendance Import CSV child sheet. In other words, starting from the left, "ID" is the first value in row 1, "Last Name" is the second value, "First Name" is the third value, and so on. Match() tells us where in a one-dimensional range an item is located.'></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450891055292-TDYUXEW9NXR9AS6LWVA3/ke17ZwdGBToddI8pDm48kN1K_UnNPYKKGc5mCNc3ALMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dsQ100SV0DQrteHf5_e7W2kMHmhO2DSPmsCAnx6qe3uZCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450891055292-TDYUXEW9NXR9AS6LWVA3/ke17ZwdGBToddI8pDm48kN1K_UnNPYKKGc5mCNc3ALMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dsQ100SV0DQrteHf5_e7W2kMHmhO2DSPmsCAnx6qe3uZCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="2034x510" data-image-focal-point="0.5,0.5" alt='Figure 3: Notice that "Year to Date Att" is the fourth value in the one-dimensional range in row 1 of the Attendance Import CSV child sheet. In other words, starting from the left, "ID" is the first value in row 1, "Last Name" is the second value, "First Name" is the third value, and so on. Match() tells us where in a one-dimensional range an item is located.' data-load="false" data-image-id="567ad72d69a91af2c88fd051" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Figure 3: Notice that "Year to Date Att" is the fourth value in the one-dimensional range in row 1 of the Attendance Import CSV child sheet. In other words, starting from the left, "ID" is the first value in row 1, "Last Name" is the second value, "First Name" is the third value, and so on. Match() tells us where in a one-dimensional range an item is located.</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1628px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:28.13267707824707%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450891330619-C6O2L8DS8GSY0OU7HAC4/ke17ZwdGBToddI8pDm48kJtzw_ZYSQfCYLLDR9wlewoUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dmdfPU8mgHEqGMYhoikk-ZOBXqpL90i-QgZhnmgdvBK8CjLISwBs8eEdxAxTptZAUg/image-asset.png" alt='Figure 4: A common mistake is attempting to match a search_key that is not actually in the range used in argument two. In the above case we get "#N/A" because "Year to Date Attendance", the search key, is not in the first row of the Attendance Import CSV. The key point is to be very careful that you are trying to match items that are exactly the same in the search_key and the range.'></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450891330619-C6O2L8DS8GSY0OU7HAC4/ke17ZwdGBToddI8pDm48kJtzw_ZYSQfCYLLDR9wlewoUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dmdfPU8mgHEqGMYhoikk-ZOBXqpL90i-QgZhnmgdvBK8CjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450891330619-C6O2L8DS8GSY0OU7HAC4/ke17ZwdGBToddI8pDm48kJtzw_ZYSQfCYLLDR9wlewoUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dmdfPU8mgHEqGMYhoikk-ZOBXqpL90i-QgZhnmgdvBK8CjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1628x458" data-image-focal-point="0.5,0.5" alt='Figure 4: A common mistake is attempting to match a search_key that is not actually in the range used in argument two. In the above case we get "#N/A" because "Year to Date Attendance", the search key, is not in the first row of the Attendance Import CSV. The key point is to be very careful that you are trying to match items that are exactly the same in the search_key and the range.' data-load="false" data-image-id="567ad8400ab377dd6038feb1" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Figure 4: A common mistake is attempting to match a search_key that is not actually in the range used in argument two. In the above case we get "#N/A" because "Year to Date Attendance", the search key, is not in the first row of the Attendance Import CSV. The key point is to be very careful that you are trying to match items that are exactly the same in the search_key and the range.</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>VLOOKUP</h3>
+<p style="margin-left:40px">Arguments: VLOOKUP(search_key, range, index, [is_sorted])</p>
+<p style="margin-left:40px">Summary: Vertical lookup. Searches down the first column of a range for a key and returns the value of a specified cell in the row found.</p>
+<p style="margin-left:80px"><em>search_key</em>: The value to search for.</p>
+<p style="margin-left:80px"><em>range</em>: The range to consider for the search. The first column in the range is searched for the key and returns the value of a specified cell in the row found.</p>
+<p style="margin-left:80px"><em>index</em>: The column index of the value to be returned, where the first column in <em>range </em>is numbered 1.</p>
+<p style="margin-left:80px"><em>is_sorted</em>: Indicates whether the column to be searched (the first column of the specified range) is sorted, in which case the closest match for search_key will be returned. As is the case with MATCH(), 99% of the times I've used VLOOKUP(), the is_sorted argument should be FALSE because I am interested in an exact match.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1926px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:65.14286041259766%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450891909407-QJLNHRJI1A2HZL42R0VJ/ke17ZwdGBToddI8pDm48kNirGf5wIowvlrluONNVz6t7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UdnUVg-sqDYm8lj1oWvi9rfwuS8PxFEyKYt0i579O3LMMW9u6oXQZQicHHG1WEE6fg/Screen+Shot+2015-12-23+at+10.25.51+AM.png" alt="Figure 5:  We are looking up Carol Adams's Year to Date Attendance in the &quot;Attendance Import CSV&quot; child sheet by using her student ID as a search_key. More specifically, we are u sing VLOOKUP() to return the value in the fourth column of the range 'Attendance Import CSV'!A:F, where the student id &quot;640894&quot;, cell A3, is found in the first column of the &amp;nbsp;range 'Attendance Import CSV'!A:F. Since we are only interested in the exact student ID match, we use FALSE for the optional &quot;is_sorted&quot; argument."></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450891909407-QJLNHRJI1A2HZL42R0VJ/ke17ZwdGBToddI8pDm48kNirGf5wIowvlrluONNVz6t7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UdnUVg-sqDYm8lj1oWvi9rfwuS8PxFEyKYt0i579O3LMMW9u6oXQZQicHHG1WEE6fg/Screen+Shot+2015-12-23+at+10.25.51+AM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450891909407-QJLNHRJI1A2HZL42R0VJ/ke17ZwdGBToddI8pDm48kNirGf5wIowvlrluONNVz6t7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UdnUVg-sqDYm8lj1oWvi9rfwuS8PxFEyKYt0i579O3LMMW9u6oXQZQicHHG1WEE6fg/Screen+Shot+2015-12-23+at+10.25.51+AM.png" data-image-dimensions="1926x1300" data-image-focal-point="0.5,0.5" alt="Figure 5:  We are looking up Carol Adams's Year to Date Attendance in the &quot;Attendance Import CSV&quot; child sheet by using her student ID as a search_key. More specifically, we are u sing VLOOKUP() to return the value in the fourth column of the range 'Attendance Import CSV'!A:F, where the student id &quot;640894&quot;, cell A3, is found in the first column of the &amp;nbsp;range 'Attendance Import CSV'!A:F. Since we are only interested in the exact student ID match, we use FALSE for the optional &quot;is_sorted&quot; argument." data-load="false" data-image-id="567ada835a56683a784a79ee" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Figure 5: <span style="font-size:15.75px">We are looking up Carol Adams's Year to Date Attendance in the "Attendance Import CSV" child sheet by using her student ID as a search_key. More specifically, we are u</span>sing VLOOKUP() to return the value in the fourth column of the range 'Attendance Import CSV'!A:F, where the student id "640894", cell A3, is found in the first column of the  range 'Attendance Import CSV'!A:F. Since we are only interested in the exact student ID match, we use FALSE for the optional "is_sorted" argument.</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1192px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:40.268455505371094%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450892345254-TF659U7X1TKTNV69A7S2/ke17ZwdGBToddI8pDm48kED6Da2meYMD6Bcr8LOYsn4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKccU10H4dQHRcw-qJwm3r_eIuaTDAs6PkaCry1DOk2wQxspihG-64Hc5g7BK3drkMr/image-asset.png" alt="Figure 6: Carol Adams's Year to Date Attendance value on the Attendance Import CSV child sheet is 98."></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450892345254-TF659U7X1TKTNV69A7S2/ke17ZwdGBToddI8pDm48kED6Da2meYMD6Bcr8LOYsn4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKccU10H4dQHRcw-qJwm3r_eIuaTDAs6PkaCry1DOk2wQxspihG-64Hc5g7BK3drkMr/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450892345254-TF659U7X1TKTNV69A7S2/ke17ZwdGBToddI8pDm48kED6Da2meYMD6Bcr8LOYsn4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKccU10H4dQHRcw-qJwm3r_eIuaTDAs6PkaCry1DOk2wQxspihG-64Hc5g7BK3drkMr/image-asset.png" data-image-dimensions="1192x480" data-image-focal-point="0.5,0.5" alt="Figure 6: Carol Adams's Year to Date Attendance value on the Attendance Import CSV child sheet is 98." data-load="false" data-image-id="567adc379cadb6a19125d1f0" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Figure 6: Carol Adams's Year to Date Attendance value on the Attendance Import CSV child sheet is 98.</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>For additional help with VLOOKUP, check out this handy <a href="https://sites.google.com/a/newvisions.org/cloudlab-spreadsheet-fundamentals/mini-challenge-8-vlookup">CloudLab New Visions tutorial</a> that I co-authored in another lifetime.</p>
+<h3>Combining MATCH() and VLOOKUP()</h3>
+<p>Think back to the MATCH() example above which returned a 4 to indicate the relative position of "Year to Date Att" in the first row of the Attendance Import CSV child sheet. Perhaps you have already realized that the return value for our MATCH() function is the same value as the index argument in our VLOOKUP() example. This was not a coincidence and herein lies the beauty and elegance of MATCH() and VLOOKUP().</p>
+<p>To combine MATCH() and VLOOKUP, simply replace the index argument in VLOOKUP() with the entire MATCH() function.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1682px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:24.73246192932129%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450893025927-XTKHZOKGQ34TYBPRJMQZ/ke17ZwdGBToddI8pDm48kIF9GS9ypn4ju1rRcZbxWSsUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dp3e0SzXQ07kGq6trleGnqQlt6VBu7PB50wBCnrqrY67CjLISwBs8eEdxAxTptZAUg/image-asset.png" alt='Figure 7: Highlight the MATCH() function, without the "=" sign. Use ctrl+C or cmd+C to copy the text of the function.'></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450893025927-XTKHZOKGQ34TYBPRJMQZ/ke17ZwdGBToddI8pDm48kIF9GS9ypn4ju1rRcZbxWSsUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dp3e0SzXQ07kGq6trleGnqQlt6VBu7PB50wBCnrqrY67CjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450893025927-XTKHZOKGQ34TYBPRJMQZ/ke17ZwdGBToddI8pDm48kIF9GS9ypn4ju1rRcZbxWSsUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dp3e0SzXQ07kGq6trleGnqQlt6VBu7PB50wBCnrqrY67CjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1682x416" data-image-focal-point="0.5,0.5" alt='Figure 7: Highlight the MATCH() function, without the "=" sign. Use ctrl+C or cmd+C to copy the text of the function.' data-load="false" data-image-id="567adee105f8e23d94142df1" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Figure 7: Highlight the MATCH() function, without the "=" sign. Use ctrl+C or cmd+C to copy the text of the function.</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1788px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:74.27293395996094%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450893082593-AH0P3HAS92L7EHF2DERS/ke17ZwdGBToddI8pDm48kG4zopvlOXSIav-tPnLEIWF7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UcvyBSM2ck0a34FHNfjvMBLmH-ADthVWe4FiSPqmGtvybSexTd1-frD7527z4SM9QQ/image-asset.png" alt="Figure 8: Highlight the index argument, which is 4, in the VLOOKUP() function. Use ctrl+V or cmd+V to paste the MATCH() function as the index argument."></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450893082593-AH0P3HAS92L7EHF2DERS/ke17ZwdGBToddI8pDm48kG4zopvlOXSIav-tPnLEIWF7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UcvyBSM2ck0a34FHNfjvMBLmH-ADthVWe4FiSPqmGtvybSexTd1-frD7527z4SM9QQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450893082593-AH0P3HAS92L7EHF2DERS/ke17ZwdGBToddI8pDm48kG4zopvlOXSIav-tPnLEIWF7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UcvyBSM2ck0a34FHNfjvMBLmH-ADthVWe4FiSPqmGtvybSexTd1-frD7527z4SM9QQ/image-asset.png" data-image-dimensions="1788x1328" data-image-focal-point="0.5,0.5" alt="Figure 8: Highlight the index argument, which is 4, in the VLOOKUP() function. Use ctrl+V or cmd+V to paste the MATCH() function as the index argument." data-load="false" data-image-id="567adf164bf118defd544cdf" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Figure 8: Highlight the index argument, which is 4, in the VLOOKUP() function. Use ctrl+V or cmd+V to paste the MATCH() function as the index argument.</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1776px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:79.39189147949219%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450893190578-WQACQX6J1FZ8AWRZ4X3P/ke17ZwdGBToddI8pDm48kJYb6u2ui1Ky2OQayLg_SPV7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UWH4HIGAn0BFjTV-cktcgFb31huCP7InS44PYqtGIvaBpC969RuPXvt2ZwyzUXQf7Q/image-asset.png" alt="Figure 9: Using the MATCH() function as the index argument in VLOOKUP(). Since the MATCH() function returns a 4, the value returned by the VLOOKUP() will remain, 98, which is the value in the fourth column of the Attendance Import CSV child sheet and the row matching Carol Adams's student ID."></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450893190578-WQACQX6J1FZ8AWRZ4X3P/ke17ZwdGBToddI8pDm48kJYb6u2ui1Ky2OQayLg_SPV7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UWH4HIGAn0BFjTV-cktcgFb31huCP7InS44PYqtGIvaBpC969RuPXvt2ZwyzUXQf7Q/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450893190578-WQACQX6J1FZ8AWRZ4X3P/ke17ZwdGBToddI8pDm48kJYb6u2ui1Ky2OQayLg_SPV7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UWH4HIGAn0BFjTV-cktcgFb31huCP7InS44PYqtGIvaBpC969RuPXvt2ZwyzUXQf7Q/image-asset.png" data-image-dimensions="1776x1410" data-image-focal-point="0.5,0.5" alt="Figure 9: Using the MATCH() function as the index argument in VLOOKUP(). Since the MATCH() function returns a 4, the value returned by the VLOOKUP() will remain, 98, which is the value in the fourth column of the Attendance Import CSV child sheet and the row matching Carol Adams's student ID." data-load="false" data-image-id="567adf82a128e64df154eba4" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Figure 9: Using the MATCH() function as the index argument in VLOOKUP(). Since the MATCH() function returns a 4, the value returned by the VLOOKUP() will remain, 98, which is the value in the fourth column of the Attendance Import CSV child sheet and the row matching Carol Adams's student ID.</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>ArrayFormula</h3>
+<p style="margin-left:40px">Arguments: ARRAYFORMULA(array_formula)</p>
+<p style="margin-left:40px">Summary: Enables the display of values returned from an array formula into multiple rows and/or columns and the use of non-array functions with arrays.</p>
+<p style="margin-left:80px"><em>array_formula</em>: A range, mathematical expression using one cell range or multiple ranges of the same size, or a function that returns a result greater than one cell.</p>
+<p style="margin-left:40px">Disclaimer: Arrayformula is very conceptually challenging to use and explain. The best way to explain how we will use it in this tutorial is to say that ArrayFormula will allow us to lookup and return many values at once. VLOOKUP() is a non-array function, but by using ARRAYFORMULA() we can actually use an array as the search_key.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1678px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:30.989274978637695%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450893578620-FJSLWDPCLPVBLZYBVUHF/ke17ZwdGBToddI8pDm48kDF-asS6HJe8ApzueNtXUg8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dv2Qev2pKkyV13RIiiNAtR5ohzbwZ98fznkJ8lThBkM1CjLISwBs8eEdxAxTptZAUg/image-asset.png" alt="Figure 10: In this example we are using ARRAYFORMULA() to return the contents of the Attendance Import CSV child sheet."></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450893578620-FJSLWDPCLPVBLZYBVUHF/ke17ZwdGBToddI8pDm48kDF-asS6HJe8ApzueNtXUg8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dv2Qev2pKkyV13RIiiNAtR5ohzbwZ98fznkJ8lThBkM1CjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450893578620-FJSLWDPCLPVBLZYBVUHF/ke17ZwdGBToddI8pDm48kDF-asS6HJe8ApzueNtXUg8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dv2Qev2pKkyV13RIiiNAtR5ohzbwZ98fznkJ8lThBkM1CjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1678x520" data-image-focal-point="0.5,0.5" alt="Figure 10: In this example we are using ARRAYFORMULA() to return the contents of the Attendance Import CSV child sheet." data-load="false" data-image-id="567ae10840667a86b9ee0847" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Figure 10: In this example we are using ARRAYFORMULA() to return the contents of the Attendance Import CSV child sheet.</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1864px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:56.8669548034668%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450893768219-HJ6U2VTZG5K7GQFQHKAO/ke17ZwdGBToddI8pDm48kPI-lvNgZDofyTKGJJ481717gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UdGR3kksofX0knvjc843-mUOVJosAMCv7TRq_gRKNfWr3WUfc_ZsVm9Mi1E6FasEnQ/image-asset.png" alt="Figure 11: The returned values from the Attendance Import CSV child sheet."></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450893768219-HJ6U2VTZG5K7GQFQHKAO/ke17ZwdGBToddI8pDm48kPI-lvNgZDofyTKGJJ481717gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UdGR3kksofX0knvjc843-mUOVJosAMCv7TRq_gRKNfWr3WUfc_ZsVm9Mi1E6FasEnQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450893768219-HJ6U2VTZG5K7GQFQHKAO/ke17ZwdGBToddI8pDm48kPI-lvNgZDofyTKGJJ481717gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UdGR3kksofX0knvjc843-mUOVJosAMCv7TRq_gRKNfWr3WUfc_ZsVm9Mi1E6FasEnQ/image-asset.png" data-image-dimensions="1864x1060" data-image-focal-point="0.5,0.5" alt="Figure 11: The returned values from the Attendance Import CSV child sheet." data-load="false" data-image-id="567ae1c7bfe8733d31fdd9fb" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Figure 11: The returned values from the Attendance Import CSV child sheet.</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>Combining MATCH, VLookup, and Arrayformula</h3>
+<p>We have already been able to combine MATCH() and VLOOKUP() to find Carol Adams's year to date attendance. We next need to find the year to date attendance of all of our hypothetical students. To do so, we will wrap the entire VLOOKUP() / MATCH() combination in an ARRAYFORMULA() and we will change the first argument of the VLOOKUP() from A3, Carol Adams's student ID, to A2:A, which is the range containing all of our student IDs.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1830px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:38.797813415527344%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450894005722-CC4GKPKTB1MVSO8T389A/ke17ZwdGBToddI8pDm48kG6FACsXmF_sTPWU6JbZ2RsUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dnBqVECs8QgGhhrVR2Pw5DAC076ZpnY6cBGXLBOedpUZCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt='Figure 12: Insert "ARRAYFORMULA" and open parentheses before the start of the VLOOKUP() function. Do not worry about closing the parentheses, Sheets will do that automatically.'></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450894005722-CC4GKPKTB1MVSO8T389A/ke17ZwdGBToddI8pDm48kG6FACsXmF_sTPWU6JbZ2RsUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dnBqVECs8QgGhhrVR2Pw5DAC076ZpnY6cBGXLBOedpUZCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450894005722-CC4GKPKTB1MVSO8T389A/ke17ZwdGBToddI8pDm48kG6FACsXmF_sTPWU6JbZ2RsUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dnBqVECs8QgGhhrVR2Pw5DAC076ZpnY6cBGXLBOedpUZCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1830x710" data-image-focal-point="0.5,0.5" alt='Figure 12: Insert "ARRAYFORMULA" and open parentheses before the start of the VLOOKUP() function. Do not worry about closing the parentheses, Sheets will do that automatically.' data-load="false" data-image-id="567ae2b2841abaee61e80a82" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Figure 12: Insert "ARRAYFORMULA" and open parentheses before the start of the VLOOKUP() function. Do not worry about closing the parentheses, Sheets will do that automatically.</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1832px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:53.384281158447266%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450894087721-YKPY2RG3RA4451QNXECV/ke17ZwdGBToddI8pDm48kDb1pxgJAQMmGJpcLG7h_mkUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dvfg9Z5a-K34Oxd1gtlUzSs8AXyTLHqXkLg3BuPzbcwTCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt="Figure 13: Change the search_key argument in VLOOKUP() from A3, which is a single student ID, to A2:A, which is all of the student IDs."></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450894087721-YKPY2RG3RA4451QNXECV/ke17ZwdGBToddI8pDm48kDb1pxgJAQMmGJpcLG7h_mkUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dvfg9Z5a-K34Oxd1gtlUzSs8AXyTLHqXkLg3BuPzbcwTCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450894087721-YKPY2RG3RA4451QNXECV/ke17ZwdGBToddI8pDm48kDb1pxgJAQMmGJpcLG7h_mkUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dvfg9Z5a-K34Oxd1gtlUzSs8AXyTLHqXkLg3BuPzbcwTCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1832x978" data-image-focal-point="0.5,0.5" alt="Figure 13: Change the search_key argument in VLOOKUP() from A3, which is a single student ID, to A2:A, which is all of the student IDs." data-load="false" data-image-id="567ae3044bf118defd546a45" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Figure 13: Change the search_key argument in VLOOKUP() from A3, which is a single student ID, to A2:A, which is all of the student IDs.</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1646px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:101.2150650024414%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450894161510-91RRTV7QFAACKL1A9AHT/ke17ZwdGBToddI8pDm48kDaZ7j0hmi0iGisio-KN_Dd7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UQ6XAvr-OKTzhLKnJ5aB7sqrmAnXqb9L5APD2v9CgWGZbSexTd1-frD7527z4SM9QQ/Screen+Shot+2015-12-23+at+11.09.04+AM.png" alt="Figure 14: ARRAYFORMULA() is applying the VLOOKUP() / MATCH()&amp;nbsp;combination to the entire set of student IDs passed into the VLOOKUP() search_key. The result is that we are now reading in all of our students' year to date attendance values from the Attendance Import CSV child sheet."></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450894161510-91RRTV7QFAACKL1A9AHT/ke17ZwdGBToddI8pDm48kDaZ7j0hmi0iGisio-KN_Dd7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UQ6XAvr-OKTzhLKnJ5aB7sqrmAnXqb9L5APD2v9CgWGZbSexTd1-frD7527z4SM9QQ/Screen+Shot+2015-12-23+at+11.09.04+AM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450894161510-91RRTV7QFAACKL1A9AHT/ke17ZwdGBToddI8pDm48kDaZ7j0hmi0iGisio-KN_Dd7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UQ6XAvr-OKTzhLKnJ5aB7sqrmAnXqb9L5APD2v9CgWGZbSexTd1-frD7527z4SM9QQ/Screen+Shot+2015-12-23+at+11.09.04+AM.png" data-image-dimensions="1646x1666" data-image-focal-point="0.5,0.5" alt="Figure 14: ARRAYFORMULA() is applying the VLOOKUP() / MATCH()&amp;nbsp;combination to the entire set of student IDs passed into the VLOOKUP() search_key. The result is that we are now reading in all of our students' year to date attendance values from the Attendance Import CSV child sheet." data-load="false" data-image-id="567ae34d2399a3b54db50ff0" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Figure 14: ARRAYFORMULA() is applying the VLOOKUP() / MATCH() combination to the entire set of student IDs passed into the VLOOKUP() search_key. The result is that we are now reading in all of our students' year to date attendance values from the Attendance Import CSV child sheet.</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>STatic References</h3>
+<p>The next step is to use the "$" in our formula to keep certain references static so that we can copy and paste this formula and continue to reap the rewards of its power.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1016px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:14.173229217529297%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450894420407-C7820ARQMYV7UKTB0DU9/ke17ZwdGBToddI8pDm48kH7i83AizjG112hoL2nPnPwUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcinoZic8u2mz6Z9GFz8ae0tDBHCz30uMPiRjDfsBjZlqgYQlYz9QiuxmzQKVDj35Z/Screen+Shot+2015-12-23+at+11.13.27+AM.png" alt="Figure 15: The static references we need to apply to fully reap the rewards of the power of this triumvirate."></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450894420407-C7820ARQMYV7UKTB0DU9/ke17ZwdGBToddI8pDm48kH7i83AizjG112hoL2nPnPwUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcinoZic8u2mz6Z9GFz8ae0tDBHCz30uMPiRjDfsBjZlqgYQlYz9QiuxmzQKVDj35Z/Screen+Shot+2015-12-23+at+11.13.27+AM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450894420407-C7820ARQMYV7UKTB0DU9/ke17ZwdGBToddI8pDm48kH7i83AizjG112hoL2nPnPwUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcinoZic8u2mz6Z9GFz8ae0tDBHCz30uMPiRjDfsBjZlqgYQlYz9QiuxmzQKVDj35Z/Screen+Shot+2015-12-23+at+11.13.27+AM.png" data-image-dimensions="1016x144" data-image-focal-point="0.5,0.5" alt="Figure 15: The static references we need to apply to fully reap the rewards of the power of this triumvirate." data-load="false" data-image-id="567ae45357eb8d11d1832833" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p><span style="font-size:15.75px">Figure 15: The static references we need to apply to fully reap the rewards of the power of this triumvirate.</span></p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<ul>
+<li><span style="font-size:15.75px">Change A2:A to $A2:$A because as we start pasting this formula to the right, we want the search_key to remain the student IDs in column A.</span></li>
+<li><span style="font-size:15.75px">Change A:F to $A:$F because we want the range argument in VLOOKUP() to stay in the same place. If we forget this step, we might accidentally shift the VLOOKUP() range such that it no longer includes the student ID column. </span></li>
+<li><span style="font-size:15.75px">Change D1 to D$1 because we always want the MATCH() search_key to be our column headers, but we also want to be able to shift which column header is referenced. For example, in Column E, to look up all of the 2014-15 attendance averages, we will want the search_key in the MATCH() function to be C$1. In other words, do not put a $ sign in front of the column reference, only the row reference.</span></li>
+<li><span style="font-size:15.75px">Change 1:1 to $1:$1 just for fun because we are only going to be copying and pasting the formula horizontally, which means the 1:1 will not actually shift. However, there is something to be said for consistency.</span></li>
+</ul>
+<h3>Copying and Pasting the Triumvirate Function</h3>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1814px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:27.453142166137695%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450895081620-QBAQ0DEJD9VQH0IMVDHD/ke17ZwdGBToddI8pDm48kBaYxpFj6h6Ub20Dj2Qof64UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dh52FTAqOWlEy-guRAy5XC9SdacAq8nusMQkJXX0E2JUCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt="Figure 16: Copy the entire formula in cell D2."></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450895081620-QBAQ0DEJD9VQH0IMVDHD/ke17ZwdGBToddI8pDm48kBaYxpFj6h6Ub20Dj2Qof64UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dh52FTAqOWlEy-guRAy5XC9SdacAq8nusMQkJXX0E2JUCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450895081620-QBAQ0DEJD9VQH0IMVDHD/ke17ZwdGBToddI8pDm48kBaYxpFj6h6Ub20Dj2Qof64UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dh52FTAqOWlEy-guRAy5XC9SdacAq8nusMQkJXX0E2JUCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1814x498" data-image-focal-point="0.5,0.5" alt="Figure 16: Copy the entire formula in cell D2." data-load="false" data-image-id="567ae6e8c647ad3e09e63a41" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Figure 16: Copy the entire formula in cell D2.</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1826px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:38.00657272338867%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450895123801-P9Q1I4WAH74M4SGHX1F4/ke17ZwdGBToddI8pDm48kAOrq9WW-C0VIKD048dbbMMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dmDUjfIGIyZMQoRL6pKfgSD8XQI9VT4ARYOzc44r6g3zCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt="Figure 17: Paste the formula from cell D2 into cell E2. Notice how the MATCH() search_key shifted from D$1 to E$1 while all other cell references remained static."></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450895123801-P9Q1I4WAH74M4SGHX1F4/ke17ZwdGBToddI8pDm48kAOrq9WW-C0VIKD048dbbMMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dmDUjfIGIyZMQoRL6pKfgSD8XQI9VT4ARYOzc44r6g3zCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450895123801-P9Q1I4WAH74M4SGHX1F4/ke17ZwdGBToddI8pDm48kAOrq9WW-C0VIKD048dbbMMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dmDUjfIGIyZMQoRL6pKfgSD8XQI9VT4ARYOzc44r6g3zCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1826x694" data-image-focal-point="0.5,0.5" alt="Figure 17: Paste the formula from cell D2 into cell E2. Notice how the MATCH() search_key shifted from D$1 to E$1 while all other cell references remained static." data-load="false" data-image-id="567ae713a128e64df1552606" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Figure 17: Paste the formula from cell D2 into cell E2. Notice how the MATCH() search_key shifted from D$1 to E$1 while all other cell references remained static.</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1888px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:38.14285659790039%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450895215346-XRNC0IR6PGNZ92HWZUTZ/ke17ZwdGBToddI8pDm48kOT1ilG5298vXvjZpVkaHDUUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dry5xskPrctgXPoZ1SkwvK09csseaUSqgyuun3ub6ORbCjLISwBs8eEdxAxTptZAUg/Screen+Shot+2015-12-23+at+11.26.32+AM.png" alt="Figure 18: A closer look at the effect of the copy and paste on our cell references."></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450895215346-XRNC0IR6PGNZ92HWZUTZ/ke17ZwdGBToddI8pDm48kOT1ilG5298vXvjZpVkaHDUUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dry5xskPrctgXPoZ1SkwvK09csseaUSqgyuun3ub6ORbCjLISwBs8eEdxAxTptZAUg/Screen+Shot+2015-12-23+at+11.26.32+AM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450895215346-XRNC0IR6PGNZ92HWZUTZ/ke17ZwdGBToddI8pDm48kOT1ilG5298vXvjZpVkaHDUUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dry5xskPrctgXPoZ1SkwvK09csseaUSqgyuun3ub6ORbCjLISwBs8eEdxAxTptZAUg/Screen+Shot+2015-12-23+at+11.26.32+AM.png" data-image-dimensions="1888x722" data-image-focal-point="0.5,0.0" alt="Figure 18: A closer look at the effect of the copy and paste on our cell references." data-load="false" data-image-id="567ae76eb204d571a6c98a02" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Figure 18: A closer look at the effect of the copy and paste on our cell references.</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1834px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:28.680479049682617%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450895286414-NX9KH9OKV02UF44AAJK1/ke17ZwdGBToddI8pDm48kBN6vseH2czre5s9GgqAbY4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dn-IAl8GhLX4GFh0c1-LoMAQPAv9kOILsREWHTBO8WkzCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt="Figure 19: Repeat the same copy / paste procedure for the 2013-14 Att column."></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450895286414-NX9KH9OKV02UF44AAJK1/ke17ZwdGBToddI8pDm48kBN6vseH2czre5s9GgqAbY4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dn-IAl8GhLX4GFh0c1-LoMAQPAv9kOILsREWHTBO8WkzCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450895286414-NX9KH9OKV02UF44AAJK1/ke17ZwdGBToddI8pDm48kBN6vseH2czre5s9GgqAbY4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dn-IAl8GhLX4GFh0c1-LoMAQPAv9kOILsREWHTBO8WkzCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1834x526" data-image-focal-point="0.5,0.5" alt="Figure 19: Repeat the same copy / paste procedure for the 2013-14 Att column." data-load="false" data-image-id="567ae7b3c647ad3e09e640e0" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Figure 19: Repeat the same copy / paste procedure for the 2013-14 Att column.</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1886px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:31.495227813720703%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450895373941-94LSS1ZXXVH2EDQBH38K/ke17ZwdGBToddI8pDm48kMckdAIUhMveYReRw7ylel4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2djkFz4Ojn-RPsAfseN6WP17joOa3GM23PgSeiMsR7H-mCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt='Figure 20: Notice how the copy / paste procedure breaks on column G. The reason for this error is that "English Language Arts Exam" is not a value in the header row of the Attendance Import CSV child sheet. Therefore, the MATCH() function is not able to find an exact match and is returning an error.'></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450895373941-94LSS1ZXXVH2EDQBH38K/ke17ZwdGBToddI8pDm48kMckdAIUhMveYReRw7ylel4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2djkFz4Ojn-RPsAfseN6WP17joOa3GM23PgSeiMsR7H-mCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450895373941-94LSS1ZXXVH2EDQBH38K/ke17ZwdGBToddI8pDm48kMckdAIUhMveYReRw7ylel4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2djkFz4Ojn-RPsAfseN6WP17joOa3GM23PgSeiMsR7H-mCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1886x594" data-image-focal-point="0.5,0.5" alt='Figure 20: Notice how the copy / paste procedure breaks on column G. The reason for this error is that "English Language Arts Exam" is not a value in the header row of the Attendance Import CSV child sheet. Therefore, the MATCH() function is not able to find an exact match and is returning an error.' data-load="false" data-image-id="567ae80ccbced61f5a81ca46" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Figure 20: Notice how the copy / paste procedure breaks on column G. The reason for this error is that "English Language Arts Exam" is not a value in the header row of the Attendance Import CSV child sheet. Therefore, the MATCH() function is not able to find an exact match and is returning an error.</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>Changing Child Sheets</h3>
+<p dir="ltr">To fix the error in Figure 20, we must change the sheet being referenced in the range arguments of both VLOOKUP() and MATH().</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1020px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:13.72549057006836%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450895570708-CS9VYZCT81JT4P7BV57S/ke17ZwdGBToddI8pDm48kI7O-17UrpgDLsHsZ2aXwLsUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKccIgecOGlpWL13id4Wn16SWvLcJXXUMbvclSu1JT65mTtojdoMkoxpCqKroOw4uHp/image-asset.png" alt='Figure 21: Change the range arguments in the VLOOKUP() and MATCH() functions to reference the ranges containing the English Language Arts Exam data. In this case the child sheet is called "Testing Import CSV"'></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450895570708-CS9VYZCT81JT4P7BV57S/ke17ZwdGBToddI8pDm48kI7O-17UrpgDLsHsZ2aXwLsUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKccIgecOGlpWL13id4Wn16SWvLcJXXUMbvclSu1JT65mTtojdoMkoxpCqKroOw4uHp/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450895570708-CS9VYZCT81JT4P7BV57S/ke17ZwdGBToddI8pDm48kI7O-17UrpgDLsHsZ2aXwLsUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKccIgecOGlpWL13id4Wn16SWvLcJXXUMbvclSu1JT65mTtojdoMkoxpCqKroOw4uHp/image-asset.png" data-image-dimensions="1020x140" data-image-focal-point="0.5,0.5" alt='Figure 21: Change the range arguments in the VLOOKUP() and MATCH() functions to reference the ranges containing the English Language Arts Exam data. In this case the child sheet is called "Testing Import CSV"' data-load="false" data-image-id="567ae8d2dc5cb457a2f937e5" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Figure 21: Change the range arguments in the VLOOKUP() and MATCH() functions to reference the ranges containing the English Language Arts Exam data. In this case the child sheet is called "Testing Import CSV"</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1872px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:30.66239356994629%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450895670513-PAJ89T3WK865LGK6DV7P/ke17ZwdGBToddI8pDm48kAf8LDUu9PmpiJQRYlmkCCgUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dszzzXNJGWPUuiaIViAeG22IJTS28pxP4M5JuliKMFGDCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt="Figure 22: And now our attendance data and exam data are side by side and we can look for students whose year to date attendance may be impacting their performance on specific exams."></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450895670513-PAJ89T3WK865LGK6DV7P/ke17ZwdGBToddI8pDm48kAf8LDUu9PmpiJQRYlmkCCgUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dszzzXNJGWPUuiaIViAeG22IJTS28pxP4M5JuliKMFGDCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450895670513-PAJ89T3WK865LGK6DV7P/ke17ZwdGBToddI8pDm48kAf8LDUu9PmpiJQRYlmkCCgUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dszzzXNJGWPUuiaIViAeG22IJTS28pxP4M5JuliKMFGDCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1872x574" data-image-focal-point="0.5,0.5" alt="Figure 22: And now our attendance data and exam data are side by side and we can look for students whose year to date attendance may be impacting their performance on specific exams." data-load="false" data-image-id="567ae9350e4c11b9bd9d006b" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Figure 22: And now our attendance data and exam data are side by side and we can look for students whose year to date attendance may be impacting their performance on specific exams.</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>Conclusion</h3>
+<p><strong><a target="_blank" href="https://docs.google.com/spreadsheets/d/1nX_0dJegLl9QQwf8NGQ9EgSPe_Pu2nRVxU2804u-sMU/edit#gid=0">Here</a> is an example of a finished product.</strong></p>
+<p>Once all of the ARRAYFORMULA(), VLOOKUP(), and MATCH() triumvirate functions have been properly copied and pasted with appropriate sheet references, you will have successfully merged data from multiple data core systems into a single parent sheet. Moving forward, replace the child Import CSV sheets using the same "File" and "Import" feature from the setup steps with updated imported data to keep the parent sheet up to date. Depending on the data, this update process can happen daily, weekly,  monthly, yearly, etc. </p>
+<p>In my own experience as an Assistant Principal, I'm able to pull data from about a half dozen systems in under 20 minutes that gives me an incredibly complete picture of my students in a way that looking at each data point separately would completely obfuscate. </p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:3812px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:51.311649322509766%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450896229166-R1CK6JSHELR8ATIGN5II/ke17ZwdGBToddI8pDm48kGgNgZai9oysQgnpTmCjDnt7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0vgQdxD11_Uu3nb8yNRex4w2b-uh6sohLmY9PepxSeh9ZOTzT9rleX1mVyhHptfOOQ/image-asset.png" alt="Figure 23: The finished product!"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450896229166-R1CK6JSHELR8ATIGN5II/ke17ZwdGBToddI8pDm48kGgNgZai9oysQgnpTmCjDnt7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0vgQdxD11_Uu3nb8yNRex4w2b-uh6sohLmY9PepxSeh9ZOTzT9rleX1mVyhHptfOOQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1450896229166-R1CK6JSHELR8ATIGN5II/ke17ZwdGBToddI8pDm48kGgNgZai9oysQgnpTmCjDnt7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0vgQdxD11_Uu3nb8yNRex4w2b-uh6sohLmY9PepxSeh9ZOTzT9rleX1mVyhHptfOOQ/image-asset.png" data-image-dimensions="3812x1956" data-image-focal-point="0.5,0.5" alt="Figure 23: The finished product!" data-load="false" data-image-id="567aeb5fa12f444c58f13394" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Figure 23: The finished product!</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+</body></html>

@@ -1,0 +1,97 @@
+---
+layout: post
+title: Rush Hour
+categories:
+- Turing
+tags:
+- Ruby
+- Turing
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '42'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1>Turing School of Software Design: Module 2, Week 2</h1>
+<h2>Project Overview</h2>
+<p><a target="_blank" href="https://github.com/turingschool/curriculum/blob/master/source/projects/rush_hour.md">Rush Hour</a> is the first project for module 2 of the <a target="_blank" href="https://www.turing.io/">Turing School of Software Design</a>. The project is about using Ruby, Sinatra, and ActiveRecord to build a web tracking and analysis web service. The web service allows a user to send a post request to register as a client. Once a client registers they can send a post request with receiving data, which we call a payload. Our job was to write code to accept the submission of these payloads, analyze the data submitted, and then display the data on a web page.</p>
+<p>This was a very different project from the logic puzzles of Module 1 because creating algorithms was not the most difficult challenge. Rather, understanding each of the new tools was crux of the problem. Imagine a person apprenticing to be a luthier. At first that apprentice might learn how to cut wood with one special type of saw. Maybe the apprentice spends hours and hours practicing how to make artisanal wood cuts. At this point the apprentice has many significant experience with a saw, but there are many other tools required to make a violin that the apprentice is unfamiliar with. When presented with a chisel, file, and some glue the apprentice is still a complete novice. At this point in my professional web development journey, ActiveRecord and Sinatra are still new tools and come with what at this point feels like a steep learning curve.</p>
+<h2>Learning Goals</h2>
+<p>The goals of this project were to:</p>
+<ul>
+<li>Understand how web traffic works</li>
+<li>Dig into HTTP concepts including headers, referrers, and payload</li>
+<li>Design a normalized SQL-based relational database structure</li>
+<li>Use ActiveRecord to interface with the database from Ruby</li>
+<li>Practice fundamental database storage and retrieval</li>
+<li>Understand and practice HTTP verbs including GET, PUT, and POST</li>
+<li>Practice using fundamental HTML and CSS to create a useable web interface</li>
+<li>Refactoring Patterns.</li>
+</ul>
+<h2>Refactoring Patterns</h2>
+<p>While writing the controller methods for Rush Hour, I realized that there was far too much business logic happening in the controller that really belonged in the model. I refactored two of the controller methods and stripped out a bunch of conditional statements that handled the various http request scenarios. I put those conditions into their own classes, a <em>ClientRequest</em> and <em>PayloadRequestRequest</em> class. </p>
+<p>Here is the original version of the method handling the registration of new clients:</p>
+<pre style="color:#000000;background:#ffffff;">post <span style="color:#0000e6; ">'/sources'</span><span style="color:#800000; font-weight:bold; "> do</span>
+  @params <span style="color:#808030; ">=</span> params
+  @expected_params <span style="color:#808030; ">=</span> client_params
+  @messages <span style="color:#808030; ">=</span> client_messages
+  @exists <span style="color:#808030; ">=</span> client_exists?
+  response <span style="color:#808030; ">=</span> params_valid? ? check_if_exists : bad_request
+  <span style="color:#400000; ">status</span> response<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">status_msg</span><span style="color:#808030; ">]</span>
+  body response<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">message</span><span style="color:#808030; ">]</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>This is not so terrible, unless you really are a purist about model view controller design (which I am), but the approach quickly spirals out of control with the more complicated processes involved in posting a paylaod request.</p>
+<pre style="color:#000000;background:#ffffff;">post <span style="color:#0000e6; ">'/sources/:identifier/data'</span><span style="color:#800000; font-weight:bold; "> do</span>
+  @params <span style="color:#808030; ">=</span> params
+  @expected_params <span style="color:#808030; ">=</span> payload_request_parameters
+  @messages <span style="color:#808030; ">=</span> payload_messages
+<span style="color:#800000; font-weight:bold; ">  if</span> !params_valid?
+    response <span style="color:#808030; ">=</span> bad_request
+  <span style="color:#800000; font-weight:bold; ">elsif</span> !payload_valid?
+    response <span style="color:#808030; ">=</span> bad_request
+  <span style="color:#800000; font-weight:bold; ">else</span>
+    @payload_request <span style="color:#808030; ">=</span> DataParser<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span>params<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>parse_payload
+<span style="color:#800000; font-weight:bold; ">    if</span> payload_request_exists?
+      response <span style="color:#808030; ">=</span> response <span style="color:#808030; ">=</span> <span style="color:#800080; ">{</span>
+        :<span style="color:#005fd2; ">status_msg</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#008c00; ">403</span><span style="color:#808030; ">,</span>
+        :<span style="color:#005fd2; ">message</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"Payload request already exists"</span>
+      <span style="color:#800080; ">}</span>
+    <span style="color:#800000; font-weight:bold; ">elsif</span> application_request_does_not_exist?
+      response <span style="color:#808030; ">=</span> response <span style="color:#808030; ">=</span> <span style="color:#800080; ">{</span>
+        :<span style="color:#005fd2; ">status_msg</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#008c00; ">403</span><span style="color:#808030; ">,</span>
+        :<span style="color:#005fd2; ">message</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"Application does not exist"</span>
+      <span style="color:#800080; ">}</span>
+    <span style="color:#800000; font-weight:bold; ">else</span>
+      PayloadRequest<span style="color:#808030; ">.</span>create<span style="color:#808030; ">(</span>payload_request<span style="color:#808030; ">)</span>
+      response <span style="color:#808030; ">=</span> <span style="color:#800080; ">{</span>
+        :<span style="color:#005fd2; ">status_msg</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#008c00; ">200</span><span style="color:#808030; ">,</span>
+        :<span style="color:#005fd2; ">message</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"Success"</span>
+      <span style="color:#800080; ">}</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#400000; ">status</span> response<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">status_msg</span><span style="color:#808030; ">]</span>
+  body response<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">message</span><span style="color:#808030; ">]</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>After submitting this code, I immediately began to worry about the lack of encapsulation, this idea that the model should handle business logic and the controller's only function is to direct requests made on the view to the appropriate model classes and methods. I resubmitted the code after the evaluation, which we generously passed in spite of this ugly code, and the new version is significantly cleaner (but still not perfect).</p>
+<p>Here is the refactored client request:</p>
+<pre style="color:#000000;background:#ffffff;">post <span style="color:#0000e6; ">'/sources'</span><span style="color:#800000; font-weight:bold; "> do</span>
+  cr <span style="color:#808030; ">=</span> ClientRequest<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span>params<span style="color:#808030; ">)</span>
+  <span style="color:#400000; ">status</span> cr<span style="color:#808030; ">.</span><span style="color:#400000; ">status</span>
+  body cr<span style="color:#808030; ">.</span><span style="color:#400000; ">message</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>And here is the refactored payload request request:</p>
+<pre style="color:#000000;background:#ffffff;">post <span style="color:#0000e6; ">'/sources/:identifier/data'</span><span style="color:#800000; font-weight:bold; "> do</span>
+  prr <span style="color:#808030; ">=</span> PayloadRequestRequest<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span>params<span style="color:#808030; ">)</span>
+  <span style="color:#400000; ">status</span> prr<span style="color:#808030; ">.</span><span style="color:#400000; ">status</span>
+  body prr<span style="color:#808030; ">.</span><span style="color:#400000; ">message</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The above snippets say, when you receive a request (either a client request or payload request), which is attached to the <em>params</em> object of the html request, create a new request object. Next, call the status and body methods on the newly instantiated object. The request objects handle all of the conditionals. The controller methods only know how to route requests.</p>
+<p>The full repository can be found <a target="_blank" href="https://github.com/bheim6/rush-hour-skeleton">here</a>.</p>
+<p> </p>
+</body></html>

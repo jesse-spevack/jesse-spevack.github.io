@@ -1,0 +1,1213 @@
+---
+layout: post
+title: Live Blogging a Book Review App 2
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '58'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h2>Part 2: Authors</h2>
+<p>In the last <a target="_blank" href="http://www.jessespevack.com/blog/2017/10/23/live-blogging-a-book-review-app">post</a> in this live blog series we started a journey to create a book review app by going through the excitement of the rails new command. Our app running locally looks something like this:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1256px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:107.64330291748047%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508987365126-FW85W4E0Y07JEPHES5VX/ke17ZwdGBToddI8pDm48kJitY7nBd9uIX_ym5sBnuqZ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmrPMr0MpuvDYqF3QhxUiI0bnS4a5MocqXGp-1CU4-zFk5BSPuiiiyHtlGTcEppGuF/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508987365126-FW85W4E0Y07JEPHES5VX/ke17ZwdGBToddI8pDm48kJitY7nBd9uIX_ym5sBnuqZ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmrPMr0MpuvDYqF3QhxUiI0bnS4a5MocqXGp-1CU4-zFk5BSPuiiiyHtlGTcEppGuF/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508987365126-FW85W4E0Y07JEPHES5VX/ke17ZwdGBToddI8pDm48kJitY7nBd9uIX_ym5sBnuqZ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmrPMr0MpuvDYqF3QhxUiI0bnS4a5MocqXGp-1CU4-zFk5BSPuiiiyHtlGTcEppGuF/image-asset.png" data-image-dimensions="1256x1352" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="59f151e1a8b2b0999be8d2b7" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>On the plus side there are no bugs. But, there are also no features.</p>
+<p>It's time to build some functionality into our application. We will start with the ability to add an author to the database. This will be a fairly straightforward exercise in coding create, read, update, delete (crud) functionality - an area where the power of Rails convention over configuration really shines. The goal moving forward in this post is to show my actual process in implementing our author, even when things go off the rails a bit. You see what I did there?</p>
+<h3>Feature Testing</h3>
+<p>We will start with a feature test because this will help us stay focused on solving specific issues and delivering incremental value through each iteration of this bookshelf application.</p>
+<p>Start by making a new git branch:</p>
+<p><code>$  git checkout -b iteration_1_authors_genres</code></p>
+<p>Next create a test file for our feature test:</p>
+<p><code>$ mkdir spec/features</code></p>
+<p><code>$ touch spec/features/author_spec.rb</code></p>
+<p>Now write a feature test in which we visit, fill out, and submit the author form. We will make assertions that the content we expect to see after submitting the form includes the newly created author's name and date of birth.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/features/author_spec.rb</span>
+require <span style="color:#0000e6; ">'rails_helper'</span>
+
+feature <span style="color:#0000e6; ">'User creates an author'</span><span style="color:#800000; font-weight:bold; "> do</span>
+  scenario <span style="color:#0000e6; ">'they see the author on the page'</span><span style="color:#800000; font-weight:bold; "> do</span>
+    visit new_author_path
+
+    fill_in <span style="color:#0000e6; ">"First name"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">'Frank'</span>
+    fill_in <span style="color:#0000e6; ">"Last name"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">'Herbert'</span>
+    fill_in <span style="color:#0000e6; ">"Date of birth"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">'1920/10/08'</span>
+    click_button <span style="color:#0000e6; ">'Create Author'</span>
+
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content <span style="color:#0000e6; ">'Frank Herbert'</span>
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content <span style="color:#0000e6; ">'October 10, 1920'</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>To run this test we type the following into terminal.</p>
+<p><code>$ rspec spec/features/author_spec</code></p>
+<p>Running the above test got me the following madness:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:37.720001220703125%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508989016682-4IGPKWY3ISY3MG3F3TCJ/ke17ZwdGBToddI8pDm48kJMfO1Vc1iJ8SLVL234yYsAUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnJVgNmkDS0hH-ThwrYViUkR34ATekinR1IVYiQAY2wukCyufMjD9aarn09BkGpTXGQ/Screen+Shot+2017-10-25+at+9.35.02+PM.png" alt="Screen Shot 2017-10-25 at 9.35.02 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508989016682-4IGPKWY3ISY3MG3F3TCJ/ke17ZwdGBToddI8pDm48kJMfO1Vc1iJ8SLVL234yYsAUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnJVgNmkDS0hH-ThwrYViUkR34ATekinR1IVYiQAY2wukCyufMjD9aarn09BkGpTXGQ/Screen+Shot+2017-10-25+at+9.35.02+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508989016682-4IGPKWY3ISY3MG3F3TCJ/ke17ZwdGBToddI8pDm48kJMfO1Vc1iJ8SLVL234yYsAUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnJVgNmkDS0hH-ThwrYViUkR34ATekinR1IVYiQAY2wukCyufMjD9aarn09BkGpTXGQ/Screen+Shot+2017-10-25+at+9.35.02+PM.png" data-image-dimensions="2500x943" data-image-focal-point="0.5,0.5" alt="Screen Shot 2017-10-25 at 9.35.02 PM.png" data-load="false" data-image-id="59f15856d74cfff6cf5533f2" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>The main error reads:</p>
+<p><code>ActiveRecord::NoDatabaseError:
+  FATAL:  database "bookshelf_test" does not exist</code></p>
+<p>We need to create our database!</p>
+<p><code>$ rake db:create</code></p>
+<p>Running the test again gets us a much more reasonable failure:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:31.520000457763672%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508989226540-N14FZJWSUQ6JUE9QVOP2/ke17ZwdGBToddI8pDm48kJ41ZMJ29WZNspyCelrmhI4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnANXuXuD4GVsXrhzfw31mZ4cGgCLbRYW40erQvKu6caLOn_lnNPIFSJkGZLeYhCqFA/Screen+Shot+2017-10-25+at+9.40.03+PM.png" alt="Screen Shot 2017-10-25 at 9.40.03 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508989226540-N14FZJWSUQ6JUE9QVOP2/ke17ZwdGBToddI8pDm48kJ41ZMJ29WZNspyCelrmhI4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnANXuXuD4GVsXrhzfw31mZ4cGgCLbRYW40erQvKu6caLOn_lnNPIFSJkGZLeYhCqFA/Screen+Shot+2017-10-25+at+9.40.03+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508989226540-N14FZJWSUQ6JUE9QVOP2/ke17ZwdGBToddI8pDm48kJ41ZMJ29WZNspyCelrmhI4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnANXuXuD4GVsXrhzfw31mZ4cGgCLbRYW40erQvKu6caLOn_lnNPIFSJkGZLeYhCqFA/Screen+Shot+2017-10-25+at+9.40.03+PM.png" data-image-dimensions="2500x788" data-image-focal-point="0.5,0.5" alt="Screen Shot 2017-10-25 at 9.40.03 PM.png" data-load="false" data-image-id="59f15929b1ffb623dd20fb6a" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>This test is failing on the very first line of the test, ./spec/features/author_spec.rb:6, because we do not have a new_author_path defined. Time to make a route.</p>
+<h3>Baby's First Route</h3>
+<p>Rails gives us a config/routes.rb and an entire domain specific language (DSL) for creating routes. We can start by adding an authors resource.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># config/routes.rb</span>
+Rails<span style="color:#808030; ">.</span>application<span style="color:#808030; ">.</span>routes<span style="color:#808030; ">.</span>draw<span style="color:#800000; font-weight:bold; "> do</span>
+  resources :<span style="color:#005fd2; ">authors</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>We can check our new routes by entering the following into our terminal:</p>
+<p><code>$ rake routes</code></p>
+
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1476px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:29.268291473388672%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508989645527-VNZ3S7P2804JTFS34C42/ke17ZwdGBToddI8pDm48kMjH7j79EcKeAjtk5TRy95MUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcw9-KmlMTtqkVSJqLauqFIC38WyBHwU3Egd_fCwicMsOYeFUb5PvCsbMEab5GOVig/Screen+Shot+2017-10-25+at+9.46.52+PM.png" alt="Screen Shot 2017-10-25 at 9.46.52 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508989645527-VNZ3S7P2804JTFS34C42/ke17ZwdGBToddI8pDm48kMjH7j79EcKeAjtk5TRy95MUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcw9-KmlMTtqkVSJqLauqFIC38WyBHwU3Egd_fCwicMsOYeFUb5PvCsbMEab5GOVig/Screen+Shot+2017-10-25+at+9.46.52+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508989645527-VNZ3S7P2804JTFS34C42/ke17ZwdGBToddI8pDm48kMjH7j79EcKeAjtk5TRy95MUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcw9-KmlMTtqkVSJqLauqFIC38WyBHwU3Egd_fCwicMsOYeFUb5PvCsbMEab5GOVig/Screen+Shot+2017-10-25+at+9.46.52+PM.png" data-image-dimensions="1476x432" data-image-focal-point="0.5,0.5" alt="Screen Shot 2017-10-25 at 9.46.52 PM.png" data-load="false" data-image-id="59f15acc6957da8eb1736215" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+
+<p>Adding two words to our routes file gets us eight new routes! Thanks <a target="_blank" href="https://twitter.com/dhh">DHH</a>. Notice the third route in our list author#new with prefix new_author. I expect this to solve our undefined local variable error in our last test. Running the test now should give us:</p>
+<p><code>ActionController::RoutingError:</code></p>
+<p><code>uninitialized constant AuthorController</code></p>
+<h3>Rails Scaffolds</h3>
+<p>Rails scaffolds are templates of files and directory structures that are conventional to Rails applications. Running a scaffold will automatically generate files based on these templates, which saves time. To quickly refresh on the plethora of options available to us by way of rails scaffolds run:</p>
+<p><code>$ rails g scaffold -h</code></p>
+<p>This will run the help command for rails generate scaffold and give us the following description:</p>
+<p><code>Scaffolds an entire resource, from model and migration to controller and views, along with a full test suite. The resource is ready to use as a starting point for your RESTful, resource-oriented application.</code></p>
+<p>There are lots of options when running generating a scaffold.</p>
+<p><code>$ rails g scaffold author first_name:string last_name:string date_of_birth:date --no-styelsheets --no-assets --no-scaffold-stylesheet --no-controller-specs --no-view-specs --no-helper-specs --no-helper --no-javascripts --no-jbuilder</code></p>
+<p>The above command tells rails to generate a scaffold for our author model. We specify that the author has two string attributes - first name and last name - and one date attribute. I was pretty aggressive with the options I selected. I do not intend to stylize this application on a per model basis so anything dealing with stylesheets, assets, and javascript I skip. The alternative would be having a bunch of empty css and js files polluting our file structure.</p>
+<p>In terms of my testing options, I choose not to generate controller or view specs. Controllers in this app will be so lightweight, they will not really be worth testing. Plus we will have route testing. View testing will also be minimal and subsumed mostly by our feature testing.</p>
+<h3>Migrate</h3>
+<p>The rails scaffold we just ran created a pending migration, which is another DSL in Rails for describing how to change our database. In this case we will be creating a table called authors, with fields for first name, last name, and date of birth with data types string, string, and date respectively. We will also include created_at and updated_at fields.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># db/migrate/20171026042114_create_authors.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> CreateAuthors &lt; ActiveRecord<span style="color:#808030; ">::</span>Migration<span style="color:#808030; ">[</span><span style="color:#008000; ">5.1</span><span style="color:#808030; ">]</span>
+  <span style="color:#800000; font-weight:bold; ">def</span> change
+    create_table :<span style="color:#005fd2; ">authors</span><span style="color:#800000; font-weight:bold; "> do</span> |t|
+      t<span style="color:#808030; ">.</span><span style="color:#400000; ">string</span> :<span style="color:#005fd2; ">first_name</span>
+      t<span style="color:#808030; ">.</span><span style="color:#400000; ">string</span> :<span style="color:#005fd2; ">last_name</span>
+      t<span style="color:#808030; ">.</span>date :<span style="color:#005fd2; ">date_of_birth</span>
+
+      t<span style="color:#808030; ">.</span>timestamps
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>We will need to run this migration in order to set up our database with our authors table and move forward with our feature test.</p>
+<p><code>$ rake db:migrate db:test:prepare</code></p>
+<p>Now running our test gives us a new failure:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:36.23999786376953%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508993362718-PYSMKF5STL821QO6LECR/ke17ZwdGBToddI8pDm48kD_SaDp8MHVM_0eZpwixk54UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnPZCL8D28p4exZYrmgoxCxvlp6KZsvYglXsFxFqL9UE4YvlslHmw-dTn_6PNogp9uA/Screen+Shot+2017-10-25+at+10.49.05+PM.png" alt="Screen Shot 2017-10-25 at 10.49.05 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508993362718-PYSMKF5STL821QO6LECR/ke17ZwdGBToddI8pDm48kD_SaDp8MHVM_0eZpwixk54UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnPZCL8D28p4exZYrmgoxCxvlp6KZsvYglXsFxFqL9UE4YvlslHmw-dTn_6PNogp9uA/Screen+Shot+2017-10-25+at+10.49.05+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508993362718-PYSMKF5STL821QO6LECR/ke17ZwdGBToddI8pDm48kD_SaDp8MHVM_0eZpwixk54UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnPZCL8D28p4exZYrmgoxCxvlp6KZsvYglXsFxFqL9UE4YvlslHmw-dTn_6PNogp9uA/Screen+Shot+2017-10-25+at+10.49.05+PM.png" data-image-dimensions="2500x906" data-image-focal-point="0.5,0.5" alt="Screen Shot 2017-10-25 at 10.49.05 PM.png" data-load="false" data-image-id="59f16951f6576e5c92cb4ab4" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<h3>Read the Failures</h3>
+<p>Our scaffold created an entire form for us. But, this error is saying that the Date of birth element is not found. This does not make sense to me because looking out our form code I plainly see a date of birth field.</p>
+<p><code>app/views/authors/_form.html.erb</code></p>
+
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2002px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:76.52347564697266%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508993686807-S2SEVZL52H2SV1O52X2S/ke17ZwdGBToddI8pDm48kL80zqDbZ1OrLg3v21CWE017gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UVg4XvRxZdX5Yzct6LnUiU6SPaLYIvw_QQ44d_Ih9Et5W07ycm2Trb21kYhaLJjddA/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508993686807-S2SEVZL52H2SV1O52X2S/ke17ZwdGBToddI8pDm48kL80zqDbZ1OrLg3v21CWE017gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UVg4XvRxZdX5Yzct6LnUiU6SPaLYIvw_QQ44d_Ih9Et5W07ycm2Trb21kYhaLJjddA/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508993686807-S2SEVZL52H2SV1O52X2S/ke17ZwdGBToddI8pDm48kL80zqDbZ1OrLg3v21CWE017gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UVg4XvRxZdX5Yzct6LnUiU6SPaLYIvw_QQ44d_Ih9Et5W07ycm2Trb21kYhaLJjddA/image-asset.png" data-image-dimensions="2002x1532" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="59f16a9564b05f07bd43677a" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>My next troubleshooting step is to open the form in my browser. First, lets start our server:</p>
+<p><code>$ rails s</code></p>
+<p>Next I'll open a browser and navigate to localhost:3000/authors/new</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:82.8800048828125%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508993796917-PYPK4XF5PLRZCYTOPPV3/ke17ZwdGBToddI8pDm48kIgqp9qeroQkQjpQLPNw7IZ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0uZJiBSBo3eZMZzfBfUVhzd2naLQCU16IypZ8iquH_zLYuBBIgjfEXYCG06m0lS00w/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508993796917-PYPK4XF5PLRZCYTOPPV3/ke17ZwdGBToddI8pDm48kIgqp9qeroQkQjpQLPNw7IZ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0uZJiBSBo3eZMZzfBfUVhzd2naLQCU16IypZ8iquH_zLYuBBIgjfEXYCG06m0lS00w/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508993796917-PYPK4XF5PLRZCYTOPPV3/ke17ZwdGBToddI8pDm48kIgqp9qeroQkQjpQLPNw7IZ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0uZJiBSBo3eZMZzfBfUVhzd2naLQCU16IypZ8iquH_zLYuBBIgjfEXYCG06m0lS00w/image-asset.png" data-image-dimensions="2500x2072" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="59f16b03f6576e5c92cb59e5" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>By looking at the form and inspecting the html I see that the the date of birth field is actually a series of three drop downs that each need to be selected. We will have to change the test to reflect this bitter truth. I found this interesting <a target="_blank" href="https://stackoverflow.com/questions/6729786/how-to-select-date-from-a-select-box-using-capybara-in-rails-3">stackoverflow</a> thread about creating a helper method to do just that, but for now I'm happy to re-write my test to read as follows:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/features/author_spec.rb</span>
+require <span style="color:#0000e6; ">'rails_helper'</span>
+
+feature <span style="color:#0000e6; ">'User creates an author'</span><span style="color:#800000; font-weight:bold; "> do</span>
+  scenario <span style="color:#0000e6; ">'they see the author on the page'</span><span style="color:#800000; font-weight:bold; "> do</span>
+    visit new_author_path
+
+    fill_in <span style="color:#0000e6; ">"First name"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">'Frank'</span>
+    fill_in <span style="color:#0000e6; ">"Last name"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">'Herbert'</span>
+    <span style="color:#400000; ">select</span> <span style="color:#0000e6; ">'1920'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">from</span>: <span style="color:#0000e6; ">'author_date_of_birth_1i'</span>
+    <span style="color:#400000; ">select</span> <span style="color:#0000e6; ">'October'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">from</span>: <span style="color:#0000e6; ">'author_date_of_birth_2i'</span>
+    <span style="color:#400000; ">select</span> <span style="color:#0000e6; ">'10'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">from</span>: <span style="color:#0000e6; ">'author_date_of_birth_3i'</span>
+    click_button <span style="color:#0000e6; ">'Create Author'</span>
+
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content <span style="color:#0000e6; ">'Frank Herbert'</span>
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content <span style="color:#0000e6; ">'October 10, 1920'</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Running the test gives us the following new failure:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:35.31999969482422%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508994239830-CPNTSL1WTGTZAW0TBTVX/ke17ZwdGBToddI8pDm48kEw1tMu6oXrRq2e-UvDDmx4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnMaxsDeIevyfPAfE4yKRbR0TzL4dmFQcIbMBJz1crFzmeXnceYp7XJ6-gsy-ilNxxA/Screen+Shot+2017-10-25+at+11.03.44+PM.png" alt="Screen Shot 2017-10-25 at 11.03.44 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508994239830-CPNTSL1WTGTZAW0TBTVX/ke17ZwdGBToddI8pDm48kEw1tMu6oXrRq2e-UvDDmx4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnMaxsDeIevyfPAfE4yKRbR0TzL4dmFQcIbMBJz1crFzmeXnceYp7XJ6-gsy-ilNxxA/Screen+Shot+2017-10-25+at+11.03.44+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508994239830-CPNTSL1WTGTZAW0TBTVX/ke17ZwdGBToddI8pDm48kEw1tMu6oXrRq2e-UvDDmx4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnMaxsDeIevyfPAfE4yKRbR0TzL4dmFQcIbMBJz1crFzmeXnceYp7XJ6-gsy-ilNxxA/Screen+Shot+2017-10-25+at+11.03.44+PM.png" data-image-dimensions="2500x883" data-image-focal-point="0.5,0.5" alt="Screen Shot 2017-10-25 at 11.03.44 PM.png" data-load="false" data-image-id="59f16cbefe54ef425a8f18d1" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Sure enough looking at the drop down, I notice that 1920 is not part of the list. That means we'll need to edit the form and use the start_year option for the date_select method:</p>
+<p><code>&lt;%= form.date_select :date_of_birth, start_year: 1900, id: :author_date_of_birth %&gt;</code></p>
+<p>Running the test again gives us another failure, but it is the last line of the test. We are making progress!</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:22.84000015258789%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508994569402-NOGK6QPMAJKRXXZPHL0Q/ke17ZwdGBToddI8pDm48kMGqsBym0rb5jZKLKP4Mgi4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnKvG4HupHBXztSOU8aRMpNgfnt76oUAxvmfzMLn3Baa3_B8loAYuCC_mGJ-iH8Sp9g/Screen+Shot+2017-10-25+at+11.08.29+PM.png" alt="Screen Shot 2017-10-25 at 11.08.29 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508994569402-NOGK6QPMAJKRXXZPHL0Q/ke17ZwdGBToddI8pDm48kMGqsBym0rb5jZKLKP4Mgi4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnKvG4HupHBXztSOU8aRMpNgfnt76oUAxvmfzMLn3Baa3_B8loAYuCC_mGJ-iH8Sp9g/Screen+Shot+2017-10-25+at+11.08.29+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508994569402-NOGK6QPMAJKRXXZPHL0Q/ke17ZwdGBToddI8pDm48kMGqsBym0rb5jZKLKP4Mgi4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnKvG4HupHBXztSOU8aRMpNgfnt76oUAxvmfzMLn3Baa3_B8loAYuCC_mGJ-iH8Sp9g/Screen+Shot+2017-10-25+at+11.08.29+PM.png" data-image-dimensions="2500x571" data-image-focal-point="0.5,0.5" alt="Screen Shot 2017-10-25 at 11.08.29 PM.png" data-load="false" data-image-id="59f16e08b1ffb623dd21c238" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>This failure is saying that our test expected to see content "Frank Herbert" on the page after creating a new author, but instead got first name: Frank last name: Herbert. Again, We'll have to just update the test to be a bit more forgiving.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/features/author_spec.rb</span>
+require <span style="color:#0000e6; ">'rails_helper'</span>
+
+feature <span style="color:#0000e6; ">'User creates an author'</span><span style="color:#800000; font-weight:bold; "> do</span>
+  scenario <span style="color:#0000e6; ">'they see the author on the page'</span><span style="color:#800000; font-weight:bold; "> do</span>
+    visit new_author_path
+
+    fill_in <span style="color:#0000e6; ">"First name"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">'Frank'</span>
+    fill_in <span style="color:#0000e6; ">"Last name"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">'Herbert'</span>
+    <span style="color:#400000; ">select</span> <span style="color:#0000e6; ">'1920'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">from</span>: <span style="color:#0000e6; ">'author_date_of_birth_1i'</span>
+    <span style="color:#400000; ">select</span> <span style="color:#0000e6; ">'October'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">from</span>: <span style="color:#0000e6; ">'author_date_of_birth_2i'</span>
+    <span style="color:#400000; ">select</span> <span style="color:#0000e6; ">'10'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">from</span>: <span style="color:#0000e6; ">'author_date_of_birth_3i'</span>
+    click_button <span style="color:#0000e6; ">'Create Author'</span>
+
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content <span style="color:#0000e6; ">'Frank'</span>
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content <span style="color:#0000e6; ">'Herbert'</span>
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content <span style="color:#0000e6; ">'1920-10-10'</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Now our test passes.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2450px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:16.816326141357422%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508994770192-H4T3AP3CXI1JAX7103OC/ke17ZwdGBToddI8pDm48kPs8BGxPU22TRY5S8yIOiGoUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dskgMOwgSFnoIjvyNSQRc1mRngZGf6c1GaF_5aDfwzorCjLISwBs8eEdxAxTptZAUg/Screen+Shot+2017-10-25+at+11.12.32+PM.png" alt="Screen Shot 2017-10-25 at 11.12.32 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508994770192-H4T3AP3CXI1JAX7103OC/ke17ZwdGBToddI8pDm48kPs8BGxPU22TRY5S8yIOiGoUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dskgMOwgSFnoIjvyNSQRc1mRngZGf6c1GaF_5aDfwzorCjLISwBs8eEdxAxTptZAUg/Screen+Shot+2017-10-25+at+11.12.32+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508994770192-H4T3AP3CXI1JAX7103OC/ke17ZwdGBToddI8pDm48kPs8BGxPU22TRY5S8yIOiGoUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dskgMOwgSFnoIjvyNSQRc1mRngZGf6c1GaF_5aDfwzorCjLISwBs8eEdxAxTptZAUg/Screen+Shot+2017-10-25+at+11.12.32+PM.png" data-image-dimensions="2450x412" data-image-focal-point="0.5,0.5" alt="Screen Shot 2017-10-25 at 11.12.32 PM.png" data-load="false" data-image-id="59f16ed1ccc5c5bd40380ae7" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Now to test it ourselves on local development. Let's spin up our server:</p>
+<p><code>$ rails s</code></p>
+<p>Next navigate to localhost:3000/authors/new and complete the form.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:906px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:61.368656158447266%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508994898038-16Y3KH2KMBL55PXFOD3G/ke17ZwdGBToddI8pDm48kG-aiX8RduWCPbxx4h8Ia3pZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIwuEeV48-avjcHYejlB362jBJzBjdAobjjUBPW2N-wJU/Screen+Shot+2017-10-25+at+11.14.36+PM.png" alt="Screen Shot 2017-10-25 at 11.14.36 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508994898038-16Y3KH2KMBL55PXFOD3G/ke17ZwdGBToddI8pDm48kG-aiX8RduWCPbxx4h8Ia3pZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIwuEeV48-avjcHYejlB362jBJzBjdAobjjUBPW2N-wJU/Screen+Shot+2017-10-25+at+11.14.36+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508994898038-16Y3KH2KMBL55PXFOD3G/ke17ZwdGBToddI8pDm48kG-aiX8RduWCPbxx4h8Ia3pZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIwuEeV48-avjcHYejlB362jBJzBjdAobjjUBPW2N-wJU/Screen+Shot+2017-10-25+at+11.14.36+PM.png" data-image-dimensions="906x556" data-image-focal-point="0.5,0.5" alt="Screen Shot 2017-10-25 at 11.14.36 PM.png" data-load="false" data-image-id="59f16f5112abd983bc11c401" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Clicking Create Author gets us the authors show page:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:752px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:64.36170196533203%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508994956854-90TZTY08AUPT3G7NM8BE/ke17ZwdGBToddI8pDm48kL-u-ZQwTj1TNYCg7EU03PNZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIKkIutWEz7xYuWtnZWMd8YP1hqesgd6NATnLi3fI9OcU/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508994956854-90TZTY08AUPT3G7NM8BE/ke17ZwdGBToddI8pDm48kL-u-ZQwTj1TNYCg7EU03PNZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIKkIutWEz7xYuWtnZWMd8YP1hqesgd6NATnLi3fI9OcU/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508994956854-90TZTY08AUPT3G7NM8BE/ke17ZwdGBToddI8pDm48kL-u-ZQwTj1TNYCg7EU03PNZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIKkIutWEz7xYuWtnZWMd8YP1hqesgd6NATnLi3fI9OcU/image-asset.png" data-image-dimensions="752x484" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="59f16f8c29f187e071d96dbb" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<h3>Validations</h3>
+<p>Our create author functionality is tested, but there is still work to be done. The next step is to add validations to our author model to prevent bad records from being created in our database. For example, there probably should not be duplicate Frank Herbert's born 1920-10-10 in the database.</p>
+<p>Let's start by adding tests that we validate the presence of each field on the offer model and then uniqueness across all three fields. In other words, we want to allow for multiple authors with first name Frank, and even authors with the same first and last names. But, we want to avoid saving duplicate records in our database by validating for uniqueness across all three fields on the author model.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/models/author_spec.rb</span>
+require <span style="color:#0000e6; ">'rails_helper'</span>
+
+RSpec<span style="color:#808030; ">.</span>describe Author<span style="color:#808030; ">,</span> <span style="color:#005fd2; ">type</span>: :<span style="color:#005fd2; ">model</span><span style="color:#800000; font-weight:bold; "> do</span>
+  describe <span style="color:#0000e6; ">"validations"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    it <span style="color:#800080; ">{</span> should validate_presence_of<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">first_name</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span>
+    it <span style="color:#800080; ">{</span> should validate_presence_of<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">last_name</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span>
+    it <span style="color:#800080; ">{</span> should validate_presence_of<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">date_of_birth</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span>
+
+    it <span style="color:#0000e6; ">"raises error for duplicate records"</span><span style="color:#800000; font-weight:bold; "> do</span>
+      create :<span style="color:#005fd2; ">author</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">first_name</span>: <span style="color:#0000e6; ">'Frank'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">last_name</span>: <span style="color:#0000e6; ">'Herbert'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">date_of_birth</span>: Date<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#008c00; ">1920</span><span style="color:#808030; ">,</span><span style="color:#008c00; ">10</span><span style="color:#808030; ">,</span><span style="color:#008c00; ">10</span><span style="color:#808030; ">)</span>
+      author <span style="color:#808030; ">=</span> build :<span style="color:#005fd2; ">author</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">first_name</span>: <span style="color:#0000e6; ">'Frank'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">last_name</span>: <span style="color:#0000e6; ">'Herbert'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">date_of_birth</span>: Date<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#008c00; ">1920</span><span style="color:#808030; ">,</span><span style="color:#008c00; ">10</span><span style="color:#808030; ">,</span><span style="color:#008c00; ">10</span><span style="color:#808030; ">)</span>
+
+      expect <span style="color:#800080; ">{</span> author<span style="color:#808030; ">.</span>save! <span style="color:#800080; ">}</span><span style="color:#808030; ">.</span>to raise_error
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The first three tests for validations on the presence of our three fields (e.g authors must have a first name, last name and date of birth to be saved to our database) can be implemented as follows:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># app/models/author.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> Author &lt; ApplicationRecord
+  validates_presence_of :<span style="color:#005fd2; ">first_name</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">last_name</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">date_of_birth</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The last test is a bit tougher. We create an author with Frank, Herbert, and 1920-10-10 as the first name, last name, and date of birth respectively. Then we build an identical record. Build does not save the record to the database, but stores it in memory without running validations. Calling save! on our second author will run validations and so we expect these validations to raise some sort of error indicating that the record must be unique.</p>
+<p>According to a number of <a href="https://robots.thoughtbot.com/the-perils-of-uniqueness-validations">sources</a>, the best way to implement this type of uniqueness validation is to add an index to the database table. This will guard against the scenario where two users create identical authors at the same time and the database ends up with duplicative records. To add our index we will run:</p>
+<p><code>$ rails g migration add_unique_index_to_authors</code></p>
+<p>Next we will go into the migration file we just created, which can be found in db/migrate/timestamp_add_unique_index_to_authors and write:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># db/migrate/20171027040353_add_unique_index_to_authors.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> AddUniqueIndexToAuthors &lt; ActiveRecord<span style="color:#808030; ">::</span>Migration<span style="color:#808030; ">[</span><span style="color:#008000; ">5.1</span><span style="color:#808030; ">]</span>
+  <span style="color:#800000; font-weight:bold; ">def</span> change
+    add_index :<span style="color:#005fd2; ">authors</span><span style="color:#808030; ">,</span> <span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">first_name</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">last_name</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">date_of_birth</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">unique</span>: <span style="color:#800000; font-weight:bold; ">true</span> 
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Now we will run this migration so that moving forward the database will ensure the uniqueness of this index column, avoiding the race condition.</p>
+<p><code>$ rake db:migrate db:test:prepare</code></p>
+<p>This will cause our schema.rb file to change and now look like:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># db/schema.rb</span>
+ActiveRecord<span style="color:#808030; ">::</span>Schema<span style="color:#808030; ">.</span>define<span style="color:#808030; ">(</span><span style="color:#005fd2; ">version</span>: <span style="color:#008c00; ">20171027040353</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+
+  <span style="color:#696969; "># These are extensions that must be enabled in order to support this database</span>
+  enable_extension <span style="color:#0000e6; ">"plpgsql"</span>
+
+  create_table <span style="color:#0000e6; ">"authors"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">force</span>: :<span style="color:#005fd2; ">cascade</span><span style="color:#800000; font-weight:bold; "> do</span> |t|
+    t<span style="color:#808030; ">.</span><span style="color:#400000; ">string</span> <span style="color:#0000e6; ">"first_name"</span>
+    t<span style="color:#808030; ">.</span><span style="color:#400000; ">string</span> <span style="color:#0000e6; ">"last_name"</span>
+    t<span style="color:#808030; ">.</span>date <span style="color:#0000e6; ">"date_of_birth"</span>
+    t<span style="color:#808030; ">.</span>datetime <span style="color:#0000e6; ">"created_at"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">null</span>: <span style="color:#800000; font-weight:bold; ">false</span>
+    t<span style="color:#808030; ">.</span>datetime <span style="color:#0000e6; ">"updated_at"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">null</span>: <span style="color:#800000; font-weight:bold; ">false</span>
+    t<span style="color:#808030; ">.</span><span style="color:#400000; ">index</span> <span style="color:#808030; ">[</span><span style="color:#0000e6; ">"first_name"</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">"last_name"</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">"date_of_birth"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">name</span>: <span style="color:#0000e6; ">"index_authors_on_first_name_and_last_name_and_date_of_birth"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">unique</span>: <span style="color:#800000; font-weight:bold; ">true</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Now let's run our tests and they should all pass!</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:35.15999984741211%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509077574939-LVKYKIIHUB1SN81AG7TH/ke17ZwdGBToddI8pDm48kEQmqQZdtGBB2XcSE0k8ACoUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnP1C9UWy2cGDbKOtjxyOylFEkeYAgDhq_JLu1dhlSYITEX3T5otXmCGrMAZX_WZDoQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509077574939-LVKYKIIHUB1SN81AG7TH/ke17ZwdGBToddI8pDm48kEQmqQZdtGBB2XcSE0k8ACoUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnP1C9UWy2cGDbKOtjxyOylFEkeYAgDhq_JLu1dhlSYITEX3T5otXmCGrMAZX_WZDoQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509077574939-LVKYKIIHUB1SN81AG7TH/ke17ZwdGBToddI8pDm48kEQmqQZdtGBB2XcSE0k8ACoUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnP1C9UWy2cGDbKOtjxyOylFEkeYAgDhq_JLu1dhlSYITEX3T5otXmCGrMAZX_WZDoQ/image-asset.png" data-image-dimensions="2500x879" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="59f2b246d6839ab9dd5abdc3" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>All the tests are indeed passing (some of these tests were generated by our rails g scaffold command), but we do have a warning. Expecting raise_error without specifying the error type or message is kind of dangerous. We really want to expect an error because we are saving a duplicate record. We could be getting a false positive if some other error is getting triggered by our author.save! call.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/models/author_spec.rb</span>
+require <span style="color:#0000e6; ">'rails_helper'</span>
+
+RSpec<span style="color:#808030; ">.</span>describe Author<span style="color:#808030; ">,</span> <span style="color:#005fd2; ">type</span>: :<span style="color:#005fd2; ">model</span><span style="color:#800000; font-weight:bold; "> do</span>
+  describe <span style="color:#0000e6; ">"validations"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    it <span style="color:#800080; ">{</span> should validate_presence_of<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">first_name</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span>
+    it <span style="color:#800080; ">{</span> should validate_presence_of<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">last_name</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span>
+    it <span style="color:#800080; ">{</span> should validate_presence_of<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">date_of_birth</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span>
+
+    it <span style="color:#0000e6; ">"raises error for duplicate records"</span><span style="color:#800000; font-weight:bold; "> do</span>
+      create :<span style="color:#005fd2; ">author</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">first_name</span>: <span style="color:#0000e6; ">'Frank'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">last_name</span>: <span style="color:#0000e6; ">'Herbert'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">date_of_birth</span>: Date<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#008c00; ">1920</span><span style="color:#808030; ">,</span><span style="color:#008c00; ">10</span><span style="color:#808030; ">,</span><span style="color:#008c00; ">10</span><span style="color:#808030; ">)</span>
+      author <span style="color:#808030; ">=</span> build :<span style="color:#005fd2; ">author</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">first_name</span>: <span style="color:#0000e6; ">'Frank'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">last_name</span>: <span style="color:#0000e6; ">'Herbert'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">date_of_birth</span>: Date<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#008c00; ">1920</span><span style="color:#808030; ">,</span><span style="color:#008c00; ">10</span><span style="color:#808030; ">,</span><span style="color:#008c00; ">10</span><span style="color:#808030; ">)</span>
+      expect <span style="color:#800080; ">{</span> author<span style="color:#808030; ">.</span>save! <span style="color:#800080; ">}</span><span style="color:#808030; ">.</span>to raise_error ActiveRecord<span style="color:#808030; ">::</span>RecordNotUnique
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>We can be more specific by saying that we expect author.save! to raise an ActiveRecord::RecordNotUnique error. Now when we run our tests they should all pass and we should not see that warning message.</p>
+
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1318px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:86.9499282836914%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509077892592-4JTLQJUPWWFBQVQA6VQX/ke17ZwdGBToddI8pDm48kGOmGPaXStz6T4cg8YdP6F57gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTm5B-b0WMdlmkyoziI96QtW3RJi8gjc3ZvCCE5p8vy93iHs02MAs3ohzZzSQkewNSU/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509077892592-4JTLQJUPWWFBQVQA6VQX/ke17ZwdGBToddI8pDm48kGOmGPaXStz6T4cg8YdP6F57gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTm5B-b0WMdlmkyoziI96QtW3RJi8gjc3ZvCCE5p8vy93iHs02MAs3ohzZzSQkewNSU/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509077892592-4JTLQJUPWWFBQVQA6VQX/ke17ZwdGBToddI8pDm48kGOmGPaXStz6T4cg8YdP6F57gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTm5B-b0WMdlmkyoziI96QtW3RJi8gjc3ZvCCE5p8vy93iHs02MAs3ohzZzSQkewNSU/image-asset.png" data-image-dimensions="1318x1146" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="59f2b3849140b7ad7ea3d152" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<h3>Feature Test the RUD</h3>
+<p dir="ltr">I think it's worth adding a few more pieces to our feature test. What we can do for readability is define methods within our test file that check create, read, update, and delete functionality. So our test will read "author CRUD using web interface create new author visit author index edit existing author delete existing author."</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/features/author_spec.rb</span>
+require <span style="color:#0000e6; ">'rails_helper'</span>
+
+feature <span style="color:#0000e6; ">'author CRUD'</span><span style="color:#800000; font-weight:bold; "> do</span>
+  scenario <span style="color:#0000e6; ">'using web interface'</span><span style="color:#800000; font-weight:bold; "> do</span>
+    create_new_author
+    visit_author_index
+    edit_existing_author
+    delete_existing_author
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> create_new_author
+    visit new_author_path
+    fill_in <span style="color:#0000e6; ">"First name"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">'Frank'</span>
+    fill_in <span style="color:#0000e6; ">"Last name"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">'Herbert'</span>
+    <span style="color:#400000; ">select</span> <span style="color:#0000e6; ">'1920'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">from</span>: <span style="color:#0000e6; ">'author_date_of_birth_1i'</span>
+    <span style="color:#400000; ">select</span> <span style="color:#0000e6; ">'October'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">from</span>: <span style="color:#0000e6; ">'author_date_of_birth_2i'</span>
+    <span style="color:#400000; ">select</span> <span style="color:#0000e6; ">'10'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">from</span>: <span style="color:#0000e6; ">'author_date_of_birth_3i'</span>
+    click_button <span style="color:#0000e6; ">'Create Author'</span>
+
+    expected_content <span style="color:#808030; ">=</span> <span style="color:#0000e6; ">%w(Frank Herbert 1920-10-10)</span>
+
+    expect_contents<span style="color:#808030; ">(</span>expected_content<span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> visit_author_index
+    <span style="color:#696969; "># add an additional author to the database so that we</span>
+    <span style="color:#696969; "># can assert that we see multiple authors on the index page</span>
+    create :<span style="color:#005fd2; ">author</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">first_name</span>: <span style="color:#0000e6; ">'Michael'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">last_name</span>: <span style="color:#0000e6; ">'Lewis'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">date_of_birth</span>: Date<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#008c00; ">1960</span><span style="color:#808030; ">,</span><span style="color:#008c00; ">10</span><span style="color:#808030; ">,</span><span style="color:#008c00; ">15</span><span style="color:#808030; ">)</span>
+    visit authors_path
+
+    expected_content <span style="color:#808030; ">=</span> <span style="color:#0000e6; ">%w(Frank Herbert 1920-10-10 Michael Lewis 1960-10-15)</span>
+    <span style="color:#696969; "># Expect the index table to have three rows, a header row and then one for</span>
+    <span style="color:#696969; "># each author.</span>
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_css <span style="color:#0000e6; ">'tr'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">count</span>: <span style="color:#008c00; ">3</span>
+    expect_contents<span style="color:#808030; ">(</span>expected_content<span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> edit_existing_author
+    visit edit_author_path<span style="color:#808030; ">(</span>Author<span style="color:#808030; ">.</span><span style="color:#400000; ">first</span><span style="color:#808030; ">)</span>
+    fill_in <span style="color:#0000e6; ">"First name"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">'JRR'</span>
+    fill_in <span style="color:#0000e6; ">"Last name"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">'Tolkein'</span>
+    <span style="color:#400000; ">select</span> <span style="color:#0000e6; ">'1892'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">from</span>: <span style="color:#0000e6; ">'author_date_of_birth_1i'</span>
+    <span style="color:#400000; ">select</span> <span style="color:#0000e6; ">'January'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">from</span>: <span style="color:#0000e6; ">'author_date_of_birth_2i'</span>
+    <span style="color:#400000; ">select</span> <span style="color:#0000e6; ">'3'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">from</span>: <span style="color:#0000e6; ">'author_date_of_birth_3i'</span>
+    click_button <span style="color:#0000e6; ">'Update Author'</span>
+
+    expected_content <span style="color:#808030; ">=</span> <span style="color:#0000e6; ">%w(JRR Tolkein 1892-01-03)</span>
+    expect_contents<span style="color:#808030; ">(</span>expected_content<span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> delete_existing_author
+    visit authors_path
+    <span style="color:#400000; ">first</span><span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">link</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">'Destroy'</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>click
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_css <span style="color:#0000e6; ">'tr'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">count</span>: <span style="color:#008c00; ">2</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> expect_contents(contents)
+    contents<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">each</span> <span style="color:#800080; ">{</span> |content| expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content content <span style="color:#800080; ">}</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>These additional feature tests should all pass since the scaffold implements full CRUD functionality. </p>
+<h3>Conclusion</h3>
+<p>We are well on our way to an amazing Rails application. Next up, we'll be doing some more CRUD work and create a genre model.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:974px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:47.22792434692383%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509078065532-ZTBRJTIUT6RE6DHQNUN6/ke17ZwdGBToddI8pDm48kOV7nOKp_JwzKD6ur9QIfOJZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PI_CRII87-HNMTJkO_dNrZ8vBc8eVt1ZaePEAaF1jHevs/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509078065532-ZTBRJTIUT6RE6DHQNUN6/ke17ZwdGBToddI8pDm48kOV7nOKp_JwzKD6ur9QIfOJZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PI_CRII87-HNMTJkO_dNrZ8vBc8eVt1ZaePEAaF1jHevs/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509078065532-ZTBRJTIUT6RE6DHQNUN6/ke17ZwdGBToddI8pDm48kOV7nOKp_JwzKD6ur9QIfOJZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PI_CRII87-HNMTJkO_dNrZ8vBc8eVt1ZaePEAaF1jHevs/image-asset.png" data-image-dimensions="974x460" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="59f2b4310d9297adf9368fa8" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>You can start from this point of the live blog journey by cloning / forking <a target="_blank" href="https://github.com/PlanetEfficacy/bookshelf/tree/iteration_1_authors_genres">this branch of my bookshelf repo</a>.</p>
+</body></html>

@@ -1,0 +1,2004 @@
+---
+layout: post
+title: Many to Many Checkboxes Tutorial
+categories:
+- Technical
+tags:
+- Ruby
+- Rails
+- Database
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '24'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h3>Scenario</h3>
+<p>Imagine a school that has many different student groups and a need to keep track of group memberships. In this tutorial I will show how we can use a Rails app with checkbox inputs in a form to create, update, and delete group memberships.</p>
+<p>Before we get started, the target audience for this tutorial is someone who is relatively new to Rails and coming across the problem of creating a many to many relationship via checkbox form for the first time. I try to document the entire process I went through, but one notable gap is the idea of authentication. This tutorial does not cover how to log a user in. For the sake of putting together a speedy demo app, I write a mock that simulates having a current logged in user object.</p>
+<h3>Database</h3>
+<p>Here is the schema we are going to be creating:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:424px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:31.1320743560791%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481211070788-GBUYGXDQ5QZGMP090RCG/ke17ZwdGBToddI8pDm48kI-hmZwb8ARNMBAhdYrD5TdZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVFwzHMewSrv2j4nv3Y2SF16RKIlAU8lsAKwyCvE6wjdVWQ6l2WM7tn7mqHTODzkmeM/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481211070788-GBUYGXDQ5QZGMP090RCG/ke17ZwdGBToddI8pDm48kI-hmZwb8ARNMBAhdYrD5TdZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVFwzHMewSrv2j4nv3Y2SF16RKIlAU8lsAKwyCvE6wjdVWQ6l2WM7tn7mqHTODzkmeM/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481211070788-GBUYGXDQ5QZGMP090RCG/ke17ZwdGBToddI8pDm48kI-hmZwb8ARNMBAhdYrD5TdZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVFwzHMewSrv2j4nv3Y2SF16RKIlAU8lsAKwyCvE6wjdVWQ6l2WM7tn7mqHTODzkmeM/image-asset.png" data-image-dimensions="424x132" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="58497cbe9de4bb473fbb6d25" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>We have a users table that will contain our users or students. We have a groups table that will contain the groups. And then we need a memberships table to hold the many to many student to group relationships. Students can be in many groups and groups can have many students.</p>
+<h3>SteP 1: Rails New</h3>
+<p>Create a new Rails app:</p>
+<p><code>rails new many_to_many_checkbox_demo -d postgresql --skip-turbolinks --skip-spring -T</code></p>
+<p>Jump into the new application directory:</p>
+<p><code>cd many_to_many_checkbox_demo/</code></p>
+<h3>Step 2: Continue with your favorite Rails setup</h3>
+<p>Here is what I like to do, but if you have your own opinions just skip to step 3. We'll open our gemfile and add the following gems:</p>
+<ul>
+<li>rspec-rails</li>
+<li>capybara</li>
+<li>shoulda-matchers</li>
+<li>database_cleaner</li>
+<li>factory_girl</li>
+<li>simplecov</li>
+<li>pry</li>
+</ul>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#400000; ">source</span> <span style="color:#0000e6; ">'https://rubygems.org'</span>
+<span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'rails'</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">'~&gt; 5.0.0'</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">'&gt;= 5.0.0.1'</span>
+<span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'pg'</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">'~&gt; 0.18'</span>
+<span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'puma'</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">'~&gt; 3.0'</span>
+<span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'sass-rails'</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">'~&gt; 5.0'</span>
+<span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'uglifier'</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">'&gt;= 1.3.0'</span>
+<span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'coffee-rails'</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">'~&gt; 4.2'</span>
+<span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'jquery-rails'</span>
+<span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'jbuilder'</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">'~&gt; 2.5'</span>
+
+<span style="color:#400000; ">group</span> :<span style="color:#005fd2; ">development</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">test</span><span style="color:#800000; font-weight:bold; "> do</span>
+  <span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'byebug'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">platform</span>: :<span style="color:#005fd2; ">mri</span>
+  <span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'pry'</span>
+  <span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'rspec-rails'</span>
+  <span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'capybara'</span>
+  <span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'launchy'</span>
+  <span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'shoulda-matchers'</span>
+  <span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'database_cleaner'</span>
+  <span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'factory_girl_rails'</span>
+  <span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'simplecov'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">require</span>: <span style="color:#800000; font-weight:bold; ">false</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#400000; ">group</span> :<span style="color:#005fd2; ">development</span><span style="color:#800000; font-weight:bold; "> do</span>
+  <span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'web-console'</span>
+  <span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'listen'</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">'~&gt; 3.0.5'</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'tzinfo-data'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">platforms</span>: <span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">mingw</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">mswin</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">x64_mingw</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">jruby</span><span style="color:#808030; ">]</span>
+</pre>
+<p>Run bundle:</p>
+<p><code>bundle</code></p>
+<p>Set up RSpec for Test Driven Development:</p>
+<p><code>rails g rspec:install</code></p>
+<p>Create some RSpec support folders and files:</p>
+<p><code>mkdir spec/support</code></p>
+<p><code>touch spec/support/factory_girl.rb</code></p>
+<p><code>touch spec/support/factories.rb</code></p>
+<p><code>touch spec/support/database_cleaner.rb</code></p>
+<p>Add config data:</p>
+<p>In <code>spec/rails_helper.rb</code></p>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'capybara/rails'</span>
+
+Shoulda<span style="color:#808030; ">::</span>Matchers<span style="color:#808030; ">.</span>configure<span style="color:#800000; font-weight:bold; "> do</span> |config|
+  config<span style="color:#808030; ">.</span>integrate<span style="color:#800000; font-weight:bold; "> do</span> |with|
+    with<span style="color:#808030; ">.</span>test_framework :<span style="color:#005fd2; ">rspec</span>
+    with<span style="color:#808030; ">.</span>library :<span style="color:#005fd2; ">rails</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Uncomment <code>Dir[Rails.root.join('spec/support/**/*.rb')].each { |f| require f }</code></p>
+<p>Change <code>config.use_transactional_fixtures = true</code> to ... = <code>false</code></p>
+<p>In <code>spec/support/factory_girl.rb</code></p>
+<pre style="color:#000000;background:#ffffff;">RSpec<span style="color:#808030; ">.</span>configure<span style="color:#800000; font-weight:bold; "> do</span> |config|
+  config<span style="color:#808030; ">.</span>include FactoryGirl<span style="color:#808030; ">::</span>Syntax<span style="color:#808030; ">::</span>Methods
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>In <code>spec/support/database_cleaner.rb</code></p>
+<pre style="color:#000000;background:#ffffff;">RSpec<span style="color:#808030; ">.</span>configure<span style="color:#800000; font-weight:bold; "> do</span> |config|
+
+  config<span style="color:#808030; ">.</span>before<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">suite</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+    DatabaseCleaner<span style="color:#808030; ">.</span>clean_with<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">truncation</span><span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  config<span style="color:#808030; ">.</span>before<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">each</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+    DatabaseCleaner<span style="color:#808030; ">.</span>strategy <span style="color:#808030; ">=</span> :<span style="color:#005fd2; ">transaction</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  config<span style="color:#808030; ">.</span>before<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">each</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">js</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#800000; font-weight:bold; ">true</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+    DatabaseCleaner<span style="color:#808030; ">.</span>strategy <span style="color:#808030; ">=</span> :<span style="color:#005fd2; ">truncation</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  config<span style="color:#808030; ">.</span>before<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">each</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+    DatabaseCleaner<span style="color:#808030; ">.</span><span style="color:#400000; ">start</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  config<span style="color:#808030; ">.</span>after<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">each</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+    DatabaseCleaner<span style="color:#808030; ">.</span>clean
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>In <code>.gitignore</code></p>
+<p><code># Ignore SimpleCov files</code></p>
+<p><code>coverage</code></p>
+<p>I routinely reference <a target="_blank" href="https://gist.github.com/ryanflach/9fe657471bc9282a18d6904171645278">this amazing gist</a> for my default Rails setup, which was created by the brilliant <a target="_blank" href="https://twitter.com/ryan_flach">Ryan Flach</a>.</p>
+<h3>Step 3: Write a User Story</h3>
+<p>I always start with a test. Always. There are plenty of awesome tutorials on how to set up many to many relationships with check box forms, like this <a href="https://www.youtube.com/watch?v=c2qwV0B9yfU">one</a>, but none of them that I have found are driven by testing. Let's start by writing a user story:</p>
+<p><code>As a user</code></p>
+<p><code>When I visit the membership form</code></p>
+<p><code>and I check "student government"</code></p>
+<p><code>and I click "Submit"</code></p>
+<p><code>Then I am taken to my user profile</code></p>
+<p><code>and I see my membership: "student government"</code></p>
+<h3>Step 4: Implement the story as a test</h3>
+<p>First, lets create a new feature test directory and create our test file:</p>
+<p><code>mkdir spec/features</code></p>
+<p><code>touch spec/features/user_creates_membership_spec.rb</code></p>
+<p>In the above file, we add the following feature test describing what we will next implement:</p>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'rails_helper'</span>
+
+RSpec<span style="color:#808030; ">.</span>describe <span style="color:#0000e6; ">"user creates group membership"</span><span style="color:#800000; font-weight:bold; "> do</span>
+  scenario <span style="color:#0000e6; ">"by checking checkboxes in the membership form"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    <span style="color:#696969; ">#test setup: create a user in the database, create a group</span>
+    user <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">user</span><span style="color:#808030; ">)</span>
+    <span style="color:#400000; ">group</span> <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">group</span><span style="color:#808030; ">)</span>
+    <span style="color:#696969; "># Go to the new membership form</span>
+    visit new_membership_path
+    <span style="color:#696969; "># find the checkbox for the group we just created and check it</span>
+    <span style="color:#696969; "># we find the checkbox by the id of the checkbox, which is set to</span>
+    <span style="color:#696969; "># the id of the group</span>
+    <span style="color:#400000; ">find</span><span style="color:#808030; ">(</span><span style="color:#0000e6; ">"#</span><span style="color:#000000; background:#ffffe8; ">#{</span><span style="color:#400000; background:#ffffe8; ">group</span><span style="color:#808030; background:#ffffe8; ">.</span><span style="color:#000000; background:#ffffe8; ">id}</span><span style="color:#0000e6; ">"</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>set<span style="color:#808030; ">(</span><span style="color:#800000; font-weight:bold; ">true</span><span style="color:#808030; ">)</span>
+    <span style="color:#696969; "># submit the form</span>
+    click_button <span style="color:#0000e6; ">"Save changes"</span>
+    <span style="color:#696969; "># Expect the current page to be the user profile page</span>
+    expect<span style="color:#808030; ">(</span>current_path<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span>user_path<span style="color:#808030; ">(</span>user<span style="color:#808030; ">)</span><span style="color:#808030; ">)</span>
+    <span style="color:#696969; "># Look inside the div with id memberships</span>
+    within <span style="color:#0000e6; ">"div#memberships"</span><span style="color:#800000; font-weight:bold; "> do</span>
+      <span style="color:#696969; "># expect to find the name of the group that we just added</span>
+      expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content<span style="color:#808030; ">(</span><span style="color:#400000; ">group</span><span style="color:#808030; ">.</span><span style="color:#400000; ">name</span><span style="color:#808030; ">)</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<h3>Step 5: Run the test</h3>
+<p>Before we run the test, we have to create our test database:</p>
+<p><code>rake db:create</code></p>
+<p>Lets run the above test in our terminal:</p>
+<p><code>rspec ./spec/features/user_creates_membership_spec.rb</code></p>
+
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:35.720001220703125%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481298414134-CQI18QTK7S0G89SC3DPY/ke17ZwdGBToddI8pDm48kCktWPLWPXVMHvKuu-DtI7AUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnIr-VH_ezavQKInntPmZn-ZwmMC8ZeDJQbFmI4FKZnajJk-YCSMoGWe6P43P0-G6lA/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481298414134-CQI18QTK7S0G89SC3DPY/ke17ZwdGBToddI8pDm48kCktWPLWPXVMHvKuu-DtI7AUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnIr-VH_ezavQKInntPmZn-ZwmMC8ZeDJQbFmI4FKZnajJk-YCSMoGWe6P43P0-G6lA/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481298414134-CQI18QTK7S0G89SC3DPY/ke17ZwdGBToddI8pDm48kCktWPLWPXVMHvKuu-DtI7AUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnIr-VH_ezavQKInntPmZn-ZwmMC8ZeDJQbFmI4FKZnajJk-YCSMoGWe6P43P0-G6lA/image-asset.png" data-image-dimensions="2500x893" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="584ad1ed37c5817a650fcdc5" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<h3>Step 6: Setup our models</h3>
+<p>The errors above show that it is time to set up our models so let's do:</p>
+<p><code>rails g model user name</code></p>
+<p>This will create our database migration, model, and factory girl files:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1910px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:29.842931747436523%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481300583244-IBTWFLBHA7DT5RERZ6G0/ke17ZwdGBToddI8pDm48kP5Ff1k2yZdTCYYJZxgJp5oUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dpbQFDo8ILfIrvNXuBmLNad3JwAqg6xAB4LsxdNM2t_ECjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481300583244-IBTWFLBHA7DT5RERZ6G0/ke17ZwdGBToddI8pDm48kP5Ff1k2yZdTCYYJZxgJp5oUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dpbQFDo8ILfIrvNXuBmLNad3JwAqg6xAB4LsxdNM2t_ECjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481300583244-IBTWFLBHA7DT5RERZ6G0/ke17ZwdGBToddI8pDm48kP5Ff1k2yZdTCYYJZxgJp5oUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dpbQFDo8ILfIrvNXuBmLNad3JwAqg6xAB4LsxdNM2t_ECjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1910x570" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="584ada66ff7c5026f7c96f05" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Next, run the migration:</p>
+<p><code>rake db:migrate</code></p>
+<p>Next we will create our group model:</p>
+<p><code>rails g model group name</code></p>
+
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2014px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:33.86296081542969%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481300764200-K094O5A99OI2OMF4AK0W/ke17ZwdGBToddI8pDm48kBuEg_8sTXXj1dyn967aXfIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dm-QwegfIm2817R9f8ElDsHm_iDYYxjP9fV8j361eblBCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481300764200-K094O5A99OI2OMF4AK0W/ke17ZwdGBToddI8pDm48kBuEg_8sTXXj1dyn967aXfIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dm-QwegfIm2817R9f8ElDsHm_iDYYxjP9fV8j361eblBCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481300764200-K094O5A99OI2OMF4AK0W/ke17ZwdGBToddI8pDm48kBuEg_8sTXXj1dyn967aXfIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dm-QwegfIm2817R9f8ElDsHm_iDYYxjP9fV8j361eblBCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="2014x682" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="584adb1bcd0f68ddbf078d01" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>And then run the migration.</p>
+<p><code>rake db:migrate</code></p>
+<p>And then we will create the join table:</p>
+<p><code>rails g model membership user:references group:references</code></p>
+<p>And then run the migration.</p>
+<p><code>rake db:migrate</code></p>
+
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:40.79999923706055%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481301003147-IZ4IQSL2F1CJO9RX9AWC/ke17ZwdGBToddI8pDm48kINnCwVcUnrWrQVjrgAffCB7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0hg-j53adOKpggkdKv9KZCVInyZuI5vEnxJeQhiG2_VUA_ild5pxOqveWTd74e7v2g/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481301003147-IZ4IQSL2F1CJO9RX9AWC/ke17ZwdGBToddI8pDm48kINnCwVcUnrWrQVjrgAffCB7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0hg-j53adOKpggkdKv9KZCVInyZuI5vEnxJeQhiG2_VUA_ild5pxOqveWTd74e7v2g/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481301003147-IZ4IQSL2F1CJO9RX9AWC/ke17ZwdGBToddI8pDm48kINnCwVcUnrWrQVjrgAffCB7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0hg-j53adOKpggkdKv9KZCVInyZuI5vEnxJeQhiG2_VUA_ild5pxOqveWTd74e7v2g/image-asset.png" data-image-dimensions="2500x1020" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="584adc0a3e00be3be3f34921" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>In our factories we will add:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/factories/users.rb</span>
+FactoryGirl<span style="color:#808030; ">.</span>define<span style="color:#800000; font-weight:bold; "> do</span>
+  factory :<span style="color:#005fd2; ">user</span><span style="color:#800000; font-weight:bold; "> do</span>
+    <span style="color:#400000; ">name</span> <span style="color:#0000e6; ">"Bob"</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/factories/groups.rb</span>
+FactoryGirl<span style="color:#808030; ">.</span>define<span style="color:#800000; font-weight:bold; "> do</span>
+  factory :<span style="color:#005fd2; ">group</span><span style="color:#800000; font-weight:bold; "> do</span>
+    <span style="color:#400000; ">name</span> <span style="color:#0000e6; ">"Student Council"</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/factories/memberships.rb</span>
+FactoryGirl<span style="color:#808030; ">.</span>define<span style="color:#800000; font-weight:bold; "> do</span>
+  factory :<span style="color:#005fd2; ">membership</span><span style="color:#800000; font-weight:bold; "> do</span>
+    user
+    <span style="color:#400000; ">group</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<h3>Step 7: Write some model tests</h3>
+<p>In our user model specs we will add:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/user_spec.rb</span>
+require <span style="color:#0000e6; ">'rails_helper'</span>
+
+RSpec<span style="color:#808030; ">.</span>describe User<span style="color:#808030; ">,</span> <span style="color:#005fd2; ">type</span>: :<span style="color:#005fd2; ">model</span><span style="color:#800000; font-weight:bold; "> do</span>
+  it <span style="color:#800080; ">{</span>should have_many<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">memberships</span><span style="color:#808030; ">)</span><span style="color:#800080; ">}</span>
+  it <span style="color:#800080; ">{</span>should have_many<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">groups</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>through<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">memberships</span><span style="color:#808030; ">)</span><span style="color:#800080; ">}</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/group_spec.rb</span>
+require <span style="color:#0000e6; ">'rails_helper'</span>
+
+RSpec<span style="color:#808030; ">.</span>describe Group<span style="color:#808030; ">,</span> <span style="color:#005fd2; ">type</span>: :<span style="color:#005fd2; ">model</span><span style="color:#800000; font-weight:bold; "> do</span>
+  it <span style="color:#800080; ">{</span>should have_many<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">memberships</span><span style="color:#808030; ">)</span><span style="color:#800080; ">}</span>
+  it <span style="color:#800080; ">{</span>should have_many<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">users</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>through<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">memberships</span><span style="color:#808030; ">)</span><span style="color:#800080; ">}</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/membership_spec.rb</span>
+require <span style="color:#0000e6; ">'rails_helper'</span>
+
+RSpec<span style="color:#808030; ">.</span>describe Membership<span style="color:#808030; ">,</span> <span style="color:#005fd2; ">type</span>: :<span style="color:#005fd2; ">model</span><span style="color:#800000; font-weight:bold; "> do</span>
+  it <span style="color:#800080; ">{</span>should belong_to<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">user</span><span style="color:#808030; ">)</span><span style="color:#800080; ">}</span>
+  it <span style="color:#800080; ">{</span>should belong_to<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">group</span><span style="color:#808030; ">)</span><span style="color:#800080; ">}</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>And when we run our freshly written tests, we get:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1754px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:61.57354736328125%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481301602841-C1XZNL5JBZ6RXU0HCGPC/ke17ZwdGBToddI8pDm48kFxoiB2rj2krq3N1UmLJ-uR7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1URChuUoLtpUc0uV-pEk45gNFzzYQzRy3fVC2aa3Xr2uBW07ycm2Trb21kYhaLJjddA/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481301602841-C1XZNL5JBZ6RXU0HCGPC/ke17ZwdGBToddI8pDm48kFxoiB2rj2krq3N1UmLJ-uR7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1URChuUoLtpUc0uV-pEk45gNFzzYQzRy3fVC2aa3Xr2uBW07ycm2Trb21kYhaLJjddA/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481301602841-C1XZNL5JBZ6RXU0HCGPC/ke17ZwdGBToddI8pDm48kFxoiB2rj2krq3N1UmLJ-uR7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1URChuUoLtpUc0uV-pEk45gNFzzYQzRy3fVC2aa3Xr2uBW07ycm2Trb21kYhaLJjddA/image-asset.png" data-image-dimensions="1754x1080" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="584ade62e3df2877e7c62be4" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Now it's time to pass our tests!</p>
+<h3>Step 8: Implement our Models</h3>
+<p>This feels like cheating.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># app/group.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> Group &lt; ApplicationRecord
+  has_many :<span style="color:#005fd2; ">memberships</span>
+  has_many :<span style="color:#005fd2; ">users</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">through</span>: :<span style="color:#005fd2; ">memberships</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># app/membership.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> Membership &lt; ApplicationRecord
+  belongs_to :<span style="color:#005fd2; ">user</span>
+  belongs_to :<span style="color:#005fd2; ">group</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># app/user.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> User &lt; ApplicationRecord
+  has_many :<span style="color:#005fd2; ">memberships</span>
+  has_many :<span style="color:#005fd2; ">groups</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">through</span>: :<span style="color:#005fd2; ">memberships</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>And when we run our test suite we get:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1866px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:55.41265106201172%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481305405088-8U1JH7W1W19KMGQZIW13/ke17ZwdGBToddI8pDm48kHkcrh2I9wkuhwkrGFf2khF7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UUiT8Nuwl4Ix-59QpH27joPze6B4gn_m3eVlDZopR5lVpC969RuPXvt2ZwyzUXQf7Q/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481305405088-8U1JH7W1W19KMGQZIW13/ke17ZwdGBToddI8pDm48kHkcrh2I9wkuhwkrGFf2khF7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UUiT8Nuwl4Ix-59QpH27joPze6B4gn_m3eVlDZopR5lVpC969RuPXvt2ZwyzUXQf7Q/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481305405088-8U1JH7W1W19KMGQZIW13/ke17ZwdGBToddI8pDm48kHkcrh2I9wkuhwkrGFf2khF7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UUiT8Nuwl4Ix-59QpH27joPze6B4gn_m3eVlDZopR5lVpC969RuPXvt2ZwyzUXQf7Q/image-asset.png" data-image-dimensions="1866x1034" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="584aed3c9f74560a7fa73840" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<h3>Step 9:  Create a Route</h3>
+<p dir="ltr">Let's look at our failing test:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:17.720001220703125%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481305614178-ETY1K79TDFCAGHINZAUZ/ke17ZwdGBToddI8pDm48kNWEpXZEADrXF7-Ak8ilodMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnH5rfqWBYKKx2DJ7Wm_ecNfgmUTalEuIaBcq5Tz042gBB9WBn-zaT5U9odJ7-xS5Qw/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481305614178-ETY1K79TDFCAGHINZAUZ/ke17ZwdGBToddI8pDm48kNWEpXZEADrXF7-Ak8ilodMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnH5rfqWBYKKx2DJ7Wm_ecNfgmUTalEuIaBcq5Tz042gBB9WBn-zaT5U9odJ7-xS5Qw/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481305614178-ETY1K79TDFCAGHINZAUZ/ke17ZwdGBToddI8pDm48kNWEpXZEADrXF7-Ak8ilodMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnH5rfqWBYKKx2DJ7Wm_ecNfgmUTalEuIaBcq5Tz042gBB9WBn-zaT5U9odJ7-xS5Qw/image-asset.png" data-image-dimensions="2500x443" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="584aee0d6a4963352936d631" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>The error is telling us that the route we call in the feature test, "new_membership_path", is not defined. So let's define it:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># config/routes.rb</span>
+Rails<span style="color:#808030; ">.</span>application<span style="color:#808030; ">.</span>routes<span style="color:#808030; ">.</span>draw<span style="color:#800000; font-weight:bold; "> do</span>
+  resources :<span style="color:#005fd2; ">memberships</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">only</span>: <span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">new</span><span style="color:#808030; ">]</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>This will create the following route:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1846px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:15.601299285888672%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481305828300-YK4W0LMQ3DX4ZQLR6VDK/ke17ZwdGBToddI8pDm48kMmCLJJQoRfvRvlWjA3Z1T8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dkE4qEfNDI_srN14ZoLnSJ2SwaTZLWO8kz0pYkPr2yElCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481305828300-YK4W0LMQ3DX4ZQLR6VDK/ke17ZwdGBToddI8pDm48kMmCLJJQoRfvRvlWjA3Z1T8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dkE4qEfNDI_srN14ZoLnSJ2SwaTZLWO8kz0pYkPr2yElCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481305828300-YK4W0LMQ3DX4ZQLR6VDK/ke17ZwdGBToddI8pDm48kMmCLJJQoRfvRvlWjA3Z1T8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dkE4qEfNDI_srN14ZoLnSJ2SwaTZLWO8kz0pYkPr2yElCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1846x288" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="584aeee4725e253c5f8c9b29" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>And then we run our test.</p>
+<h3>Step 10: Create a Controller</h3>
+<p>Our test tells us that we need to create a membership controller:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2298px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:21.7580509185791%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481305945945-NQTDTZ1XXK4JJ2ERBYZ8/ke17ZwdGBToddI8pDm48kB0Jpd6ZD84h8gK6WnKN96cUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2ds4kCP4SM9Fh5wUhrSdD2dZf-57EUEi9hgvsIbfWpKRNCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481305945945-NQTDTZ1XXK4JJ2ERBYZ8/ke17ZwdGBToddI8pDm48kB0Jpd6ZD84h8gK6WnKN96cUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2ds4kCP4SM9Fh5wUhrSdD2dZf-57EUEi9hgvsIbfWpKRNCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481305945945-NQTDTZ1XXK4JJ2ERBYZ8/ke17ZwdGBToddI8pDm48kB0Jpd6ZD84h8gK6WnKN96cUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2ds4kCP4SM9Fh5wUhrSdD2dZf-57EUEi9hgvsIbfWpKRNCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="2298x500" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="584aef59e6f2e1c71d5fd02e" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>So let's go ahead and create one:</p>
+<p><code>touch app/controllers/memberships_controller.rb</code></p>
+<p>We know that we will need to have a new method because that is what our route is expecting, so we will add the following code to the controller file we just created:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># app/controllers/memberships_controller.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> MembershipsController &lt; ApplicationController
+  <span style="color:#800000; font-weight:bold; ">def</span> new
+    
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>And run our test:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:27.1200008392334%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481306402100-UWQM3KLUTS1PUYVMY6P1/ke17ZwdGBToddI8pDm48kKL4HxhPveWVVS6zmEL7htAUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnLSMtneRGMjeiYLVo2djREpe5jb1rGqWcG-La42WtiqYe3Dzf2lgZXdALTCXFe6OWQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481306402100-UWQM3KLUTS1PUYVMY6P1/ke17ZwdGBToddI8pDm48kKL4HxhPveWVVS6zmEL7htAUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnLSMtneRGMjeiYLVo2djREpe5jb1rGqWcG-La42WtiqYe3Dzf2lgZXdALTCXFe6OWQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481306402100-UWQM3KLUTS1PUYVMY6P1/ke17ZwdGBToddI8pDm48kKL4HxhPveWVVS6zmEL7htAUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnLSMtneRGMjeiYLVo2djREpe5jb1rGqWcG-La42WtiqYe3Dzf2lgZXdALTCXFe6OWQ/image-asset.png" data-image-dimensions="2500x678" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="584af121d1758ecb68b74678" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<h3>Step 11: Create a Form</h3>
+<p>Our test tells us that it is missing a template, which means that we need a form view. We can create one by:</p>
+<p><code>mkdir app/views/memberships</code></p>
+<p><code>touch app/views/memberships/new.html.erb</code></p>
+<p>Now is also a good time to add a little Bootstrap to our project just to make our views a little more readable than what we get from basic HTML. </p>
+<p>To do that, and in the interest of speed, I add the <a target="_blank" href="#">CDN</a>'s (content delivery network) to my application.html.erb file like so:</p>
+<pre style="color:#000000;background:#ffffff;">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;ManyToManyCheckboxDemo&lt;<span style="color:#808030; ">/</span>title&gt;
+    &lt;<span style="color:#3f5fbf; ">%= csrf_meta_tags %&gt;</span>
+<span style="color:#3f5fbf; ">    &lt;%=</span> stylesheet_link_tag    <span style="color:#0000e6; ">'application'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">media</span>: <span style="color:#0000e6; ">'all'</span> %&gt;
+    &lt;<span style="color:#3f5fbf; ">%= javascript_include_tag 'application' %&gt;</span>
+<span style="color:#3f5fbf; ">    &lt;%=</span> stylesheet_link_tag <span style="color:#0000e6; ">"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"</span><span style="color:#808030; ">,</span>
+        <span style="color:#005fd2; ">integrity</span>: <span style="color:#0000e6; ">"sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"</span><span style="color:#808030; ">,</span>
+        <span style="color:#005fd2; ">crossorigin</span>: <span style="color:#0000e6; ">"anonymous"</span> %&gt;
+    &lt;<span style="color:#3f5fbf; ">%= stylesheet_link_tag "</span><span style="color:#5555dd; ">https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css</span><span style="color:#3f5fbf; ">",</span>
+<span style="color:#3f5fbf; ">        integrity: "sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp",</span>
+<span style="color:#3f5fbf; ">        crossorigin: "anonymous" %&gt;</span>
+<span style="color:#3f5fbf; ">    &lt;%=</span> javascript_include_tag <span style="color:#0000e6; ">"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"</span><span style="color:#808030; ">,</span>
+        <span style="color:#005fd2; ">integrity</span>: <span style="color:#0000e6; ">"sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"</span><span style="color:#808030; ">,</span>
+        <span style="color:#005fd2; ">crossorigin</span>: <span style="color:#0000e6; ">"anonymous"</span> %&gt;
+  &lt;<span style="color:#808030; ">/</span>head&gt;
+
+  &lt;body&gt;
+    &lt;<span style="color:#3f5fbf; ">%= yield %&gt;</span>
+<span style="color:#3f5fbf; ">  &lt;/body&gt;</span>
+<span style="color:#3f5fbf; ">&lt;/html&gt;</span>
+</pre>
+<p>Next, we can add the following code to our view: app/views/memberships/new.html.erb</p>
+<pre style="color:#000000;background:#ffffff;">&lt;h1&gt;Memberships&lt;<span style="color:#808030; ">/</span>h1&gt;
+&lt;<span style="color:#400000; ">div</span> <span style="color:#800000; font-weight:bold; ">class</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"container"</span>&gt;
+  &lt;<span style="color:#400000; ">div</span> <span style="color:#800000; font-weight:bold; ">class</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"col-md-6 col-md-offset-3 text-center"</span>&gt;
+    &lt;<span style="color:#3f5fbf; ">%= form_for @memberships do |f| %&gt;</span>
+<span style="color:#3f5fbf; ">      &lt;% Group.all.each do |group| %&gt;</span>
+<span style="color:#3f5fbf; ">        &lt;div class=</span><span style="color:#0000e6; ">"form-group text-left"</span>&gt;
+          &lt;<span style="color:#3f5fbf; ">%= check_box_tag group.id,</span>
+<span style="color:#3f5fbf; ">              group.id,</span>
+<span style="color:#3f5fbf; ">              @user.groups.include?(group),</span>
+<span style="color:#3f5fbf; ">              :name =</span>&gt; <span style="color:#0000e6; ">'user[group_ids][]'</span><span style="color:#808030; ">,</span>
+<span style="color:#800000; font-weight:bold; ">              class</span>: <span style="color:#0000e6; ">"form-control"</span> %&gt;
+          &lt;<span style="color:#3f5fbf; ">%= label_tag group.id, group.name %&gt;</span>
+<span style="color:#3f5fbf; ">        &lt;/div&gt;</span>
+<span style="color:#3f5fbf; ">      &lt;% end %&gt;</span>
+<span style="color:#3f5fbf; ">      &lt;%=</span> submit_tag %&gt;
+    &lt;% <span style="color:#800000; font-weight:bold; ">end</span> %&gt;
+  &lt;<span style="color:#808030; ">/</span><span style="color:#400000; ">div</span>&gt;
+&lt;<span style="color:#808030; ">/</span><span style="color:#400000; ">div</span>&gt;
+</pre>
+<p>In the above code we are doing a couple of things that are worth looking at more closely.</p>
+<p>First we create a header, "Memberships". We set up two divs with a few Bootstrap classes to make our form spacing look nice. Then we get into the form itself. We use the instance variable memberships in the start of our form_for. Then we iterate over each Group object and create a checkbox for each group.</p>
+<p>The check_box_tag method is a helper function available in Rails. The first argument is the id of the checkbox input we are creating. We set that to the id of the group represented by the checkbox. The second argument is the name of the checkbox input we are creating.</p>
+<p>The third argument is a boolean that we are used to set the value of the checkbox. If the user is already a part of the group, we will get true and the checkbox will render as checked. If the user is not a part of the group, we will get false and the checkbox will render as unchecked. In a real project we would have a plan for authenticating users so that when a user visited this form, we would know who they are. That's a bit beyond the scope of this post, so instead we'll just mock a user in our test, which I will show in the next section.</p>
+<p>Next we store the resulting checkbox values corresponding to all the checkboxes in an array nested within a hash with the key "name". We need to have all the checkbox values in an array that we can then iterate over and create or destroy the corresponding membership. Setting up the checkboxes is probably the trickiest part of the entire project and my intended biggest value add for this tutorial.</p>
+<p>In addition to creating checkboxes, we also add labels so that our user knows what they are checking. We also add a submit button.</p>
+<p>When we run our test we get:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:27.1200008392334%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481316740566-VCMHGNWS6X3GJO38WO4M/ke17ZwdGBToddI8pDm48kKL4HxhPveWVVS6zmEL7htAUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnLSMtneRGMjeiYLVo2djREpe5jb1rGqWcG-La42WtiqYe3Dzf2lgZXdALTCXFe6OWQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481316740566-VCMHGNWS6X3GJO38WO4M/ke17ZwdGBToddI8pDm48kKL4HxhPveWVVS6zmEL7htAUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnLSMtneRGMjeiYLVo2djREpe5jb1rGqWcG-La42WtiqYe3Dzf2lgZXdALTCXFe6OWQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481316740566-VCMHGNWS6X3GJO38WO4M/ke17ZwdGBToddI8pDm48kKL4HxhPveWVVS6zmEL7htAUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnLSMtneRGMjeiYLVo2djREpe5jb1rGqWcG-La42WtiqYe3Dzf2lgZXdALTCXFe6OWQ/image-asset.png" data-image-dimensions="2500x678" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="584b19848419c2de53a4fc5a" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>We need to declare a membership instance variable back in our controller with the following:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># app/controllers/membership_controller.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> MembershipsController &lt; ApplicationController
+  <span style="color:#800000; font-weight:bold; ">def</span> new
+    @memberships <span style="color:#808030; ">=</span> Membership<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Now when we run our test we get the following error:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:18.520000457763672%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481347496976-TKN7O7ZPXOITK79LLMWT/ke17ZwdGBToddI8pDm48kHixTobMU-SSmTyPhuC-bZcUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnEh4Y2J276FuFOyqO2-st_QxkqFGD3paj8oDGGUFfOTm1N5ToR3G3CTICoJQta676A/Screen+Shot+2016-12-09+at+1.51.54+PM.png" alt="Screen Shot 2016-12-09 at 1.51.54 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481347496976-TKN7O7ZPXOITK79LLMWT/ke17ZwdGBToddI8pDm48kHixTobMU-SSmTyPhuC-bZcUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnEh4Y2J276FuFOyqO2-st_QxkqFGD3paj8oDGGUFfOTm1N5ToR3G3CTICoJQta676A/Screen+Shot+2016-12-09+at+1.51.54+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481347496976-TKN7O7ZPXOITK79LLMWT/ke17ZwdGBToddI8pDm48kHixTobMU-SSmTyPhuC-bZcUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnEh4Y2J276FuFOyqO2-st_QxkqFGD3paj8oDGGUFfOTm1N5ToR3G3CTICoJQta676A/Screen+Shot+2016-12-09+at+1.51.54+PM.png" data-image-dimensions="2500x463" data-image-focal-point="0.5,0.5" alt="Screen Shot 2016-12-09 at 1.51.54 PM.png" data-load="false" data-image-id="584b91a83e00be3a72ba2aef" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<h3>Step 12: Add a Create Route</h3>
+<p>Now we need to add a route that matches the missing membership_path where are form is making its post request.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># config/routes.rb</span>
+Rails<span style="color:#808030; ">.</span>application<span style="color:#808030; ">.</span>routes<span style="color:#808030; ">.</span>draw<span style="color:#800000; font-weight:bold; "> do</span>
+  resources :<span style="color:#005fd2; ">memberships</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">only</span>: <span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">new</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">create</span><span style="color:#808030; ">]</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Which will create the following routes:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1872px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:20.833332061767578%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481347661452-05NBVJ9MU8HWH4Y3JJ3L/ke17ZwdGBToddI8pDm48kL5Ae6_WV5CQWhPHOdREGrYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dt4wogGwbJKyJiCOERsjHMC1H14o3IfjHawcO7FDy7tiCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481347661452-05NBVJ9MU8HWH4Y3JJ3L/ke17ZwdGBToddI8pDm48kL5Ae6_WV5CQWhPHOdREGrYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dt4wogGwbJKyJiCOERsjHMC1H14o3IfjHawcO7FDy7tiCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481347661452-05NBVJ9MU8HWH4Y3JJ3L/ke17ZwdGBToddI8pDm48kL5Ae6_WV5CQWhPHOdREGrYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dt4wogGwbJKyJiCOERsjHMC1H14o3IfjHawcO7FDy7tiCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1872x390" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="584b924cd1758ef90fe61916" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<h3>Step 13: Fake a User</h3>
+<p dir="ltr">Now when we run the test, we get the following error:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2284px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:21.453590393066406%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481347742446-3N6A6ES3DB1EYCJGWMVY/ke17ZwdGBToddI8pDm48kEjzmfqjRQkkDDb1UQ3Bh9UUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dtWW-Z2bflXZe9ekgxLdkGxz81ZusQvOkGahdkIZQt32CjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481347742446-3N6A6ES3DB1EYCJGWMVY/ke17ZwdGBToddI8pDm48kEjzmfqjRQkkDDb1UQ3Bh9UUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dtWW-Z2bflXZe9ekgxLdkGxz81ZusQvOkGahdkIZQt32CjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481347742446-3N6A6ES3DB1EYCJGWMVY/ke17ZwdGBToddI8pDm48kEjzmfqjRQkkDDb1UQ3Bh9UUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dtWW-Z2bflXZe9ekgxLdkGxz81ZusQvOkGahdkIZQt32CjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="2284x490" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="584b929dbe659489bb158739" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>The problem is that @users is not a thing because there is not a current user in our application. Calling the method groups on something that is undefined produces the above error. Since I'm not building any authentication in this app (because the purpose is only to show how to set up check boxes for a many to many relationship), I'm going to add a mock to my test that will set the current user to be the single user created in the test by adding the following code:</p>
+<p><code>allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)</code></p>
+<p>The above line says that anytime the method "current_user" is called in any of this application's controller files, respond with the user object.</p>
+<p>The updated feature test will look like this:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/features/user_creates_membership_spec.rb</span>
+require <span style="color:#0000e6; ">'rails_helper'</span>
+
+RSpec<span style="color:#808030; ">.</span>describe <span style="color:#0000e6; ">"user creates group membership"</span><span style="color:#800000; font-weight:bold; "> do</span>
+  scenario <span style="color:#0000e6; ">"by checking checkboxes in the membership form"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    <span style="color:#696969; ">#test setup: create a user in the database, create a group</span>
+    user <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">user</span><span style="color:#808030; ">)</span>
+    <span style="color:#400000; ">group</span> <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">group</span><span style="color:#808030; ">)</span>
+    <span style="color:#696969; "># Mock a login which says anytime we call</span>
+    <span style="color:#696969; "># the method current_user in a controller</span>
+    <span style="color:#696969; "># return the user we created above.</span>
+    allow_any_instance_of<span style="color:#808030; ">(</span>ApplicationController<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to receive<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">current_user</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>and_return<span style="color:#808030; ">(</span>user<span style="color:#808030; ">)</span>
+    <span style="color:#696969; "># Go to the new membership form</span>
+    visit new_membership_path
+    <span style="color:#696969; "># find the checkbox for the group we just created and check it</span>
+    <span style="color:#696969; "># we find the checkbox by the id of the checkbox, which is set to</span>
+    <span style="color:#696969; "># the id of the group</span>
+    <span style="color:#400000; ">find</span><span style="color:#808030; ">(</span><span style="color:#0000e6; ">"#</span><span style="color:#000000; background:#ffffe8; ">#{</span><span style="color:#400000; background:#ffffe8; ">group</span><span style="color:#808030; background:#ffffe8; ">.</span><span style="color:#000000; background:#ffffe8; ">id}</span><span style="color:#0000e6; ">"</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>set<span style="color:#808030; ">(</span><span style="color:#800000; font-weight:bold; ">true</span><span style="color:#808030; ">)</span>
+    <span style="color:#696969; "># submit the form</span>
+    click_button <span style="color:#0000e6; ">"Save changes"</span>
+    <span style="color:#696969; "># Expect the current page to be the user profile page</span>
+    expect<span style="color:#808030; ">(</span>current_path<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span>user_path<span style="color:#808030; ">(</span>user<span style="color:#808030; ">)</span><span style="color:#808030; ">)</span>
+    <span style="color:#696969; "># Look inside the div with id memberships</span>
+    within <span style="color:#0000e6; ">"div#memberships"</span><span style="color:#800000; font-weight:bold; "> do</span>
+      <span style="color:#696969; "># expect to find the name of the group that we just added</span>
+      expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content<span style="color:#808030; ">(</span><span style="color:#400000; ">group</span><span style="color:#808030; ">.</span><span style="color:#400000; ">name</span><span style="color:#808030; ">)</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>I will add an @user to the members_controller:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># app/controllers/memberships_controller.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> MembershipsController &lt; ApplicationController
+  <span style="color:#800000; font-weight:bold; ">def</span> new
+    @memberships <span style="color:#808030; ">=</span> Membership<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#808030; ">)</span>
+    @user <span style="color:#808030; ">=</span> current_user
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>And I will add a definition of the current_user method in my application_controller.rb. This method does not do anything because I do not really care about authentication in this application. When the test runs it is going to call current_user and return a user object.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># app/controllers/application_controller.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> ApplicationController &lt; ActionController<span style="color:#808030; ">::</span>Base
+  protect_from_forgery <span style="color:#005fd2; ">with</span>: :<span style="color:#005fd2; ">exception</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> current_user
+
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<h3>Step 14: Add a Create Method</h3>
+<p>Running the test now shows that our next step is to write a create method in our memberships controller.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2318px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:20.362380981445312%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481348497490-6VC0MBT0GJFYY4U57TJ1/ke17ZwdGBToddI8pDm48kHpG1anC-ZnAvI1ZF24CRRIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2doXc4OuNQAjLZ3-Uj2Bf9Xay5qhY4hCvKk1hWUoOHE-uCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481348497490-6VC0MBT0GJFYY4U57TJ1/ke17ZwdGBToddI8pDm48kHpG1anC-ZnAvI1ZF24CRRIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2doXc4OuNQAjLZ3-Uj2Bf9Xay5qhY4hCvKk1hWUoOHE-uCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481348497490-6VC0MBT0GJFYY4U57TJ1/ke17ZwdGBToddI8pDm48kHpG1anC-ZnAvI1ZF24CRRIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2doXc4OuNQAjLZ3-Uj2Bf9Xay5qhY4hCvKk1hWUoOHE-uCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="2318x472" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="584b95908419c20f0e75ae62" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>We can do so by implementing: </p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># app/controllers/memberships_controller.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> MembershipsController &lt; ApplicationController
+  <span style="color:#800000; font-weight:bold; ">def</span> new
+    @memberships <span style="color:#808030; ">=</span> Membership<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#808030; ">)</span>
+    @user <span style="color:#808030; ">=</span> current_user
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> create
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<h3>Step 15: Implement a Membership Manager</h3>
+<p>Single purpose controllers are a hallmark of well designed Rails applications. Iterating over the checked groups and creating or destroying the appropriate memberships is functionality that does not belong in our controller. </p>
+<p>I'm going to create MembershipManager class.</p>
+<p><code>mkdir app/services</code></p>
+<p><code>touch app/services/membership_manager.rb</code></p>
+<p><code>mkdir spec/services</code></p>
+<p><code>touch spec/services/membership_manager_spec.rb</code></p>
+<p>Keep in mind that when our form submission comes in, we have an array of group id's to work with. If a checkbox is submitted as unchecked, we will have an empty string in our array. Based on that I know that I want the MembershipManager class to be initialized with an array of group_ids that mimics the types of form submissions I anticipate handling.</p>
+<p>Our spec file should look something like this:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/services/membership_manager_spec.rb</span>
+require <span style="color:#0000e6; ">'rails_helper'</span>
+
+RSpec<span style="color:#808030; ">.</span>describe MembershipManager<span style="color:#800000; font-weight:bold; "> do</span>
+  it <span style="color:#0000e6; ">"has group_ids and a user"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    group_ids <span style="color:#808030; ">=</span> <span style="color:#808030; ">[</span><span style="color:#0000e6; ">""</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">"2"</span><span style="color:#808030; ">]</span>
+    user <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">user</span><span style="color:#808030; ">)</span>
+    manager <span style="color:#808030; ">=</span> MembershipManager<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span>group_ids<span style="color:#808030; ">,</span> user<span style="color:#808030; ">)</span>
+
+    expect<span style="color:#808030; ">(</span>manager<span style="color:#808030; ">.</span>group_ids<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span>group_ids<span style="color:#808030; ">)</span>
+    expect<span style="color:#808030; ">(</span>manager<span style="color:#808030; ">.</span>user<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span>user<span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  it <span style="color:#0000e6; ">"can remove blank group_ids"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    group_ids <span style="color:#808030; ">=</span> <span style="color:#808030; ">[</span><span style="color:#0000e6; ">""</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">"2"</span><span style="color:#808030; ">]</span>
+    manager <span style="color:#808030; ">=</span> MembershipManager<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span>group_ids<span style="color:#808030; ">,</span> <span style="color:#800000; font-weight:bold; ">nil</span><span style="color:#808030; ">)</span>
+
+    expect<span style="color:#808030; ">(</span>manager<span style="color:#808030; ">.</span>clean_groups<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span><span style="color:#808030; ">[</span><span style="color:#0000e6; ">"2"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  it <span style="color:#0000e6; ">"can finds groups from group_ids"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    <span style="color:#400000; ">group</span> <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">group</span><span style="color:#808030; ">)</span>
+    group_ids <span style="color:#808030; ">=</span> <span style="color:#808030; ">[</span><span style="color:#0000e6; ">""</span><span style="color:#808030; ">,</span> <span style="color:#400000; ">group</span><span style="color:#808030; ">.</span>id<span style="color:#808030; ">]</span>
+    manager <span style="color:#808030; ">=</span> MembershipManager<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span>group_ids<span style="color:#808030; ">,</span> <span style="color:#800000; font-weight:bold; ">nil</span><span style="color:#808030; ">)</span>
+
+    expect<span style="color:#808030; ">(</span>manager<span style="color:#808030; ">.</span>checked_groups<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span><span style="color:#808030; ">[</span><span style="color:#400000; ">group</span><span style="color:#808030; ">]</span><span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  it <span style="color:#0000e6; ">"can find unchecked groups"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    checked_group <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">group</span><span style="color:#808030; ">)</span>
+    unchecked_group <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">group</span><span style="color:#808030; ">)</span>
+    group_ids <span style="color:#808030; ">=</span> <span style="color:#808030; ">[</span><span style="color:#0000e6; ">""</span><span style="color:#808030; ">,</span> checked_group<span style="color:#808030; ">.</span>id<span style="color:#808030; ">]</span>
+    manager <span style="color:#808030; ">=</span> MembershipManager<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span>group_ids<span style="color:#808030; ">,</span> <span style="color:#800000; font-weight:bold; ">nil</span><span style="color:#808030; ">)</span>
+
+    expect<span style="color:#808030; ">(</span>manager<span style="color:#808030; ">.</span>unchecked_groups<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span><span style="color:#808030; ">[</span>unchecked_group<span style="color:#808030; ">]</span><span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  it <span style="color:#0000e6; ">"can create memberships from checked groups"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    user <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">user</span><span style="color:#808030; ">)</span>
+    checked_group <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">group</span><span style="color:#808030; ">)</span>
+    unchecked_group <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">group</span><span style="color:#808030; ">)</span>
+    group_ids <span style="color:#808030; ">=</span> <span style="color:#808030; ">[</span><span style="color:#0000e6; ">""</span><span style="color:#808030; ">,</span> checked_group<span style="color:#808030; ">.</span>id<span style="color:#808030; ">]</span>
+    manager <span style="color:#808030; ">=</span> MembershipManager<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span>group_ids<span style="color:#808030; ">,</span> user<span style="color:#808030; ">)</span>
+
+    manager<span style="color:#808030; ">.</span>create_memberships_from_checked_groups
+    memberships <span style="color:#808030; ">=</span> user<span style="color:#808030; ">.</span>memberships
+
+    expect<span style="color:#808030; ">(</span>memberships<span style="color:#808030; ">.</span><span style="color:#400000; ">count</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span><span style="color:#008c00; ">1</span><span style="color:#808030; ">)</span>
+    expect<span style="color:#808030; ">(</span>memberships<span style="color:#808030; ">.</span><span style="color:#400000; ">first</span><span style="color:#808030; ">.</span><span style="color:#400000; ">group</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span>checked_group<span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  it <span style="color:#0000e6; ">"can removes destroy unchecked memberships"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    group_1 <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">group</span><span style="color:#808030; ">)</span>
+    group_2 <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">group</span><span style="color:#808030; ">)</span>
+    group_3 <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">group</span><span style="color:#808030; ">)</span>
+    user <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">user</span><span style="color:#808030; ">)</span>
+    create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">membership</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">group</span>: group_1<span style="color:#808030; ">,</span> <span style="color:#005fd2; ">user</span>: user<span style="color:#808030; ">)</span>
+    group_ids <span style="color:#808030; ">=</span> <span style="color:#808030; ">[</span><span style="color:#0000e6; ">""</span><span style="color:#808030; ">,</span> group_2<span style="color:#808030; ">.</span>id<span style="color:#808030; ">,</span> <span style="color:#0000e6; ">""</span><span style="color:#808030; ">]</span>
+
+    manager <span style="color:#808030; ">=</span> MembershipManager<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span>group_ids<span style="color:#808030; ">,</span> user<span style="color:#808030; ">)</span>
+
+    manager<span style="color:#808030; ">.</span>destroy_memberships_from_unchecked_groups
+
+    expect<span style="color:#808030; ">(</span>user<span style="color:#808030; ">.</span>memberships<span style="color:#808030; ">.</span><span style="color:#400000; ">count</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span><span style="color:#008c00; ">0</span><span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  it <span style="color:#0000e6; ">"will create checked memberships and destroy unchecked memberships"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    group_1 <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">group</span><span style="color:#808030; ">)</span>
+    group_2 <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">group</span><span style="color:#808030; ">)</span>
+    group_3 <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">group</span><span style="color:#808030; ">)</span>
+    user <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">user</span><span style="color:#808030; ">)</span>
+    create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">membership</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">group</span>: group_1<span style="color:#808030; ">,</span> <span style="color:#005fd2; ">user</span>: user<span style="color:#808030; ">)</span>
+    group_ids <span style="color:#808030; ">=</span> <span style="color:#808030; ">[</span><span style="color:#0000e6; ">""</span><span style="color:#808030; ">,</span> group_2<span style="color:#808030; ">.</span>id<span style="color:#808030; ">,</span> group_3<span style="color:#808030; ">.</span>id<span style="color:#808030; ">]</span>
+
+    MembershipManager<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span>group_ids<span style="color:#808030; ">,</span> user<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span><span style="color:#400000; ">run</span>
+
+    user<span style="color:#808030; ">.</span>memberships<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">each</span><span style="color:#800000; font-weight:bold; "> do</span> |affiliation|
+      expect<span style="color:#808030; ">(</span><span style="color:#808030; ">[</span>group_2<span style="color:#808030; ">,</span> group_3<span style="color:#808030; ">]</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to include<span style="color:#808030; ">(</span>affiliation<span style="color:#808030; ">.</span><span style="color:#400000; ">group</span><span style="color:#808030; ">)</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>And in our membership_manager.rb file we can implement:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># app/services/membership_manager.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> MembershipManager
+  attr_reader :<span style="color:#005fd2; ">group_ids</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">user</span>
+  <span style="color:#800000; font-weight:bold; ">def</span> initialize(group_ids, user)
+    @group_ids <span style="color:#808030; ">=</span> group_ids
+    @user <span style="color:#808030; ">=</span> user
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> clean_groups
+    group_ids<span style="color:#808030; ">.</span><span style="color:#400000; ">reject</span> <span style="color:#800080; ">{</span> |id| id <span style="color:#808030; ">=</span><span style="color:#808030; ">=</span> <span style="color:#0000e6; ">""</span> <span style="color:#800080; ">}</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> checked_groups
+    clean_groups<span style="color:#808030; ">.</span><span style="color:#400000; ">map</span> <span style="color:#800080; ">{</span> |id| Group<span style="color:#808030; ">.</span><span style="color:#400000; ">find</span><span style="color:#808030; ">(</span>id<span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> unchecked_groups
+    Group<span style="color:#808030; ">.</span>all<span style="color:#808030; ">.</span><span style="color:#400000; ">reject</span> <span style="color:#800080; ">{</span> |<span style="color:#400000; ">group</span>| checked_groups<span style="color:#808030; ">.</span><span style="color:#400000; ">include?</span><span style="color:#808030; ">(</span><span style="color:#400000; ">group</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> create_memberships_from_checked_groups
+    checked_groups<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">each</span><span style="color:#800000; font-weight:bold; "> do</span> |<span style="color:#400000; ">group</span>|
+      Membership<span style="color:#808030; ">.</span>find_or_create_by<span style="color:#808030; ">(</span><span style="color:#005fd2; ">group</span>: <span style="color:#400000; ">group</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">user</span>: user<span style="color:#808030; ">)</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> destroy_memberships_from_unchecked_groups
+    unchecked_groups<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">each</span><span style="color:#800000; font-weight:bold; "> do</span> |<span style="color:#400000; ">group</span>|
+      membership <span style="color:#808030; ">=</span> Membership<span style="color:#808030; ">.</span>find_by<span style="color:#808030; ">(</span><span style="color:#005fd2; ">group</span>: <span style="color:#400000; ">group</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">user</span>: user<span style="color:#808030; ">)</span>
+      membership<span style="color:#808030; ">.</span>destroy <span style="color:#800000; font-weight:bold; ">if</span> membership
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> run
+    create_memberships_from_checked_groups
+    destroy_memberships_from_unchecked_groups
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>And when we run the test file</p>
+<p><code>rspec ./spec/services/membership_manager_spec.rb</code></p>
+<p>We get:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2200px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:38.6363639831543%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481349402923-C0SSR9RXICVJQQU9068T/ke17ZwdGBToddI8pDm48kAwCH8AEW2DYFTfHTUGtYSIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dmfYgiXcCj37sKezaEwUktbVTHgeovHu0GYTfL4YMLJDCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481349402923-C0SSR9RXICVJQQU9068T/ke17ZwdGBToddI8pDm48kAwCH8AEW2DYFTfHTUGtYSIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dmfYgiXcCj37sKezaEwUktbVTHgeovHu0GYTfL4YMLJDCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481349402923-C0SSR9RXICVJQQU9068T/ke17ZwdGBToddI8pDm48kAwCH8AEW2DYFTfHTUGtYSIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dmfYgiXcCj37sKezaEwUktbVTHgeovHu0GYTfL4YMLJDCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="2200x850" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="584b9918f7e0abc93afbebc3" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>And we can use this code back in our controller to handle the creation of memberships when a form is submitted.</p>
+<h3>Step 16: Finish the Create action</h3>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># app/controllers/memberships_controller.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> MembershipsController &lt; ApplicationController
+  <span style="color:#800000; font-weight:bold; ">def</span> new
+    @memberships <span style="color:#808030; ">=</span> Membership<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#808030; ">)</span>
+    @user <span style="color:#808030; ">=</span> current_user
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> create
+    MembershipManager<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span>params<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">user</span><span style="color:#808030; ">]</span><span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">group_ids</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span> current_user<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span><span style="color:#400000; ">run</span>
+    rendirect_to user_path<span style="color:#808030; ">(</span>current_user<span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The params[:user][:group_ids] is how we access the array of group_ids submitted through the form. The current_user is the dummy method we previously created.</p>
+<p>When we run RSpec we get:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1251px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:19.584331512451172%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481574224452-NP73WM47N180IDGQAMY8/ke17ZwdGBToddI8pDm48kBG2q1X29q6EjxO7qXqAjxQUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcLhPHCe63kqdlY-0U-H6IKfrbH7cxFL2y4YtE6MzzzIyGJtVN2eihaDXC9gcw8Og2/Screen+Shot+2016-12-12+at+1.22.53+PM.png" alt="Screen Shot 2016-12-12 at 1.22.53 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481574224452-NP73WM47N180IDGQAMY8/ke17ZwdGBToddI8pDm48kBG2q1X29q6EjxO7qXqAjxQUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcLhPHCe63kqdlY-0U-H6IKfrbH7cxFL2y4YtE6MzzzIyGJtVN2eihaDXC9gcw8Og2/Screen+Shot+2016-12-12+at+1.22.53+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481574224452-NP73WM47N180IDGQAMY8/ke17ZwdGBToddI8pDm48kBG2q1X29q6EjxO7qXqAjxQUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcLhPHCe63kqdlY-0U-H6IKfrbH7cxFL2y4YtE6MzzzIyGJtVN2eihaDXC9gcw8Og2/Screen+Shot+2016-12-12+at+1.22.53+PM.png" data-image-dimensions="1251x245" data-image-focal-point="0.5,0.5" alt="Screen Shot 2016-12-12 at 1.22.53 PM.png" data-load="false" data-image-id="584f0750e3df28215948143d" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<h3>Step 17: Make a User Show</h3>
+<p dir="ltr">Let's create the route our test specified:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># config/routes.rb</span>
+Rails<span style="color:#808030; ">.</span>application<span style="color:#808030; ">.</span>routes<span style="color:#808030; ">.</span>draw<span style="color:#800000; font-weight:bold; "> do</span>
+  resources :<span style="color:#005fd2; ">memberships</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">only</span>: <span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">new</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">create</span><span style="color:#808030; ">]</span>
+  resources :<span style="color:#005fd2; ">users</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">only</span>: <span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">show</span><span style="color:#808030; ">]</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:933px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:16.934619903564453%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481573804169-XEVAZJ1IGH94ILIQOJKO/ke17ZwdGBToddI8pDm48kGodAhpl-zqZCD8UkX3h31pZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIDCFSWrdBj_bQdturLQ9g1HJBlV6npCqx5RldofZp3lA/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481573804169-XEVAZJ1IGH94ILIQOJKO/ke17ZwdGBToddI8pDm48kGodAhpl-zqZCD8UkX3h31pZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIDCFSWrdBj_bQdturLQ9g1HJBlV6npCqx5RldofZp3lA/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481573804169-XEVAZJ1IGH94ILIQOJKO/ke17ZwdGBToddI8pDm48kGodAhpl-zqZCD8UkX3h31pZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIDCFSWrdBj_bQdturLQ9g1HJBlV6npCqx5RldofZp3lA/image-asset.png" data-image-dimensions="933x158" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="584f05ac9de4bbb88e836821" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>And now when we run our test again we get:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1171px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:20.751493453979492%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481574235182-0WTGZ22YXWEFXJRO8XOY/ke17ZwdGBToddI8pDm48kBoNDSvpCrDwyFHtKHHoIRAUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKc9obnJs6HCJFy-MaW3xpllGXkvsIJF-rQEi4E1M88LwNDq1ndTyfH9sb8V6R3N70Z/Screen+Shot+2016-12-12+at+1.17.20+PM.png" alt="Screen Shot 2016-12-12 at 1.17.20 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481574235182-0WTGZ22YXWEFXJRO8XOY/ke17ZwdGBToddI8pDm48kBoNDSvpCrDwyFHtKHHoIRAUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKc9obnJs6HCJFy-MaW3xpllGXkvsIJF-rQEi4E1M88LwNDq1ndTyfH9sb8V6R3N70Z/Screen+Shot+2016-12-12+at+1.17.20+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481574235182-0WTGZ22YXWEFXJRO8XOY/ke17ZwdGBToddI8pDm48kBoNDSvpCrDwyFHtKHHoIRAUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKc9obnJs6HCJFy-MaW3xpllGXkvsIJF-rQEi4E1M88LwNDq1ndTyfH9sb8V6R3N70Z/Screen+Shot+2016-12-12+at+1.17.20+PM.png" data-image-dimensions="1171x243" data-image-focal-point="0.5,0.5" alt="Screen Shot 2016-12-12 at 1.17.20 PM.png" data-load="false" data-image-id="584f075b414fb5464299a414" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>And now we need to create a UsersController.rb:</p>
+<p><code>touch app/controllers/users_controller.rb</code></p>
+<p>Into which we add:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># app/controllers/user_controller.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> UsersController &lt; ApplicationController
+  <span style="color:#800000; font-weight:bold; ">def</span> show
+    @user <span style="color:#808030; ">=</span> current_user
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>And when we run our test we get:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1213px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:28.441879272460938%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481574414656-7LK9513QQ1R34WGPWSIL/ke17ZwdGBToddI8pDm48kNg5s89e64wORcKMmz4qXPgUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcvaK1ioUFxxTESI9Npwa-yQkaxkTzxQyp6U5CnlAOSaeJZ6BHZNt66DEej-KLRZXy/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481574414656-7LK9513QQ1R34WGPWSIL/ke17ZwdGBToddI8pDm48kNg5s89e64wORcKMmz4qXPgUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcvaK1ioUFxxTESI9Npwa-yQkaxkTzxQyp6U5CnlAOSaeJZ6BHZNt66DEej-KLRZXy/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481574414656-7LK9513QQ1R34WGPWSIL/ke17ZwdGBToddI8pDm48kNg5s89e64wORcKMmz4qXPgUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcvaK1ioUFxxTESI9Npwa-yQkaxkTzxQyp6U5CnlAOSaeJZ6BHZNt66DEej-KLRZXy/image-asset.png" data-image-dimensions="1213x345" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="584f080e725e254d6bfed415" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>We next create a show view:</p>
+<p><code>mkdir app/views/users</code></p>
+<p><code>touch app/views/users/show.html.erb</code></p>
+<p>And run our test:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1170px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:31.709402084350586%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481574505039-GCX6Y9TRBNCC2ADVK8K9/ke17ZwdGBToddI8pDm48kC8CpVTqQp8XL04eZl75zDQUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcZEfn89fHbN-JjmiYh4MkWfQkHyCAgNtMYEbqLk9slZZl4hbX6L9xkTSz-jsoUy7c/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481574505039-GCX6Y9TRBNCC2ADVK8K9/ke17ZwdGBToddI8pDm48kC8CpVTqQp8XL04eZl75zDQUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcZEfn89fHbN-JjmiYh4MkWfQkHyCAgNtMYEbqLk9slZZl4hbX6L9xkTSz-jsoUy7c/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481574505039-GCX6Y9TRBNCC2ADVK8K9/ke17ZwdGBToddI8pDm48kC8CpVTqQp8XL04eZl75zDQUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcZEfn89fHbN-JjmiYh4MkWfQkHyCAgNtMYEbqLk9slZZl4hbX6L9xkTSz-jsoUy7c/image-asset.png" data-image-dimensions="1170x371" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="584f086959cc68d6296704fc" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>We next add the following code to our show page:</p>
+<pre class="source-code"><span class="cm-tag cm-bracket">&lt;</span><span class="cm-tag">h1</span><span class="cm-tag cm-bracket">&gt;</span>Your memberships<span class="cm-tag cm-bracket">&lt;/</span><span class="cm-tag">h1</span><span class="cm-tag cm-bracket">&gt;</span>
+<span class="cm-tag cm-bracket">&lt;</span><span class="cm-tag">div</span> <span class="cm-attribute">id</span>=<span class="cm-string">"memberships"</span><span class="cm-tag cm-bracket">&gt;</span>
+  <span class="cm-tag cm-bracket">&lt;</span><span class="cm-tag">ul</span><span class="cm-tag cm-bracket">&gt;</span>
+    <span class="cm-tag cm-bracket">&lt;</span><span class="cm-tag">%</span> <span class="cm-attribute">@user.groups.each</span> <span class="cm-attribute">do</span> <span class="cm-attribute">|group|</span> <span class="cm-attribute">%</span><span class="cm-tag cm-bracket">&gt;</span>
+      <span class="cm-tag cm-bracket">&lt;</span><span class="cm-tag">li</span><span class="cm-tag cm-bracket">&gt;</span><span class="cm-tag cm-bracket">&lt;</span><span class="cm-tag">%</span><span class="cm-null cm-error">=</span> <span class="cm-attribute">group.name</span> <span class="cm-attribute">%</span><span class="cm-tag cm-bracket">&gt;</span><span class="cm-tag cm-bracket">&lt;/</span><span class="cm-tag cm-error">li</span><span class="cm-tag cm-bracket cm-error">&gt;</span>
+    <span class="cm-tag cm-bracket">&lt;</span><span class="cm-tag">%</span> <span class="cm-attribute">end</span> <span class="cm-attribute">%</span><span class="cm-tag cm-bracket">&gt;</span>
+  <span class="cm-tag cm-bracket">&lt;/</span><span class="cm-tag cm-error">ul</span><span class="cm-tag cm-bracket cm-error">&gt;</span>
+<span class="cm-tag cm-bracket">&lt;/</span><span class="cm-tag cm-error">div</span><span class="cm-tag cm-bracket cm-error">&gt;</span>
+</pre>
+<p>And our tests are passing!</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:961px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:95.42143249511719%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481575492410-0P4GKO5FI1LW32NHGR6C/ke17ZwdGBToddI8pDm48kOnku85dTujDFX9DJJAyZU9Zw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIk2wBlFpevshbK9Rlr7SMHJ0Q1ghQP2OFT2xz-vm-k3s/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481575492410-0P4GKO5FI1LW32NHGR6C/ke17ZwdGBToddI8pDm48kOnku85dTujDFX9DJJAyZU9Zw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIk2wBlFpevshbK9Rlr7SMHJ0Q1ghQP2OFT2xz-vm-k3s/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1481575492410-0P4GKO5FI1LW32NHGR6C/ke17ZwdGBToddI8pDm48kOnku85dTujDFX9DJJAyZU9Zw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIk2wBlFpevshbK9Rlr7SMHJ0Q1ghQP2OFT2xz-vm-k3s/image-asset.png" data-image-dimensions="961x917" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="584f0c44197aea4b234ed92a" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+</body></html>

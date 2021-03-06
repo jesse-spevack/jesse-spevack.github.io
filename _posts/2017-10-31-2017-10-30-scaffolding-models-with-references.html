@@ -1,0 +1,199 @@
+---
+layout: post
+title: Scaffolding Models with References
+categories: []
+tags: []
+status: draft
+type: post
+published: false
+meta:
+  _thumbnail_id: '64'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p>Part 5 Books</p>
+<p>In the last <a target="_blank" href="http://www.jessespevack.com/blog/2017/10/28/crud-with-rails-scaffolds">post</a> we built full CRUD functionality for our genres model of our Bookshelf App. Now we move on to the third model - books! Let's build a Books model using what we have already learned about Rails Scaffolds.</p>
+<h2>Scaffold</h2>
+<p dir="ltr">First we will run our rails generate scaffold command. This is by far our most interesting model yet. Books will belong to an author and a genre so we will use the references column type for each of these attributes.</p>
+<p dir="ltr">We also want to include published date, hours, and pages because these quantitative attributes can be summarized and analyzed. For example, it would be great to be able to get counts of books grouped by publication year or decade. It would also interesting to be able to get a total number of pages read or hours listened to in a given timespan. </p>
+<p><code>$ rails g scaffold book author:references genre:references title:text published:date hours:integer pages:integer amazon_url:string audible_url:string --no-styelsheets --no-assets --no-scaffold-stylesheet --no-controller-specs --no-view-specs --no-helper-specs --no-helper --no-javascripts --no-jbuilder</code></p>
+
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:23.920000076293945%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509421057176-1A6G5ZX7OC4HA85D5IJG/ke17ZwdGBToddI8pDm48kMOYZwB-lvsT1X-838P-NY4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnPzgCYu6XvjIazJuUDa8b7-07hUvl0J2nq-G-cvlrzELIAxXfhu216W95nU2ukPk7A/Screen+Shot+2017-10-30+at+9.36.59+PM.png" alt="Screen Shot 2017-10-30 at 9.36.59 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509421057176-1A6G5ZX7OC4HA85D5IJG/ke17ZwdGBToddI8pDm48kMOYZwB-lvsT1X-838P-NY4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnPzgCYu6XvjIazJuUDa8b7-07hUvl0J2nq-G-cvlrzELIAxXfhu216W95nU2ukPk7A/Screen+Shot+2017-10-30+at+9.36.59+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509421057176-1A6G5ZX7OC4HA85D5IJG/ke17ZwdGBToddI8pDm48kMOYZwB-lvsT1X-838P-NY4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnPzgCYu6XvjIazJuUDa8b7-07hUvl0J2nq-G-cvlrzELIAxXfhu216W95nU2ukPk7A/Screen+Shot+2017-10-30+at+9.36.59+PM.png" data-image-dimensions="2500x598" data-image-focal-point="0.5,0.5" alt="Screen Shot 2017-10-30 at 9.36.59 PM.png" data-load="false" data-image-id="59f7f00053450a4c5a4e9666" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Next we'll run the migration.</p>
+<p><code>$ rake db:migrate db:test:prepare</code></p>
+<p>Now let's write a quick system test to flex the CRUD muscles we just generated.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/system/book_spec.rb</span>
+require <span style="color:#0000e6; ">'rails_helper'</span>
+
+describe <span style="color:#0000e6; ">'genre crud'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">type</span>: :<span style="color:#005fd2; ">system</span><span style="color:#800000; font-weight:bold; "> do</span>
+  let!<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">author</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> create :<span style="color:#005fd2; ">author</span> <span style="color:#800080; ">}</span>
+  let!<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">genre</span><span style="color:#808030; ">)</span>  <span style="color:#800080; ">{</span> create :<span style="color:#005fd2; ">genre</span> <span style="color:#800080; ">}</span>
+  scenario <span style="color:#0000e6; ">'using web interface'</span><span style="color:#800000; font-weight:bold; "> do</span>
+    create_new_book
+    view_all_books
+    edit_book
+    delete_book
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> create_new_book
+    visit new_book_path
+    <span style="color:#400000; ">select</span><span style="color:#808030; ">(</span><span style="color:#0000e6; ">"</span><span style="color:#000000; background:#ffffe8; ">#{author</span><span style="color:#808030; background:#ffffe8; ">.</span><span style="color:#000000; background:#ffffe8; ">display_name}</span><span style="color:#0000e6; ">"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">from</span>: <span style="color:#0000e6; ">"authorSelect"</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>select_option
+    <span style="color:#400000; ">select</span><span style="color:#808030; ">(</span><span style="color:#0000e6; ">"</span><span style="color:#000000; background:#ffffe8; ">#{genre</span><span style="color:#808030; background:#ffffe8; ">.</span><span style="color:#400000; background:#ffffe8; ">name</span><span style="color:#000000; background:#ffffe8; ">}</span><span style="color:#0000e6; ">"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">from</span>: <span style="color:#0000e6; ">"authorSelect"</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>select_option
+    fill_in <span style="color:#0000e6; ">"Title"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">"My Great Title"</span>
+    <span style="color:#400000; ">select</span> <span style="color:#0000e6; ">"2017"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">from</span>: <span style="color:#0000e6; ">"book_published_1i"</span>
+    <span style="color:#400000; ">select</span> <span style="color:#0000e6; ">"October"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">from</span>: <span style="color:#0000e6; ">"book_published_2i"</span>
+    <span style="color:#400000; ">select</span> <span style="color:#0000e6; ">"10"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">from</span>: <span style="color:#0000e6; ">"book_published_3i"</span>
+    fill_in <span style="color:#0000e6; ">"Hours"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">"21"</span>
+    fill_in <span style="color:#0000e6; ">"Pages"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">"400"</span>
+    fill_in <span style="color:#0000e6; ">"Amazon url"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">"www.amazon.com"</span>
+    fill_in <span style="color:#0000e6; ">"Audible url"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">"www.audible.com"</span>
+    click_button <span style="color:#0000e6; ">"Create Books"</span>
+
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content author<span style="color:#808030; ">.</span>display_name
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content genre<span style="color:#808030; ">.</span><span style="color:#400000; ">name</span>
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content <span style="color:#0000e6; ">"2017-10-10"</span>
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content <span style="color:#0000e6; ">"21"</span>
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content <span style="color:#0000e6; ">"400"</span>
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content <span style="color:#0000e6; ">"www.amazon.com"</span>
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content <span style="color:#0000e6; ">"www.audible.com"</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> view_all_books
+    book <span style="color:#808030; ">=</span> create :<span style="color:#005fd2; ">book</span>
+    visit genres_path
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_css <span style="color:#0000e6; ">'tr'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">count</span>: <span style="color:#008c00; ">3</span>
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content <span style="color:#0000e6; ">'My Great Title'</span>
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content book<span style="color:#808030; ">.</span>title
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> edit_book
+    visit edit_book_path<span style="color:#808030; ">(</span>Book<span style="color:#808030; ">.</span><span style="color:#400000; ">first</span><span style="color:#808030; ">)</span>
+    fill_in <span style="color:#0000e6; ">'Title'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">'A New Title'</span>
+    click_button <span style="color:#0000e6; ">'Update Book'</span>
+
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content <span style="color:#0000e6; ">'A New Title'</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> delete_book
+    visit books_path
+    <span style="color:#400000; ">first</span><span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">link</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">'Destroy'</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>click
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_css <span style="color:#0000e6; ">'tr'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">count</span>: <span style="color:#008c00; ">2</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1848px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:45.021644592285156%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509905986154-J1UWB05TQ9GA5I1MROJ4/ke17ZwdGBToddI8pDm48kKRHmieuiHtS318_WW-6V9kUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dvuJ849ood7YVb1IhiiEbQGkopHNctY6Px4qLAe317M0CjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509905986154-J1UWB05TQ9GA5I1MROJ4/ke17ZwdGBToddI8pDm48kKRHmieuiHtS318_WW-6V9kUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dvuJ849ood7YVb1IhiiEbQGkopHNctY6Px4qLAe317M0CjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509905986154-J1UWB05TQ9GA5I1MROJ4/ke17ZwdGBToddI8pDm48kKRHmieuiHtS318_WW-6V9kUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dvuJ849ood7YVb1IhiiEbQGkopHNctY6Px4qLAe317M0CjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1848x832" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="59ff564171c10b5cf32dc96a" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+</body></html>

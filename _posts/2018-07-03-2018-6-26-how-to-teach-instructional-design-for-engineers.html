@@ -1,0 +1,178 @@
+---
+layout: post
+title: How to Teach
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '104'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h2>Instructional Design And pedagogy for Software Developers</h2>
+<p>Just over two years ago, sitting in my small, shared assistant principal's office, I recall longing for the optimism, collaboration, workflow, and organization that I perceived to be staples of the tech world. At the time, I underestimated just how much software developers could learn from educators in terms of, well, teaching.</p>
+<p>Teaching, like developing software, is comprised of skills and techniques that take time to master. This guide will cover a few tools in any good teacher's repertoire that will help you in common engineering situations such as code reviews, technical presentations, and of course, training up other developers. These techniques will be especially helpful on the fly as colleagues come to you with questions throughout the work day. With planning and practice, these techniques will make you a better teacher and therefore a more indispensable part of your engineering team.</p>
+<h3>Part I Deciding What to Teach</h3>
+<p>As any teacher knows, there are so many things that can go wrong during a lesson. But, there is almost no way for things to go right if the lesson does not have a goal. In education speak the goal of a lesson is known as its objective.</p>
+<pre style="color:#000000;background:#ffffff;">def lesson_success<span style="color:#800080; ">?</span>
+  lesson<span style="color:#808030; ">.</span>objectives<span style="color:#808030; ">.</span>present<span style="color:#800080; ">?</span> <span style="color:#808030; ">&amp;</span><span style="color:#808030; ">&amp;</span> yield
+end
+</pre>
+<p>Objectives matter in engineering. Imagine pairing with a new engineer. There is so much knowledge, backstory, and tricks of the trade that you might want to share about your codebase. Sharing it all at once and expecting this new engineer to walk away with anything other than bewilderment and a few keywords to Google would be like turning on a firehose and expecting someone to take a satisfying drink. Pairing with this new engineer requires you to come up with a goal.</p>
+<p>A good learning objective has a realistic scope. The first lesson I ever taught was a complete disaster because my goal was to teach multiplication. Do you realize how much is involved in multiplication? Are we talking about multiplying single digit numbers? What about two digit numbers? What about negatives, fractions, decimals? It was not pretty.</p>
+<p>The scope of a lesson will depend a lot on the student's prior knowledge. Imagine you want to teach a new hire about the infrastructure running your app. An engineer with a lot of dev-ops experience may be ready to jump into the intricacies of your terraform configuration. But maybe a narrower goal, such as, how to deploy code, would be more realistic for a single session. If the engineer is brand new, maybe the place to start is just where the app is hosted.</p>
+<p>In education we use Bloom's taxonomy to describe and categorize the hierarchy of learning objectives. Lower level items, such as remembering and understanding, are less complicated than higher level items like analyzing, evaluating and creating. It is easier to remember a command that will kick off a deploy than understanding how that command works, evaluating the command's efficacy, or creating a new deploy command.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2265px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:46.3134651184082%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1530419580958-G5WLWMQQOF28PS9V2F12/ke17ZwdGBToddI8pDm48kH0710cxvltsAWzwkB2zxjp7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UYKQ8KupJm_B1ase1cU9DDamV0p1kZWQd-6TJq5CKnI8eWxRHzm0xMjpe8EpHYJrIw/ICTZA4.5.jpg" alt="ICTZA4.5.jpg"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1530419580958-G5WLWMQQOF28PS9V2F12/ke17ZwdGBToddI8pDm48kH0710cxvltsAWzwkB2zxjp7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UYKQ8KupJm_B1ase1cU9DDamV0p1kZWQd-6TJq5CKnI8eWxRHzm0xMjpe8EpHYJrIw/ICTZA4.5.jpg" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1530419580958-G5WLWMQQOF28PS9V2F12/ke17ZwdGBToddI8pDm48kH0710cxvltsAWzwkB2zxjp7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UYKQ8KupJm_B1ase1cU9DDamV0p1kZWQd-6TJq5CKnI8eWxRHzm0xMjpe8EpHYJrIw/ICTZA4.5.jpg" data-image-dimensions="2265x1049" data-image-focal-point="0.5,0.5" alt="ICTZA4.5.jpg" data-load="false" data-image-id="5b38597b575d1fcdb1eda00b" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Educators love Bloom's taxonomy so much that they even bake it directly into the objective creation process. Strong learning goals typically have an action word from the taxonomy. For example, <em>our new engineer will remember the command to deploy code</em>. Or, <em>t</em><em>he cross functional team will be able to explain why it is important to invest engineering hours in a robust deploy process</em>.</p>
+<p>Once a teacher has a learning objective in mind, the next step is to consider how this goal will be assessed. In other words, how will we know that our goal has been achieved by our pupils? In school it is the norm for teachers to give tests. On engineering teams, asking a colleague for a five hundred word essay detailing the deploy process might not come off as well intentioned as you might mean it to be. In our deployment example, we will know that our new engineer can deploy code when they successfully execute a deployment. Or, we will know our product manager understands the business case for investing engineering time in improving the deploy process when they build time into the project plan for the work. The more closely tied the assessment is to real work, the better.  </p>
+<p>The German World War I general Helmuth von Moltke is reported to have said, "No plan of operation extends with any certainty beyond the first contact with the main hostile force." Regardless of how well thought out your assessment and objectives may be, they will only get you as far as first contact with your student. What determines whether you are able to guide your student to master the learning objective are the instructional moves you make following your first words.</p>
+<p>The techniques an educator applies to move students towards mastery of a goal are broadly termed pedagogy, or the method and practice of teaching. Great pedagogy often starts with activating prior knowledge, which means finding out what the students already know about the lesson objective. Asking, "How did deploys work at your last job?" will give you great insight into just how much your colleague knows about infrastructure which will help you scope your objective.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">while</span> engineer<span style="color:#808030; ">.</span>prior_knowledge<span style="color:#808030; ">.</span>includes?<span style="color:#808030; ">(</span>info<span style="color:#808030; ">)</span>
+  lesson<span style="color:#808030; ">.</span>scope <span style="color:#808030; ">+</span><span style="color:#808030; ">=</span> <span style="color:#008c00; ">1</span>
+  info <span style="color:#808030; ">=</span> objectives<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">next</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>In an engineering context finding out what your colleague already knows about the lesson objective will likely have positive affects on the lesson outcome. It will engage your colleague. It is easy to get caught up in just how interesting one's own words and ideas are (see this entire blog) and forget to check for body language cues that will tell you if your colleague is understanding or even following along. We have all seen the glazed eye look that results from an engineer rambling off into the weeds during a technical explanation. At that point, when your colleague has decided that they can't follow or are no longer interested in what you are explaining, it becomes very difficult to recover.</p>
+<h3>Part II Explain it to me like I am five</h3>
+<p>There is a common framework for structuring lessons in primary school and it maps perfectly on to training a colleague on a new skill or task. In the education world this framework is colloquially called "I do, We do, You do." The idea is that to teach a new skill, whether it be multiplying single digit numbers together or executing a production code deploy, we begin by first demonstrating how to accomplish this task - I do. Next, we work on the goal together - We do. And finally, the student takes the lead and does the work on her or his own - You do. Some teachers call this process <em>gradual release.</em> </p>
+<p>The teachers who execute the "I do" best get metacognitive in their demonstrations. In other words, they model completing the task as well as the thought process they go through when completing the task. "I first type this command.", "When I type this command I think to myself, I have to remember...." , "It is easy to get confused here because...." are all helpful narrations of a task that anticipate misconception and articulate the thinking behind the successful completion of the task.</p>
+<p>One technique to employ during the "I do" portion of a lesson that I find particularly important in an engineering context is the use of analogy to simplify abstract or alien concepts. The more tangible the analogy, the better. When a fellow engineer is teaching me something new I want them to 'Explain it to me like I'm five.' That means avoiding technical jargon, acronyms, and product or library names unless you first define them or you are absolutely certain are understood by your colleague. Even in that case, challenging yourself to explain it as if you were speaking to someone completely non-technical will likely improve the quality of your explanation.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1191px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:60.28547286987305%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1530503466548-AGOOIV6PVR7L9MXUB02H/ke17ZwdGBToddI8pDm48kK1ESqREge-NOy_wSNcJBsYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcZaDohTswVrVk6oKw3G03baJ5DIAefkoUAg1ToVQZ1lbTdNs-eZYkJJgoB59LPviG/office-article.jpg" alt="office-article.jpg"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1530503466548-AGOOIV6PVR7L9MXUB02H/ke17ZwdGBToddI8pDm48kK1ESqREge-NOy_wSNcJBsYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcZaDohTswVrVk6oKw3G03baJ5DIAefkoUAg1ToVQZ1lbTdNs-eZYkJJgoB59LPviG/office-article.jpg" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1530503466548-AGOOIV6PVR7L9MXUB02H/ke17ZwdGBToddI8pDm48kK1ESqREge-NOy_wSNcJBsYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcZaDohTswVrVk6oKw3G03baJ5DIAefkoUAg1ToVQZ1lbTdNs-eZYkJJgoB59LPviG/office-article.jpg" data-image-dimensions="1191x718" data-image-focal-point="0.5,0.5" alt="office-article.jpg" data-load="false" data-image-id="5b39a12aaa4a9988ca2505c7" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Another technique that can help improve your explanatory prowess is to think of an explanation as having a physical depth, like a hole in the ground. Good explanations start with the big picture. I recommend explicitly saying at the start of an explanation, "The big picture here is...." It is as if you are at the edge of the hole and you can see the sky and all the surrounding ground. At this level of depth, you are framing the learning objective by describing its broad context.</p>
+<p>In our deployment example, this might sound like, "The big picture here is that we want all engineers on our team to feel a sense of ownership over the deploy process." In some cases, that depth of explanation may actually be enough.</p>
+<p>As the explanation continues in detail, the depth increases. The hole's walls become clear, but the big picture loses focus. In fact, only a small circle of sky is visible from the bottom of the hole - or at the deepest layer of explanation. Too often, those attempting to share technical knowledge starts at the deepest or most esoteric level, "Deploying gets tricky when we have to migrate one of our billion plus row tables. In that case we have to run a ghost migration by...." Starting in the weeds makes it very challenging for a colleague to walk away with any real understanding.</p>
+<p>Many people, both educators and engineers, tend to wallow in the "I do" portion of a lesson for far too long. The law of diminishing returns applies to this portion of our gradual release. The faster a teacher moves from "I do" to "We do", the better. "We do" means guiding the student to accomplish the task with assistance. In other words, we do the task together. While I can explain the deployment process for hours ("I do"), until my colleague starts fumbling around with commands, it is only conceptual. "We do" does not have to be perfect. We work together to provide the student with a safety net so they are comfortable taking the risks necessary to achieve the learning goal.</p>
+<p>In our deploy example, this might mean standing next to a new engineer and prompting them at each step of the deploy process. In a technical presentation, this might look like facilitating a discussion or asking the group for questions.</p>
+<p>The last phase of teaching a new skill is the "You do." Here we get rid of the guard rails and let our colleague do the thing on their own. This is the goal of teaching.</p>
+<p>Sometimes, we get to what we think will be the "You do" portion of the lesson and the student is completely helpless in deciding how to proceed with the task at hand. This is what teachers call a "dumpster fire." As someone new to teaching you may be thinking, 'I had a well scoped objective that accounted for my student's prior knowledge. I had an assessment aligned with real work, I used an analogy. I started with the big picture, and I went through the gradual release process.' If all of that is indeed true, the one missing component might very well be checks for understanding along the way.</p>
+<p>A check for understanding is a pause in the lesson and should happen throughout the I do and We do. The goal is not necessarily to teach, but rather acquire data that can inform the next instructional move. The most common and also least effective check for understanding is "Do you understand?" This is not an effective check because only the most confident student will respond that they do not understand and ask for additional help or explanation.</p>
+<p>A better check for understanding is to ask targeted questions that your student should be able to answer if they truly understand the ideas, skills, or techniques you've discussed. "What is the next command?" and "Why do we prefix the command with that?" are good ways to see if your colleague is really with you.</p>
+<h3>Those who can't Do</h3>
+<p>Hopefully this guide covering lesson objectives, assessments, and gradual release will help you in the plethora of teaching situations that engineers face everyday. I also hope that this post demystifies the act of teaching. Just as the best software developers take complex problems and break them into smaller, easier to solve chunks, teachers take ideas and distill them into their fundamental principles. Both engineers and teachers have tools and techniques for accomplishing this and it takes time and practice to master.</p>
+<p>Thinking back to my years as an Assistant Principal, there were many aspects of the education world that frustrated me. Becoming a Software Engineer so late in life left me with the feeling that I had missed an opportunity. I am beginning to realize that my ten year stint in our nation's public schools has equipped me with tools that make it easier for me to convey my ideas to my team. I hope this guide will serve the same function for you.</p>
+<pre style="color:#000000;background:#ffffff;">&gt; software_developer <span style="color:#808030; ">+</span> teaching_powers <span style="color:#808030; ">=</span><span style="color:#808030; ">=</span> <span style="color:#008c00; ">10</span> x engineer
+&gt; <span style="color:#808030; ">=</span>&gt; <span style="color:#800000; font-weight:bold; ">true</span>
+</pre>
+</body></html>

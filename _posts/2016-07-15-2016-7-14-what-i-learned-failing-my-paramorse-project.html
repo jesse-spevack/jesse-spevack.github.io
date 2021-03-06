@@ -1,0 +1,298 @@
+---
+layout: post
+title: What I Learned Failing my ParaMorse Project
+categories:
+- Turing
+tags:
+- Turing
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '30'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1>Turing School of Software Design: Module 1, Week 3</h1>
+<p>"Fall down seven times, get up eight," is a Japanese saying related to students at the <a href="http://turing.io">Turing School of Software Design </a>by Heroku developer, <a href="https://twitter.com/thejonanshow">Jonan Scheffler</a>, in a lunch and learn session on July 14th at Turing. The idiom seems particularly apropos because I failed the functionality section of this week's project. Turing founder, <a href="https://twitter.com/j3">Jeff Casimir</a>, tasked us with building a program to interpret <a href="https://en.wikipedia.org/wiki/Morse_code">Morse code</a>, the mid nineteenth century set of signals used to communicate over distances via telegraph. The project is called <a href="https://github.com/turingschool/curriculum/blob/master/source/projects/paramorse.markdown">ParaMorse</a> because the crux of the challenge is to handle parallel streams of code that intertwine to form a single message.</p>
+<p>I failed ParaMorse because I only got my code to be able to take in one message in English and output any number of streams of Morse code. This is a necessary step in getting to decoding multiple streams of Morse code, but a far simpler algorithm than the final product. Unlike Morse code, English letters are all single characters. Morse code letters encoded in binary can be one to nineteen characters long.</p>
+<pre style="color:#000000;background:#ffffff;">DICTIONARY <span style="color:#808030; ">=</span>  <span style="color:#800080; ">{</span> <span style="color:#0000e6; ">"a"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"10111"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"b"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"111010101"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"c"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"11101011101"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"d"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"1110101"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"e"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"1"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"f"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"101011101"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"g"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"111011101"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"h"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"1010101"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"i"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"101"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"j"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"1011101110111"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"k"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"111010111"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"l"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"101110101"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"m"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"1110111"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"n"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"11101"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"o"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"11101110111"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"p"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"10111011101"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"q"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"1110111010111"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"r"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"1011101"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"s"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"10101"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"t"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"111"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"u"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"1010111"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"v"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"101010111"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"w"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"101110111"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"x"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"11101010111"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"y"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"1110101110111"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"z"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"11101110101"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">" "</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"0000000"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"1"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"10111011101110111"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"2"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"101011101110111"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"3"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"1010101110111"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"4"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"10101010111"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"5"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"101010101"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"6"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"11101010101"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"7"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"1110111010101"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"8"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"111011101110101"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"9"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"11101110111011101"</span><span style="color:#808030; ">,</span>
+  <span style="color:#0000e6; ">"0"</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"1110111011101110111"</span>
+<span style="color:#800080; ">}</span>
+</pre>
+<p>Remember, Morse code comes in one digit at a time. To make any progress one has to find answers to a few questions pretty quickly:</p>
+<ol>
+<li>How do I detect that I have received a character? How do I know that I have "a" versus a "j"? Keep in mind the first five digits of "j" are the same as the five digits used to encode "a". </li>
+<li>How do I handle spaces? Identifying a string of 7 consecutive 0's, the code for space, is not that hard. But, what if a single stream of code has multiple spaces in a row?</li>
+<li>How do I keep the data from each stream organized? If there are two streams of code coming in, how can I know to always take a decoded letter from stream A and then a decoded letter from stream B? What if I have 4 streams of Morse code? What about 8?</li>
+</ol>
+<p>The goal of the project was not necessarily to hack together the optimal Morse code cracking algorithm, though that is certainly one area where I fell short. Rather, the goals for the project were to:</p>
+<ul>
+<li>Build small objects with a single purpose</li>
+<li>Connect multiple objects to achieve a single overall purpose</li>
+<li>Build software using an iterative approach</li>
+<li>Implement a queue data structure</li>
+</ul>
+<p>Reflecting on the project there are definitely pieces related to each of the above goals that I will do differently moving forward. In particular, I was too complacent at the early stages of the project. I held close to the early iterations of the project specifications without trying to anticipate the requirements and challenges of subsequent iterations. My mindset was basically, 'I've finished code to translate one Morse code character to English, I'll let future me figure out what to do when we've got to encode multiple characters - to say nothing of multiple streams.' In that regard, I need to be significantly kinder to my future self.</p>
+<p>The remainder of this post will be more technical. I will discuss my specific takeaways from each of the aforementioned learning goals. I will also write a description of how I would approach ParaMorse given a fresh start.</p>
+<h3>Build small objects with a single purpose</h3>
+<p>Building small, single purpose objects out of Ruby code is definitely my biggest technical takeaway from this project. Part of building software professionally is creating code that other team members can easily dive into, understand and maintain. One of the best ways to accomplish this is to write short methods and singularly purposed classes. For example, in this project we create a Class object called a <em>LetterEncoder</em> whose role is to take one English letter and convert it to Morse code. We have a separate class called a <em>LetterDecoder</em> whose job is to take a character of Morse code and decode it into English. Taking this example further, we have a Q<em>ueue </em>class, whose job it is to hold the data coming into our program.</p>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'./lib/dictionary'</span>
+<span style="color:#800000; font-weight:bold; ">  class</span> LetterDecoder
+    <span style="color:#800000; font-weight:bold; ">def</span> decode(letter)
+      DICTIONARY<span style="color:#808030; ">.</span><span style="color:#400000; ">key</span><span style="color:#808030; ">(</span>letter<span style="color:#808030; ">.</span><span style="color:#400000; ">chomp</span><span style="color:#808030; ">(</span><span style="color:#0000e6; ">'0'</span><span style="color:#808030; ">)</span><span style="color:#808030; ">)</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<h3>Connect Multiple Objects To Achieve a Single Overall Purpose</h3>
+<p><a href="https://twitter.com/astillman">Andrew Stillman</a> describes the <a href="http://cloudlab.newvisions.org/add-ons">tools</a> he created that initially got me interested in coding as Legos that could be snapped together and taken apart again to fit a variety of use cases. I'm beginning to realize that at the micro level, code should also behave like a Lego set. A well designed <em>Stream</em> class should be agnostic about whether the data it streams is Morse code or English. An instance of a <em>Stream</em> should work just as well alone as it works in parallel with 2, 3, or 10 other sibling stream instances. </p>
+<h3>Build Software Using An Iterative Approach</h3>
+<p>The role out of ParaMorse was intended to mimic the Agile Design methodology. Instead of building out an understanding of all the system requirements and then producing the system, Agile Design is about building the system iteratively. Each iteration expands upon its predecessor based on feedback from the user. To emulate this dynamic, the specification sheet grew over the course of the project. Iterations one through three were to be completed by Monday before the details of iteration four were fully understood. Iterations four through six took the group through Tuesday. Iteration seven, in which parallel streams were introduced, was left for Wednesday and Thursday. To complicate matters, everyone swapped code after iteration 3. So not only did we not know exactly how the end product was supposed to behave, but we also got to simulate what it is like to take over an existing codebase. </p>
+<h3>ImPlement a Queue Data Structure</h3>
+<p>A Queue data structure is basically a line of data. Queues come in two varieties. A first in, first out (fifo) queue means that first piece of data that enters the queue is the first piece of data accessed by the data structure. This is basically like every kind of line we encounter in the real world. When I line up to pay for groceries, I check out before the person who lines up after me. A last in, first out queue is more like those D-day Allied personnel carriers. The last soldier into the carrier is the first soldier out when the door is lowered on the beach. </p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:846px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:47.990543365478516%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1468590750529-Z8YCQ60FBT9RYHBAOLWR/ke17ZwdGBToddI8pDm48kLPIYp5Tje_6t8lanH-VdmhZw-zPPgdn4jUwVcJE1ZvWMv8jMPmozsPbkt2JQVr8L3VwxMIOEK7mu3DMnwqv-Nsp2ryTI0HqTOaaUohrI8PIAkwiYvo78mbAH5dnSHLi1HKcB2pxybdriX5kiZOrFEQKMshLAGzx4R3EDFOm1kBS/image-asset.jpeg" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1468590750529-Z8YCQ60FBT9RYHBAOLWR/ke17ZwdGBToddI8pDm48kLPIYp5Tje_6t8lanH-VdmhZw-zPPgdn4jUwVcJE1ZvWMv8jMPmozsPbkt2JQVr8L3VwxMIOEK7mu3DMnwqv-Nsp2ryTI0HqTOaaUohrI8PIAkwiYvo78mbAH5dnSHLi1HKcB2pxybdriX5kiZOrFEQKMshLAGzx4R3EDFOm1kBS/image-asset.jpeg" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1468590750529-Z8YCQ60FBT9RYHBAOLWR/ke17ZwdGBToddI8pDm48kLPIYp5Tje_6t8lanH-VdmhZw-zPPgdn4jUwVcJE1ZvWMv8jMPmozsPbkt2JQVr8L3VwxMIOEK7mu3DMnwqv-Nsp2ryTI0HqTOaaUohrI8PIAkwiYvo78mbAH5dnSHLi1HKcB2pxybdriX5kiZOrFEQKMshLAGzx4R3EDFOm1kBS/image-asset.jpeg" data-image-dimensions="846x406" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5788ea9ebebafbfd322c27ca" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>With regards to the ParaMorse project, queues are how to keep the stream of data entering and leaving the system organized. A digit of Morse code comes in from stream A, then gets added to the queue for interpretation. The next digit of code comes from stream B and is added to the end of the queue. This process repeats as data continues to stream in. When the queue contains a discernable character, it pops the digits out and the remaining digits move to the front of the queue. </p>
+<h3>Architectural Reimaginings</h3>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:53.52000045776367%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1468595523879-SKMWXB9I30DBVJIDAI5J/ke17ZwdGBToddI8pDm48kKXnBPkNInb_41BUgvzJvDF7gQa3H78H3Y0txjaiv_0fylIs6t39aXnuxGl3mUYocBPf-a6yYvaqGJ18vrJ7QzndK-n0Humg2R4ILI6AYRqLeoqS5JAWrnb1436X_b_yVSXS6XmVv7bUJ418E8Yoc1ikL2r45MonML7tQjXWYNNEMhTc6Dw9ROI6JE1mDYjfNg/image-asset.jpeg" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1468595523879-SKMWXB9I30DBVJIDAI5J/ke17ZwdGBToddI8pDm48kKXnBPkNInb_41BUgvzJvDF7gQa3H78H3Y0txjaiv_0fylIs6t39aXnuxGl3mUYocBPf-a6yYvaqGJ18vrJ7QzndK-n0Humg2R4ILI6AYRqLeoqS5JAWrnb1436X_b_yVSXS6XmVv7bUJ418E8Yoc1ikL2r45MonML7tQjXWYNNEMhTc6Dw9ROI6JE1mDYjfNg/image-asset.jpeg" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1468595523879-SKMWXB9I30DBVJIDAI5J/ke17ZwdGBToddI8pDm48kKXnBPkNInb_41BUgvzJvDF7gQa3H78H3Y0txjaiv_0fylIs6t39aXnuxGl3mUYocBPf-a6yYvaqGJ18vrJ7QzndK-n0Humg2R4ILI6AYRqLeoqS5JAWrnb1436X_b_yVSXS6XmVv7bUJ418E8Yoc1ikL2r45MonML7tQjXWYNNEMhTc6Dw9ROI6JE1mDYjfNg/image-asset.jpeg" data-image-dimensions="2500x1338" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5788fcfa1b631bb850efcd38" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>A ParaMorse program that has multiple streams of binary data as its input and outputs a single text file containing the merged, decoded message should contain the following:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> ParallelDecoder
+
+  <span style="color:#800000; font-weight:bold; ">def</span> initialize(n)
+    <span style="color:#696969; "># =&gt; instantiates n StreamDecoders</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> merge
+    <span style="color:#696969; "># =&gt; merges outputs of StreamDecoders</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">class</span> StreamDecoder
+  <span style="color:#800000; font-weight:bold; ">def</span> initialize
+    <span style="color:#696969; "># =&gt; creates a instance of Decoder</span>
+    <span style="color:#696969; "># =&gt; creates a queue</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> recieve
+    <span style="color:#696969; "># =&gt; adds digits to the queue</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> detect_character
+    <span style="color:#696969; "># =&gt; returns true if queue contains a character, including a space</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> decode_character
+    <span style="color:#696969; "># =&gt; returns decoded character</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">class</span> Queue
+
+  <span style="color:#800000; font-weight:bold; ">def</span> initialize
+    <span style="color:#696969; "># =&gt; instantiates a queue as an empty array</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> push(digit)
+    <span style="color:#696969; "># =&gt; pushes data onto end of queue</span>
+    <span style="color:#696969; "># =&gt; returns queue</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> pop(n)
+    <span style="color:#696969; "># =&gt; removes n character(s) from the end of the queue</span>
+    <span style="color:#696969; "># =&gt; returns queue</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> peek(n)
+    <span style="color:#696969; "># =&gt; looks at the front n characters of the queue</span>
+    <span style="color:#696969; "># =&gt; returns n characters</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> tail(n)
+    <span style="color:#696969; "># =&gt; looks the end n characters of the queue</span>
+    <span style="color:#696969; "># =&gt; returns n characters</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> count
+    <span style="color:#696969; "># =&gt; returns number of elements in the queue</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> flush
+    <span style="color:#696969; "># =&gt; clears the queue</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">class</span> FileIo
+
+  <span style="color:#800000; font-weight:bold; ">def</span> read(file)
+    <span style="color:#696969; "># =&gt; returns text of file as a string</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> write(file, text)
+    <span style="color:#696969; "># =&gt; writes text to a file</span>
+    <span style="color:#696969; "># =&gt; returns number of characters written</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">class</span> Decoder
+
+  <span style="color:#800000; font-weight:bold; ">def</span> decode
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> encode
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+</body></html>

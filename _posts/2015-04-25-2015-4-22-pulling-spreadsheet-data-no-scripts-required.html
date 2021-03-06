@@ -1,0 +1,1278 @@
+---
+layout: post
+title: 'Pulling Spreadsheet Data: No Scripts Required'
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '4'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1365px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:109.23076629638672%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429749257903-B3BQBDKT9URN04ZQ1LK9/ke17ZwdGBToddI8pDm48kAvAQSZDHC_UH72xOPn4tNx7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmW4fnnkquoIO6ktEyVvnDOT5lkgj0goyc6zCSXWgLMD9Dd4ot19nYxKVFt-f9i59x/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429749257903-B3BQBDKT9URN04ZQ1LK9/ke17ZwdGBToddI8pDm48kAvAQSZDHC_UH72xOPn4tNx7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmW4fnnkquoIO6ktEyVvnDOT5lkgj0goyc6zCSXWgLMD9Dd4ot19nYxKVFt-f9i59x/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429749257903-B3BQBDKT9URN04ZQ1LK9/ke17ZwdGBToddI8pDm48kAvAQSZDHC_UH72xOPn4tNx7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmW4fnnkquoIO6ktEyVvnDOT5lkgj0goyc6zCSXWgLMD9Dd4ot19nYxKVFt-f9i59x/image-asset.png" data-image-dimensions="1365x1491" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="55383e09e4b045c237936bff" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Once a person gets going with spreadsheets a use case that tends to pop up pretty quickly is the need to combine data from multiple spreadsheets for some kind of analysis. In this post I will share how to combine the <a target="_blank" href="https://support.google.com/docs/answer/3093275?hl=en">arrayformula</a> and <a target="_blank" href="https://support.google.com/docs/answer/3093340?hl=en">importrange</a> functions in Google Spreadsheets to make data from multiple spreadsheets more accessible.</p>
+
+
+
+
+  
+
+  
+
+
+<div class="
+  sqs-gallery-container
+  sqs-gallery-block-grid
+  sqs-gallery-aspect-ratio-square
+  sqs-gallery-thumbnails-per-row-3
+  
+  
+
+  
+  
+  
+  
+
+  
+  
+
+  
+  
+  clear">
+  <div class="sqs-gallery">
+    
+      
+
+        
+
+        
+
+        
+          
+            <div class="slide" data-type="image" data-animation-role="image">
+              <div class="margin-wrapper">
+                
+                <a data-title="" data-description="" data-lightbox-theme="" href="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429750810219-1H7MMTU6IFNG390MWCSM/ke17ZwdGBToddI8pDm48kNIQSC4pqTrkAPziWR5fW1xZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVFBJDNkwmdy4EffeEgbTjcSMoyvnkGN9V75ywN8PnJ6gDFvbuqF0GUInBxxtVhBOn4/Untitled+image.png" role="button" class="
+                    image-slide-anchor
+                    
+                      js-gallery-lightbox-opener
+                    
+                    content-fill
+                  ">
+                  
+                    <span class="v6-visually-hidden">View fullsize</span>
+                  
+                  <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429750810219-1H7MMTU6IFNG390MWCSM/ke17ZwdGBToddI8pDm48kNIQSC4pqTrkAPziWR5fW1xZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVFBJDNkwmdy4EffeEgbTjcSMoyvnkGN9V75ywN8PnJ6gDFvbuqF0GUInBxxtVhBOn4/Untitled+image.png" alt="Untitled image.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429750810219-1H7MMTU6IFNG390MWCSM/ke17ZwdGBToddI8pDm48kNIQSC4pqTrkAPziWR5fW1xZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVFBJDNkwmdy4EffeEgbTjcSMoyvnkGN9V75ywN8PnJ6gDFvbuqF0GUInBxxtVhBOn4/Untitled+image.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429750810219-1H7MMTU6IFNG390MWCSM/ke17ZwdGBToddI8pDm48kNIQSC4pqTrkAPziWR5fW1xZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVFBJDNkwmdy4EffeEgbTjcSMoyvnkGN9V75ywN8PnJ6gDFvbuqF0GUInBxxtVhBOn4/Untitled+image.png" data-image-dimensions="373x277" data-image-focal-point="0.5,0.5" alt="Untitled image.png" data-load="false" data-image-id="5538441ae4b029706a0cbbd5" data-type="image">
+                </a>
+                
+              </div>
+            </div>
+          
+
+          
+        
+
+      
+
+        
+
+        
+
+        
+          
+            <div class="slide" data-type="image" data-animation-role="image">
+              <div class="margin-wrapper">
+                
+                <a data-title="" data-description="" data-lightbox-theme="" href="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429750822173-UIP1JL8WQROJX4ERFGTQ/ke17ZwdGBToddI8pDm48kOPXgvbcNup96C-60ohrb49Zw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVG2KeXxIMJuvHRJNZxf9Dt0hQF0VbWxXe8ZD38y__s4J2bSd6kfRtgWHgNMDgGnmDY/Untitled+image+%282%29.png" role="button" class="
+                    image-slide-anchor
+                    
+                      js-gallery-lightbox-opener
+                    
+                    content-fill
+                  ">
+                  
+                    <span class="v6-visually-hidden">View fullsize</span>
+                  
+                  <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429750822173-UIP1JL8WQROJX4ERFGTQ/ke17ZwdGBToddI8pDm48kOPXgvbcNup96C-60ohrb49Zw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVG2KeXxIMJuvHRJNZxf9Dt0hQF0VbWxXe8ZD38y__s4J2bSd6kfRtgWHgNMDgGnmDY/Untitled+image+%282%29.png" alt="Untitled image (2).png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429750822173-UIP1JL8WQROJX4ERFGTQ/ke17ZwdGBToddI8pDm48kOPXgvbcNup96C-60ohrb49Zw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVG2KeXxIMJuvHRJNZxf9Dt0hQF0VbWxXe8ZD38y__s4J2bSd6kfRtgWHgNMDgGnmDY/Untitled+image+%282%29.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429750822173-UIP1JL8WQROJX4ERFGTQ/ke17ZwdGBToddI8pDm48kOPXgvbcNup96C-60ohrb49Zw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVG2KeXxIMJuvHRJNZxf9Dt0hQF0VbWxXe8ZD38y__s4J2bSd6kfRtgWHgNMDgGnmDY/Untitled+image+%282%29.png" data-image-dimensions="371x343" data-image-focal-point="0.5,0.5" alt="Untitled image (2).png" data-load="false" data-image-id="55384426e4b072aaad1be6c4" data-type="image">
+                </a>
+                
+              </div>
+            </div>
+          
+
+          
+        
+
+      
+
+        
+
+        
+
+        
+          
+            <div class="slide" data-type="image" data-animation-role="image">
+              <div class="margin-wrapper">
+                
+                <a data-title="" data-description="" data-lightbox-theme="" href="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429750836523-6XGFZQNJJ9G5T9OLBJVQ/ke17ZwdGBToddI8pDm48kH1BOhU_lc5_dBA_x_yDhmtZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVE5epPdbEEEZk700-F6K2iO0gZBtgwXEb0ygvYeuP1-cmbSd6kfRtgWHgNMDgGnmDY/Untitled+image+%281%29.png" role="button" class="
+                    image-slide-anchor
+                    
+                      js-gallery-lightbox-opener
+                    
+                    content-fill
+                  ">
+                  
+                    <span class="v6-visually-hidden">View fullsize</span>
+                  
+                  <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429750836523-6XGFZQNJJ9G5T9OLBJVQ/ke17ZwdGBToddI8pDm48kH1BOhU_lc5_dBA_x_yDhmtZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVE5epPdbEEEZk700-F6K2iO0gZBtgwXEb0ygvYeuP1-cmbSd6kfRtgWHgNMDgGnmDY/Untitled+image+%281%29.png" alt="Untitled image (1).png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429750836523-6XGFZQNJJ9G5T9OLBJVQ/ke17ZwdGBToddI8pDm48kH1BOhU_lc5_dBA_x_yDhmtZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVE5epPdbEEEZk700-F6K2iO0gZBtgwXEb0ygvYeuP1-cmbSd6kfRtgWHgNMDgGnmDY/Untitled+image+%281%29.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429750836523-6XGFZQNJJ9G5T9OLBJVQ/ke17ZwdGBToddI8pDm48kH1BOhU_lc5_dBA_x_yDhmtZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVE5epPdbEEEZk700-F6K2iO0gZBtgwXEb0ygvYeuP1-cmbSd6kfRtgWHgNMDgGnmDY/Untitled+image+%281%29.png" data-image-dimensions="377x282" data-image-focal-point="0.5,0.5" alt="Untitled image (1).png" data-load="false" data-image-id="55384434e4b029706a0cbc59" data-type="image">
+                </a>
+                
+              </div>
+            </div>
+          
+
+          
+        
+
+      
+    
+  </div>
+
+  
+
+</div>
+
+
+
+
+<style type="text/css" id="design-grid-css">
+#block-yui_3_17_2_3_1429746906413_7618 .sqs-gallery-block-grid .sqs-gallery-design-grid { margin-right: -20px; }
+#block-yui_3_17_2_3_1429746906413_7618 .sqs-gallery-block-grid .sqs-gallery-design-grid-slide .margin-wrapper { margin-right: 20px; margin-bottom: 20px; }
+</style>
+
+
+
+<p>Lets imagine that I have two separate spreadsheets for recording evaluations for two separate classes of students in my school. <a target="_blank" href="https://docs.google.com/spreadsheets/d/1vIcMh0SRtwXgYRsmCfiPYo-H4_wpA8IGRZ0RVbOsHDg/edit#gid=0">Child Spreadsheet 1</a> contains a list of six students, the class name, "Michigan", and each student's evaluation (E, S, N, U scale). <a target="_blank" href="https://docs.google.com/spreadsheets/d/1vdooBX7tdPNAa5kn5LlbrJ95V_SjZAly4HW3kp0P8gw/edit#gid=0">Child Spreadsheet 2</a> is the same, but contains the six students in class "Arizona". The question is how can I see both sets of class lists in one place, my <a target="_blank" href="https://docs.google.com/spreadsheets/d/1HEGWomg2CzAj2W3wX36QmzywPkMq_stJNMg9LriSJyU/edit?usp=sharing">Master Spreadsheet</a>?</p>
+<h2>Importrange</h2>
+<p>The importrange function is like a wormhole connecting two points in space. With importrange the two points in space are two Google Spreadsheets and the connection is a one-way data pull. </p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2213px;">
+          
+        
+        
+
+        
+          
+            <button class="
+                  sqs-block-image-button
+                  lightbox
+                  
+          
+        
+                " data-description="" data-lightbox-theme="">
+              <span class="v6-visually-hidden">View fullsize</span>
+              
+          <div style="padding-bottom:50.835968017578125%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429916393715-U321F5QZY5Q4X6ZADUML/ke17ZwdGBToddI8pDm48kGguAMG6MDOTzadQC7w90zB7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UTyq8fTMDjGmbRFaBOEnkY4fbaVbmCJIdGXQ4iZ6xVqLG6v6ULRah83RgHXAWD5lbQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429916393715-U321F5QZY5Q4X6ZADUML/ke17ZwdGBToddI8pDm48kGguAMG6MDOTzadQC7w90zB7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UTyq8fTMDjGmbRFaBOEnkY4fbaVbmCJIdGXQ4iZ6xVqLG6v6ULRah83RgHXAWD5lbQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429916393715-U321F5QZY5Q4X6ZADUML/ke17ZwdGBToddI8pDm48kGguAMG6MDOTzadQC7w90zB7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UTyq8fTMDjGmbRFaBOEnkY4fbaVbmCJIdGXQ4iZ6xVqLG6v6ULRah83RgHXAWD5lbQ/image-asset.png" data-image-dimensions="2213x1125" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="553acae9e4b06f8ca0c5d283" data-type="image">
+          </div>
+        
+            </button>
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p id="yui_3_17_2_3_1429913149680_35488">The importrange function expects two arguments, spreadsheet_key and range_string. </p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:387px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:115.50386810302734%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429752077747-5QTWRQV5AP309I7G9POR/ke17ZwdGBToddI8pDm48kCHBNG2VQihoWcWJ5ATa0xBZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVHiHI-lBCrbXy2qkk71kCGF0hO6wmmc6KqzFLDR8PMIgDqWIIaSPh2v08GbKqpiV54/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429752077747-5QTWRQV5AP309I7G9POR/ke17ZwdGBToddI8pDm48kCHBNG2VQihoWcWJ5ATa0xBZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVHiHI-lBCrbXy2qkk71kCGF0hO6wmmc6KqzFLDR8PMIgDqWIIaSPh2v08GbKqpiV54/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429752077747-5QTWRQV5AP309I7G9POR/ke17ZwdGBToddI8pDm48kCHBNG2VQihoWcWJ5ATa0xBZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVHiHI-lBCrbXy2qkk71kCGF0hO6wmmc6KqzFLDR8PMIgDqWIIaSPh2v08GbKqpiV54/image-asset.png" data-image-dimensions="387x447" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5538490ce4b0d3f26ef5e27c" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>A spreadsheet key is the set of alphanumeric characters that can be found in the URL of every Google Document or Spreadsheet. In our example, I want to use the spreadsheet key of the spreadsheet from which I intend to import data. I have highlighted the spreadsheet key within URL of the Child Spreadsheet 1:</p>
+<blockquote>https://docs.google.com/spreadsheets/d/<strong>1</strong><strong>vIcMh0SRtwXgYRsmCfiPYo-H4_wpA8IGRZ0RVbOsHDg</strong>/edit#gid=0</blockquote>
+<p>The range string is the section of the spreadsheet from which to import. The format of the range string is not the standard string notation that one would use when typing out a formula in the formula bar. With importrange, sheet names with spaces do not have to be surrounded by single quotes. Instead, the format is the sheet name, an exclamation point, and the range all surrounded by quotation marks. To start with I'll just select "Sheet1!A1" as the range I am interested in importing.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:558px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:14.336917877197266%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429753428635-EEEBE98XBVGG72QQG97Y/ke17ZwdGBToddI8pDm48kPkiRSaSkzdrcHVlgbDXPsjlfiSMXz2YNBs8ylwAJx2qgRUppHe6ToX8uSOdETM-XldvY_sAIyUlfjhoEMtv77Fr9SQWwahbqOCyJpIYtmHpUPu1T9sRdCW1IyfRPuWE6yDcrtCDK6IToVcWkw7muJw/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429753428635-EEEBE98XBVGG72QQG97Y/ke17ZwdGBToddI8pDm48kPkiRSaSkzdrcHVlgbDXPsjlfiSMXz2YNBs8ylwAJx2qgRUppHe6ToX8uSOdETM-XldvY_sAIyUlfjhoEMtv77Fr9SQWwahbqOCyJpIYtmHpUPu1T9sRdCW1IyfRPuWE6yDcrtCDK6IToVcWkw7muJw/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429753428635-EEEBE98XBVGG72QQG97Y/ke17ZwdGBToddI8pDm48kPkiRSaSkzdrcHVlgbDXPsjlfiSMXz2YNBs8ylwAJx2qgRUppHe6ToX8uSOdETM-XldvY_sAIyUlfjhoEMtv77Fr9SQWwahbqOCyJpIYtmHpUPu1T9sRdCW1IyfRPuWE6yDcrtCDK6IToVcWkw7muJw/image-asset.png" data-image-dimensions="558x80" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="55384e54e4b0dacdf31c33b8" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>First, Google will require that I allow my master spreadsheet to access the child spreadsheet, which I can do by cursoring over the error message and then clicking "Allow access". The "Allow access" button along with the strange spreadsheet_key argument are two reasons that I start linking spreadsheets simply by pulling a single cell. Once one cell works, I know that I have the spreadsheet key and permissions set correctly and then I can move on to actually grabbing the data I'm interested in. Some folks will disagree with this approach, opting instead to start with the desired data range, but keeping it simple and building complexity out in steps is generally how I continue to approach spreadsheet work.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:331px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:39.879154205322266%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429753629082-MSTSJLB5S3A0YYSXSPBH/ke17ZwdGBToddI8pDm48kAfRUTn6mGyKdjYeQrF8W01Zw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVHeE4IwiwHSMqgGXzReFV4SEqOt1MvgKggeYAL2OCCGuj-3CTWZQ124CTRPXn-dnvM/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429753629082-MSTSJLB5S3A0YYSXSPBH/ke17ZwdGBToddI8pDm48kAfRUTn6mGyKdjYeQrF8W01Zw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVHeE4IwiwHSMqgGXzReFV4SEqOt1MvgKggeYAL2OCCGuj-3CTWZQ124CTRPXn-dnvM/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429753629082-MSTSJLB5S3A0YYSXSPBH/ke17ZwdGBToddI8pDm48kAfRUTn6mGyKdjYeQrF8W01Zw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVHeE4IwiwHSMqgGXzReFV4SEqOt1MvgKggeYAL2OCCGuj-3CTWZQ124CTRPXn-dnvM/image-asset.png" data-image-dimensions="331x132" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="55384f1ce4b0791e81b006cd" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Next, I update the range I am pulling from. I will not have to allow access again since I've already connected the sheets. The new formula with updated range should read:</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:554px;">
+          
+        
+        
+
+        
+          
+            <button class="
+                  sqs-block-image-button
+                  lightbox
+                  
+          
+        
+                " data-description="" data-lightbox-theme="">
+              <span class="v6-visually-hidden">View fullsize</span>
+              
+          <div style="padding-bottom:4.873646259307861%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429913860466-ITN50I1NGY4N4DZ4RCG2/ke17ZwdGBToddI8pDm48kJTIjt-7wmBAwpcrBBfEW7blfiSMXz2YNBs8ylwAJx2qgRUppHe6ToX8uSOdETM-XldvY_sAIyUlfjhoEMtv77Hvp_yjTt49NuXdc_Ed_9gZNwn6wzUlBZ0KAoFtkbBQImJBjiXUwEEsFYGx9xhUrhQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429913860466-ITN50I1NGY4N4DZ4RCG2/ke17ZwdGBToddI8pDm48kJTIjt-7wmBAwpcrBBfEW7blfiSMXz2YNBs8ylwAJx2qgRUppHe6ToX8uSOdETM-XldvY_sAIyUlfjhoEMtv77Hvp_yjTt49NuXdc_Ed_9gZNwn6wzUlBZ0KAoFtkbBQImJBjiXUwEEsFYGx9xhUrhQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429913860466-ITN50I1NGY4N4DZ4RCG2/ke17ZwdGBToddI8pDm48kJTIjt-7wmBAwpcrBBfEW7blfiSMXz2YNBs8ylwAJx2qgRUppHe6ToX8uSOdETM-XldvY_sAIyUlfjhoEMtv77Hvp_yjTt49NuXdc_Ed_9gZNwn6wzUlBZ0KAoFtkbBQImJBjiXUwEEsFYGx9xhUrhQ/image-asset.png" data-image-dimensions="554x27" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="553ac103e4b0803a46d53308" data-type="image">
+          </div>
+        
+            </button>
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>It is important to point out that in this case I am using a <em>bottomless</em> range, Sheet1!A2:C, which means that I am going to import every row of the spreadsheet, even if additional rows are added to Sheet1 later on. In comparison, if I use the range Sheet1!A2:C6, I will get all the data, but future data added to row 7, 8, 9 etc. will not be included in the data pulled by importrange. There is definitely a time and place for finite ranges, but this is not one of them.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:616px;">
+          
+        
+        
+
+        
+          
+            <button class="
+                  sqs-block-image-button
+                  lightbox
+                  
+          
+        
+                " data-description="" data-lightbox-theme="">
+              <span class="v6-visually-hidden">View fullsize</span>
+              
+          <div style="padding-bottom:50.32467269897461%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429914319120-PO4Y2BRN9G9Q6SL37S36/ke17ZwdGBToddI8pDm48kDa7peI77L9J_bHg64b_aL1Zw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpxQA4ndwS6mxFAL1qrnuOxJ5hkk8SHBwJWtG848AasTv9YsF6dbBT_7wWLCzZK04ZA/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429914319120-PO4Y2BRN9G9Q6SL37S36/ke17ZwdGBToddI8pDm48kDa7peI77L9J_bHg64b_aL1Zw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpxQA4ndwS6mxFAL1qrnuOxJ5hkk8SHBwJWtG848AasTv9YsF6dbBT_7wWLCzZK04ZA/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429914319120-PO4Y2BRN9G9Q6SL37S36/ke17ZwdGBToddI8pDm48kDa7peI77L9J_bHg64b_aL1Zw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpxQA4ndwS6mxFAL1qrnuOxJ5hkk8SHBwJWtG848AasTv9YsF6dbBT_7wWLCzZK04ZA/image-asset.png" data-image-dimensions="616x310" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="553ac2cee4b080029b431502" data-type="image">
+          </div>
+        
+            </button>
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>At this point I have columns A through C, starting with row 2, from Child Spreadsheet 1 importing into my Master Spreadsheet. If I change the evaluation of Barack to an E in Child Spreadsheet 1, the change will also happen in the Master Spreadsheet. However, if I change Barack's evaluation in the Master Spreadsheet I will get a reference error that says <em> </em></p>
+<blockquote>Array result was not expanded because it would overwrite data in C2. </blockquote>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:391px;">
+          
+        
+        
+
+        
+          
+            <button class="
+                  sqs-block-image-button
+                  lightbox
+                  
+          
+        
+                " data-description="" data-lightbox-theme="">
+              <span class="v6-visually-hidden">View fullsize</span>
+              
+          <div style="padding-bottom:68.54219818115234%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429914670954-WZ9XFV9ZDIOUA9TX1AYD/ke17ZwdGBToddI8pDm48kNgpw-6fB0NA6y52XPvqiRJZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVFWjtOiATntVC0k5B1d7nxeZ92A2zRfvi7eF-0cheJOLFtO8nJtk629tZGIWiyY3XQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429914670954-WZ9XFV9ZDIOUA9TX1AYD/ke17ZwdGBToddI8pDm48kNgpw-6fB0NA6y52XPvqiRJZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVFWjtOiATntVC0k5B1d7nxeZ92A2zRfvi7eF-0cheJOLFtO8nJtk629tZGIWiyY3XQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429914670954-WZ9XFV9ZDIOUA9TX1AYD/ke17ZwdGBToddI8pDm48kNgpw-6fB0NA6y52XPvqiRJZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVFWjtOiATntVC0k5B1d7nxeZ92A2zRfvi7eF-0cheJOLFtO8nJtk629tZGIWiyY3XQ/image-asset.png" data-image-dimensions="391x268" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="553ac42ee4b0306f5b66b9e1" data-type="image">
+          </div>
+        
+            </button>
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Here importrange has decided not to display so as to avoid overwriting the change I made in cell C2. Child Spreadsheet 1 will remain unchanged.</p>
+<h2>Combining Multiple Spreadsheets</h2>
+<p>Next I construct a second importrange formula in cell A7 to bring in the data from Child Spreadsheet 2. The function is exactly the same is exactly the same as the formula I already wrote, except with a new spreadsheet key that points to Child Spreadsheet 2. The range I am interested in pulling remains the same.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:651px;">
+          
+        
+        
+
+        
+          
+            <button class="
+                  sqs-block-image-button
+                  lightbox
+                  
+          
+        
+                " data-description="" data-lightbox-theme="">
+              <span class="v6-visually-hidden">View fullsize</span>
+              
+          <div style="padding-bottom:66.2058334350586%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429915488942-5BOZXC8EV9GV05T8RTBC/ke17ZwdGBToddI8pDm48kLom4rzeMYwbc6s4q1tzVsJZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpyxyU_MHlf1MDvNSh2_wEn3Y9xQICxr_zrOvjhFvmffAT2GRBjNqLcwxt1PQxZZ3xk/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429915488942-5BOZXC8EV9GV05T8RTBC/ke17ZwdGBToddI8pDm48kLom4rzeMYwbc6s4q1tzVsJZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpyxyU_MHlf1MDvNSh2_wEn3Y9xQICxr_zrOvjhFvmffAT2GRBjNqLcwxt1PQxZZ3xk/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429915488942-5BOZXC8EV9GV05T8RTBC/ke17ZwdGBToddI8pDm48kLom4rzeMYwbc6s4q1tzVsJZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpyxyU_MHlf1MDvNSh2_wEn3Y9xQICxr_zrOvjhFvmffAT2GRBjNqLcwxt1PQxZZ3xk/image-asset.png" data-image-dimensions="651x431" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="553ac760e4b0b45c076c2af6" data-type="image">
+          </div>
+        
+            </button>
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Notice that in the above example the original importrange function outputs an error to prevent it from overwriting the new importrange function. It is important to conceptually understand that even though the first importrange function contains only 6 rows of actual data, it also contains about 1000 rows of empty data because of the bottomless range in the second argument of the function. From the perspective of the Master Spreadsheet, these rows look like normal empty spreadsheet cells, but they actually contain the imported empty data from Child Spreadsheet 1.</p>
+<h2>Enter Arrayformula</h2>
+<p>To combine multiple spreadsheets, Google Spreadsheet power users used to have use a script called vmerge, which as its names suggests, would vertically merge data with equal numbers of columns. Arranging the data vertically greatly eases the burden of performing analysis on the data in question. The new Google Spreadsheets have the vmerge functionality built right into the product. The syntax is a little wonky, but using the following arrayformula, users can stack multiple arrays on top of each other:</p>
+<blockquote>=arrayformula({ARRAY1; ARRAY2; ARRAYn})</blockquote>
+<p>The arguments in the above array formula are ranges or a function that returns a result greater than one cell (e.g. importrange).</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:319px;">
+          
+        
+        
+
+        
+          
+            <button class="
+                  sqs-block-image-button
+                  lightbox
+                  
+          
+        
+                " data-description="" data-lightbox-theme="">
+              <span class="v6-visually-hidden">View fullsize</span>
+              
+          <div style="padding-bottom:56.112850189208984%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429915130056-1VWNDTWOF7NRLFUJ00PW/ke17ZwdGBToddI8pDm48kPqdU3fEuG8Hzkpos3XbXxlZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVFlXPrp_C7M8SPE97Va855ZYvcbp2BWkZ8fGwTTcDwaxd1lH3P2bFZvTItROhWrBJ0/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429915130056-1VWNDTWOF7NRLFUJ00PW/ke17ZwdGBToddI8pDm48kPqdU3fEuG8Hzkpos3XbXxlZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVFlXPrp_C7M8SPE97Va855ZYvcbp2BWkZ8fGwTTcDwaxd1lH3P2bFZvTItROhWrBJ0/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429915130056-1VWNDTWOF7NRLFUJ00PW/ke17ZwdGBToddI8pDm48kPqdU3fEuG8Hzkpos3XbXxlZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVFlXPrp_C7M8SPE97Va855ZYvcbp2BWkZ8fGwTTcDwaxd1lH3P2bFZvTItROhWrBJ0/image-asset.png" data-image-dimensions="319x179" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="553ac5f9e4b02b334cd47434" data-type="image">
+          </div>
+        
+            </button>
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>When nesting functions in other functions, it is good practice to build them in pieces. In cell D2 I input the following:</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:579px;">
+          
+        
+        
+
+        
+          
+            <button class="
+                  sqs-block-image-button
+                  lightbox
+                  
+          
+        
+                " data-description="" data-lightbox-theme="">
+              <span class="v6-visually-hidden">View fullsize</span>
+              
+          <div style="padding-bottom:66.66667175292969%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429916778211-VIYNHU9NDR34J2KZ2ZLE/ke17ZwdGBToddI8pDm48kGjwOeRc6wCHo2FrKnhnhVJZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpylVJak8yAPUd7Gnx_xtnrOpghHbL3KSVUwUMs_CeOpyxerxkMMT-gu1_OUxIt9gUI/arrayformula+example+of+vmerge.png" alt="arrayformula example of vmerge.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429916778211-VIYNHU9NDR34J2KZ2ZLE/ke17ZwdGBToddI8pDm48kGjwOeRc6wCHo2FrKnhnhVJZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpylVJak8yAPUd7Gnx_xtnrOpghHbL3KSVUwUMs_CeOpyxerxkMMT-gu1_OUxIt9gUI/arrayformula+example+of+vmerge.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429916778211-VIYNHU9NDR34J2KZ2ZLE/ke17ZwdGBToddI8pDm48kGjwOeRc6wCHo2FrKnhnhVJZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpylVJak8yAPUd7Gnx_xtnrOpghHbL3KSVUwUMs_CeOpyxerxkMMT-gu1_OUxIt9gUI/arrayformula+example+of+vmerge.png" data-image-dimensions="579x386" data-image-focal-point="0.5,0.5" alt="arrayformula example of vmerge.png" data-load="false" data-image-id="553acc69e4b0ee62c7b473c3" data-type="image">
+          </div>
+        
+            </button>
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Which will output two arrays stacked vertically, as shown below.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:588px;">
+          
+        
+        
+
+        
+          
+            <button class="
+                  sqs-block-image-button
+                  lightbox
+                  
+          
+        
+                " data-description="" data-lightbox-theme="">
+              <span class="v6-visually-hidden">View fullsize</span>
+              
+          <div style="padding-bottom:64.28571319580078%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429916970208-REHPEFQ44M1FX8SQEJM3/ke17ZwdGBToddI8pDm48kH3-EX04EXkl8-JIjQ3Yor9Zw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpy0NQFNKnZpsQuxDpwDak0Z6b-3_az38JeSGiRiSJaqD6YZRpLepiG3BNZ-6EEs3Zs/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429916970208-REHPEFQ44M1FX8SQEJM3/ke17ZwdGBToddI8pDm48kH3-EX04EXkl8-JIjQ3Yor9Zw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpy0NQFNKnZpsQuxDpwDak0Z6b-3_az38JeSGiRiSJaqD6YZRpLepiG3BNZ-6EEs3Zs/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429916970208-REHPEFQ44M1FX8SQEJM3/ke17ZwdGBToddI8pDm48kH3-EX04EXkl8-JIjQ3Yor9Zw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpy0NQFNKnZpsQuxDpwDak0Z6b-3_az38JeSGiRiSJaqD6YZRpLepiG3BNZ-6EEs3Zs/image-asset.png" data-image-dimensions="588x378" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="553acd2ae4b0b45c076c43d1" data-type="image">
+          </div>
+        
+            </button>
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Next, I take the two importrange functions I have in cells C2 and C7 and combine them into the arrayformula, replacing the first range argument "A2:C6" with the first importrange function "<span style="font-size:14px">IMPORTRANGE</span><span style="font-size:14px">(</span><span style="font-size:14px">"1vIcMh0SRtwXgYRsmCfiPYo-H4_wpA8IGRZ0RVbOsHDg"</span><span style="font-size:14px">,</span><span style="font-size:14px"> </span><span style="font-size:14px">"sheet1!A2:C"</span><span style="font-size:14px">)</span>" and the second range argument "A7:C11" with the second importrange function "<span style="font-size:14px">importrange</span><span style="font-size:14px">(</span><span style="font-size:14px">"1vdooBX7tdPNAa5kn5LlbrJ95V_SjZAly4HW3kp0P8gw"</span><span style="font-size:14px">,</span><span style="font-size:14px">"Sheet1!A2:C"</span><span style="font-size:14px">)</span>". I take the combined arrayformula and importrange functions and put the entire nested function in cell A2:</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1208px;">
+          
+        
+        
+
+        
+          
+            <button class="
+                  sqs-block-image-button
+                  lightbox
+                  
+          
+        
+                " data-description="" data-lightbox-theme="">
+              <span class="v6-visually-hidden">View fullsize</span>
+              
+          <div style="padding-bottom:3.0629138946533203%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429917494619-97Q5V8PUIK8G2D3EB7KG/ke17ZwdGBToddI8pDm48kLAzVpqW1UzM8wTJkzKMa5dZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZcY1lis3u7ujHaqKviAjfgBXb2P7ACMlJX44aBDLb--x_VsXNPgzl-6lCbBcAnw76AJQCAOv69_JO3aun-U9s-sNrBPmZ_Ijv2t2kqyFuIvZ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429917494619-97Q5V8PUIK8G2D3EB7KG/ke17ZwdGBToddI8pDm48kLAzVpqW1UzM8wTJkzKMa5dZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZcY1lis3u7ujHaqKviAjfgBXb2P7ACMlJX44aBDLb--x_VsXNPgzl-6lCbBcAnw76AJQCAOv69_JO3aun-U9s-sNrBPmZ_Ijv2t2kqyFuIvZ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429917494619-97Q5V8PUIK8G2D3EB7KG/ke17ZwdGBToddI8pDm48kLAzVpqW1UzM8wTJkzKMa5dZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZcY1lis3u7ujHaqKviAjfgBXb2P7ACMlJX44aBDLb--x_VsXNPgzl-6lCbBcAnw76AJQCAOv69_JO3aun-U9s-sNrBPmZ_Ijv2t2kqyFuIvZ/image-asset.png" data-image-dimensions="1208x37" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="553acf35e4b0e21d569ccb54" data-type="image">
+          </div>
+        
+            </button>
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<blockquote>
+<span style="font-size:14px">=</span><span style="font-size:14px">arrayformula</span><span style="font-size:14px">(</span><span style="font-size:14px">{</span><span style="font-size:14px">IMPORTRANGE</span><span style="font-size:14px">(</span><span style="font-size:14px">"1vIcMh0SRtwXgYRsmCfiPYo-H4_wpA8IGRZ0RVbOsHDg"</span><span style="font-size:14px">,</span><span style="font-size:14px"> </span><span style="font-size:14px">"sheet1!A2:C"</span><span style="font-size:14px">)</span><span style="font-size:14px">;</span><span style="font-size:14px">importrange</span><span style="font-size:14px">(</span><span style="font-size:14px">"1vdooBX7tdPNAa5kn5LlbrJ95V_SjZAly4HW3kp0P8gw"</span><span style="font-size:14px">,</span><span style="font-size:14px">"Sheet1!A2:C"</span><span style="font-size:14px">)</span><span style="font-size:14px">}</span><span style="font-size:14px">)</span>
+</blockquote>
+<p>The result may be surprising. I get the first range, class Michigan, as I expect:</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:388px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:107.47422790527344%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429918168254-5B6BRBMULKCD4ET65EVN/ke17ZwdGBToddI8pDm48kIwIsJteyas4KJoBgHfhFJdZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVHF0QWqXd4PcHSWQ_dcfcQlp-weyXjmedxq1X_zFfcJ1FtO8nJtk629tZGIWiyY3XQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429918168254-5B6BRBMULKCD4ET65EVN/ke17ZwdGBToddI8pDm48kIwIsJteyas4KJoBgHfhFJdZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVHF0QWqXd4PcHSWQ_dcfcQlp-weyXjmedxq1X_zFfcJ1FtO8nJtk629tZGIWiyY3XQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429918168254-5B6BRBMULKCD4ET65EVN/ke17ZwdGBToddI8pDm48kIwIsJteyas4KJoBgHfhFJdZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVHF0QWqXd4PcHSWQ_dcfcQlp-weyXjmedxq1X_zFfcJ1FtO8nJtk629tZGIWiyY3XQ/image-asset.png" data-image-dimensions="388x417" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="553ad1d8e4b066b8cc47e4a9" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>However, the second range, class Arizona, shows up 1001 rows below.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:491px;">
+          
+        
+        
+
+        
+          
+            <button class="
+                  sqs-block-image-button
+                  lightbox
+                  
+          
+        
+                " data-description="" data-lightbox-theme="">
+              <span class="v6-visually-hidden">View fullsize</span>
+              
+          <div style="padding-bottom:73.72708892822266%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429918098535-62282AJX2IIEIINSN4DU/ke17ZwdGBToddI8pDm48kJLrPSxb1Wyo_pWKeJjXjypZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVFWNxjLumnXGuP99ORIBr9PMugPOwhWfGmq1V5guUcaLKQvevUbj177dmcMs1F0H-0/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429918098535-62282AJX2IIEIINSN4DU/ke17ZwdGBToddI8pDm48kJLrPSxb1Wyo_pWKeJjXjypZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVFWNxjLumnXGuP99ORIBr9PMugPOwhWfGmq1V5guUcaLKQvevUbj177dmcMs1F0H-0/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429918098535-62282AJX2IIEIINSN4DU/ke17ZwdGBToddI8pDm48kJLrPSxb1Wyo_pWKeJjXjypZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVFWNxjLumnXGuP99ORIBr9PMugPOwhWfGmq1V5guUcaLKQvevUbj177dmcMs1F0H-0/image-asset.png" data-image-dimensions="491x362" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="553ad192e4b0f281a4e9661c" data-type="image">
+          </div>
+        
+            </button>
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>The reason that Arizona shows up on row 1001 goes back to the bottomless ranges I used in my importrange formulas. The importrange takes all of the cells in the given range, those with data and those that are empty. So as far as the Arrayformula is concerned, there is no difference between full and empty cells. It just sees two ranges, or lists, that are 1000 rows long each, and then stacks them vertically.</p>
+<p>The final step is to wrap the arrayformula in a sort, which takes three arguments:</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:335px;">
+          
+        
+        
+
+        
+          
+            <button class="
+                  sqs-block-image-button
+                  lightbox
+                  
+          
+        
+                " data-description="" data-lightbox-theme="">
+              <span class="v6-visually-hidden">View fullsize</span>
+              
+          <div style="padding-bottom:108.6567153930664%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429918858283-875FRYUVLUGQKLRS8GWY/ke17ZwdGBToddI8pDm48kFAdhI33boHQMa6-YoEeVXtZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVH1Wc90VqLbQxW82y2pPScd4MtIIu5Jgaep_4qd3Zk3Lm0nsU3dfn6w--du8-EjPUE/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429918858283-875FRYUVLUGQKLRS8GWY/ke17ZwdGBToddI8pDm48kFAdhI33boHQMa6-YoEeVXtZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVH1Wc90VqLbQxW82y2pPScd4MtIIu5Jgaep_4qd3Zk3Lm0nsU3dfn6w--du8-EjPUE/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429918858283-875FRYUVLUGQKLRS8GWY/ke17ZwdGBToddI8pDm48kFAdhI33boHQMa6-YoEeVXtZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVH1Wc90VqLbQxW82y2pPScd4MtIIu5Jgaep_4qd3Zk3Lm0nsU3dfn6w--du8-EjPUE/image-asset.png" data-image-dimensions="335x364" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="553ad489e4b08ceb08a31266" data-type="image">
+          </div>
+        
+            </button>
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>In this case, the range is going to be the entire arrayformula. The sort column, will be "2" to correspond with the class column (though 1 or 3 would work as well if I wanted an alphabetical list by name or a list sorted by evaluation score). The is_ascending argument will be TRUE because I want to see the classes listed in alphabetical ascending order. The completed formula should read:</p>
+<blockquote>
+<span style="font-size:14px">=</span><span style="font-size:14px">sort</span><span style="font-size:14px">(</span><span style="font-size:14px">arrayformula</span><span style="font-size:14px">(</span><span style="font-size:14px">{</span><span style="font-size:14px">IMPORTRANGE</span><span style="font-size:14px">(</span><span style="font-size:14px">"1vIcMh0SRtwXgYRsmCfiPYo-H4_wpA8IGRZ0RVbOsHDg"</span><span style="font-size:14px">,</span><span style="font-size:14px"> </span><span style="font-size:14px">"sheet1!A2:C"</span><span style="font-size:14px">)</span><span style="font-size:14px">;</span><span style="font-size:14px">importrange</span><span style="font-size:14px">(</span><span style="font-size:14px">"1vdooBX7tdPNAa5kn5LlbrJ95V_SjZAly4HW3kp0P8gw"</span><span style="font-size:14px">,</span><span style="font-size:14px">"Sheet1!A2:C"</span><span style="font-size:14px">)</span><span style="font-size:14px">}</span><span style="font-size:14px">)</span><span style="font-size:14px">,</span><span style="font-size:14px">2</span><span style="font-size:14px">,</span><span style="font-size:14px">True</span><span style="font-size:14px">)</span>
+</blockquote>
+<p>The final output will be the two ranges of data that are being pulled from Child Spreadsheet 1 and Child Spreadsheet 2 stacked vertically and ordered by class. Remember, changes to the data in Child Spreadsheet 1 or Child Spreadsheet 2 will be almost instantly apparent in the Master Spreadsheet. The final output can be seen below.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:613px;">
+          
+        
+        
+
+        
+          
+            <button class="
+                  sqs-block-image-button
+                  lightbox
+                  
+          
+        
+                " data-description="" data-lightbox-theme="">
+              <span class="v6-visually-hidden">View fullsize</span>
+              
+          <div style="padding-bottom:131.3213653564453%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429919327266-0Q7VY5EUKW6863VR6VGL/ke17ZwdGBToddI8pDm48kOJebVJwVIMAwLipPn5PMPxZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpxEChIFHby-MSh9I6E8zAnlm52Z4I719oll6Eycrf3b6r8sGj9YIkyvfompOek9FnQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429919327266-0Q7VY5EUKW6863VR6VGL/ke17ZwdGBToddI8pDm48kOJebVJwVIMAwLipPn5PMPxZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpxEChIFHby-MSh9I6E8zAnlm52Z4I719oll6Eycrf3b6r8sGj9YIkyvfompOek9FnQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1429919327266-0Q7VY5EUKW6863VR6VGL/ke17ZwdGBToddI8pDm48kOJebVJwVIMAwLipPn5PMPxZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpxEChIFHby-MSh9I6E8zAnlm52Z4I719oll6Eycrf3b6r8sGj9YIkyvfompOek9FnQ/image-asset.png" data-image-dimensions="613x805" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="553ad65ee4b0f714a5016b2c" data-type="image">
+          </div>
+        
+            </button>
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p id="yui_3_17_2_3_1429913149680_103090"><br></p>
+</body></html>

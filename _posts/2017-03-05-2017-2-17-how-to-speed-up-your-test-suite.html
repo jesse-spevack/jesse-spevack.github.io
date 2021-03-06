@@ -1,0 +1,172 @@
+---
+layout: post
+title: Finished a Bootcamp? Time to level up your Testing
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '68'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1>Finished a Bootcamp? Time to level up your Testing</h1>
+<p>I completed the <a target="_blank" href="https://www.turing.io/">Turing School of Software Design</a> this past January. Since that time, I've gotten the chance to work on production applications that have helped me appreciate some strategies for testing at scale applications that as a student I would not have fully understood. In this post I will show a testing pattern that I used heavily as a student as well as the design pattern I now use in its stead. I want to make the point that the latter pattern is superior because it is more deliberate in terms of where various pieces of functionality get tested.</p>
+<h3>How I Used to Test ModeL Validations</h3>
+<p>Let's imagine an application that shows off photos. As an admin I can create, delete, and edit photos and as a regular user I can view photos and comment on them. Let's say that everyday a new photo is published. Lets also say that the application has views that allow users to see one photo as well as an index of photos.</p>
+<p>Here's a test for the the photo model in spec/models/photo_spec.rb:</p>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'rails_helper'</span>
+
+RSpec<span style="color:#808030; ">.</span>describe Photo<span style="color:#808030; ">,</span> <span style="color:#005fd2; ">type</span>: :<span style="color:#005fd2; ">model</span><span style="color:#800000; font-weight:bold; "> do</span>
+
+  context <span style="color:#0000e6; ">"validations"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    it <span style="color:#800080; ">{</span> is_expected<span style="color:#808030; ">.</span>to validate_presence_of<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">url</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span>
+    it <span style="color:#800080; ">{</span> is_expected<span style="color:#808030; ">.</span>to validate_presence_of<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">title</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span>
+    it <span style="color:#800080; ">{</span> is_expected<span style="color:#808030; ">.</span>to validate_presence_of<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">description</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span>
+    it <span style="color:#800080; ">{</span> is_expected<span style="color:#808030; ">.</span>to validate_presence_of<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">date</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span>
+    it <span style="color:#800080; ">{</span> is_expected<span style="color:#808030; ">.</span>to validate_uniqueness_of<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">url</span><span style="color:#808030; ">)</span><span style="color:#800080; ">}</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>That looks good. The above code checks to make sure that every photo has a url, title, description and date. It also checks that teach url is unique because we definitely do not want any duplicate photos in our application. There is nothing wrong with that kind of testing. </p>
+<h3>How I now Test Model Validations</h3>
+<p>Except there kind of is something wrong. Imagine if this was a much more complicated model with many different attributes and validation rules. Sure we could just list all the validation rules, as we have done in the above code, but why not just add a little more organization to the test suite to show your fellow developer working on the code that you care. </p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/models/photo_spec.rb</span>
+RSpec<span style="color:#808030; ">.</span>describe Photo<span style="color:#808030; ">,</span> <span style="color:#005fd2; ">type</span>: :<span style="color:#005fd2; ">model</span><span style="color:#800000; font-weight:bold; "> do</span>
+  describe <span style="color:#0000e6; ">"validations"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    describe <span style="color:#0000e6; ">"presence"</span><span style="color:#800000; font-weight:bold; "> do</span>
+      it <span style="color:#800080; ">{</span> should validate_presence_of    :<span style="color:#005fd2; ">title</span> <span style="color:#800080; ">}</span>
+      it <span style="color:#800080; ">{</span> should validate_presence_of    :<span style="color:#005fd2; ">caption</span> <span style="color:#800080; ">}</span>
+      it <span style="color:#800080; ">{</span> should validate_presence_of    :<span style="color:#005fd2; ">date</span> <span style="color:#800080; ">}</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  describe <span style="color:#0000e6; ">"associations"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    it <span style="color:#800080; ">{</span> should have_many<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">comments</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>dependent<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">destroy</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>What I like about the above code better than the first snippet is that tests are grouped together into logical chunks that make it easier to read. First we are going to describe the validations, and in particular we'll describe "presence" validations. Then we go on to list the attributes whose presence are required. We can imagine having a uniqueness or some other section in this "validations" describe block. Next we have a separate describe block for associations.</p>
+<p>It's not like this speeds up the testing, but it does make it easier for another developer to find what they are looking for in the code. That's really the biggest difference between bootcamp and actual professional grade software development. In a bootcamp, I'm writing software for myself. I may often pair with a fellow student, but it's rare to have to go back to code after more than a week or two. In that context, writing highly organized tests is not that important, but in the professional context organization and readability become paramount concerns.</p>
+<p>Another test I now like to add on my models now is to check that there is a valid factory associated with each model. It's a quick win and a proverbial canary in the coal mine for schema changes down the development road.</p>
+<pre style="color:#000000;background:#ffffff;">describe <span style="color:#0000e6; ">"valid factory"</span><span style="color:#800000; font-weight:bold; "> do</span>
+  it <span style="color:#0000e6; ">"has a valid factory"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    expect<span style="color:#808030; ">(</span>build<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">photo</span><span style="color:#808030; ">)</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to be_valid
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<h3>How I Used to test methods on my model</h3>
+<p>Lets imagine that for one of our index pages we want to see photos within various time ranges. Maybe I want to see all the photos of a given month and year or the last photo of each month or a set of photos from a given month and year.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/models/photo_spec.rb</span>
+require <span style="color:#0000e6; ">'rails_helper'</span>
+
+RSpec<span style="color:#808030; ">.</span>describe Photo<span style="color:#808030; ">,</span> <span style="color:#005fd2; ">type</span>: :<span style="color:#005fd2; ">model</span><span style="color:#800000; font-weight:bold; "> do</span>
+  it <span style="color:#0000e6; ">"returns unique month and year"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    create :<span style="color:#005fd2; ">photo</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">date</span>: <span style="color:#bb7977; font-weight:bold; ">Time</span><span style="color:#808030; ">.</span>parse<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"2015-12-29"</span><span style="color:#808030; ">)</span>
+    create :<span style="color:#005fd2; ">photo</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">date</span>: <span style="color:#bb7977; font-weight:bold; ">Time</span><span style="color:#808030; ">.</span>parse<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"2016-12-29"</span><span style="color:#808030; ">)</span>
+    create :<span style="color:#005fd2; ">photo</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">date</span>: <span style="color:#bb7977; font-weight:bold; ">Time</span><span style="color:#808030; ">.</span>parse<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"2015-1-29"</span><span style="color:#808030; ">)</span>
+
+    expect<span style="color:#808030; ">(</span>Photo<span style="color:#808030; ">.</span>unique_month_years<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span><span style="color:#808030; ">[</span><span style="color:#0000e6; ">"12 2015"</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">"12 2016"</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">"01 2015"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  it <span style="color:#0000e6; ">"returns photos by month and year"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    photo_1 <span style="color:#808030; ">=</span> create :<span style="color:#005fd2; ">photo</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">date</span>: <span style="color:#bb7977; font-weight:bold; ">Time</span><span style="color:#808030; ">.</span>parse<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"2015-12-29"</span><span style="color:#808030; ">)</span>
+    photo_2 <span style="color:#808030; ">=</span> create :<span style="color:#005fd2; ">photo</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">date</span>: <span style="color:#bb7977; font-weight:bold; ">Time</span><span style="color:#808030; ">.</span>parse<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"2015-12-30"</span><span style="color:#808030; ">)</span>
+    create :<span style="color:#005fd2; ">photo</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">date</span>: <span style="color:#bb7977; font-weight:bold; ">Time</span><span style="color:#808030; ">.</span>parse<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"2016-12-29"</span><span style="color:#808030; ">)</span>
+    create :<span style="color:#005fd2; ">photo</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">date</span>: <span style="color:#bb7977; font-weight:bold; ">Time</span><span style="color:#808030; ">.</span>parse<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"2015-1-29"</span><span style="color:#808030; ">)</span>
+
+    expect<span style="color:#808030; ">(</span>Photo<span style="color:#808030; ">.</span>month_year<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"12"</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">"2015"</span><span style="color:#808030; ">)</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span><span style="color:#808030; ">[</span>photo_1<span style="color:#808030; ">,</span> photo_2<span style="color:#808030; ">]</span><span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  it <span style="color:#0000e6; ">"returns the last photo of each month"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    photo_1 <span style="color:#808030; ">=</span> create :<span style="color:#005fd2; ">photo</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">date</span>: <span style="color:#bb7977; font-weight:bold; ">Time</span><span style="color:#808030; ">.</span>parse<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"2015-12-29"</span><span style="color:#808030; ">)</span>
+    create :<span style="color:#005fd2; ">photo</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">date</span>: <span style="color:#bb7977; font-weight:bold; ">Time</span><span style="color:#808030; ">.</span>parse<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"2015-12-30"</span><span style="color:#808030; ">)</span>
+    photo_2 <span style="color:#808030; ">=</span> create :<span style="color:#005fd2; ">photo</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">date</span>: <span style="color:#bb7977; font-weight:bold; ">Time</span><span style="color:#808030; ">.</span>parse<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"2015-1-29"</span><span style="color:#808030; ">)</span>
+    photo_3 <span style="color:#808030; ">=</span> create :<span style="color:#005fd2; ">photo</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">date</span>: <span style="color:#bb7977; font-weight:bold; ">Time</span><span style="color:#808030; ">.</span>parse<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"2016-12-29"</span><span style="color:#808030; ">)</span>
+
+    expect<span style="color:#808030; ">(</span>Photo<span style="color:#808030; ">.</span>get_first_photo_of_each_month<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span><span style="color:#808030; ">[</span>photo_1<span style="color:#808030; ">,</span> photo_2<span style="color:#808030; ">,</span> photo_3<span style="color:#808030; ">]</span><span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>That looks good. The above code has three tests that each create some photos with particular attributes, call the method in question on the Photo class and then make assertions on the results. Again, nothing wrong per se, but we can make it better.</p>
+<h3>How I now test methods on my models</h3>
+<p>For this, I'm going to show one example of a test and contrast some of the style choices I make with the above tests.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/models/photo_spec.rb</span>
+require <span style="color:#0000e6; ">'rails_helper'</span>
+
+describe Photo<span style="color:#808030; ">,</span> <span style="color:#0000e6; ">"#by_year_and_month(year, month)"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">type</span>: :<span style="color:#005fd2; ">model</span><span style="color:#800000; font-weight:bold; "> do</span>
+  context <span style="color:#0000e6; ">"when the class method by_year_and_month is invoked"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    it <span style="color:#0000e6; ">"returns all the photos in a given year month pair"</span><span style="color:#800000; font-weight:bold; "> do</span>
+      create :<span style="color:#005fd2; ">photo</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">date</span>: <span style="color:#0000e6; ">"2016-11-30"</span>
+      create :<span style="color:#005fd2; ">photo</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">date</span>: <span style="color:#0000e6; ">"2016-11-2"</span>
+      create :<span style="color:#005fd2; ">photo</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">date</span>: <span style="color:#0000e6; ">"2015-11-30"</span>
+      create :<span style="color:#005fd2; ">photo</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">date</span>: <span style="color:#0000e6; ">"2016-12-1"</span>
+
+      result <span style="color:#808030; ">=</span> Photo<span style="color:#808030; ">.</span>by_year_and_month<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"2016"</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">"11"</span><span style="color:#808030; ">)</span>
+
+      expect<span style="color:#808030; ">(</span>result<span style="color:#808030; ">.</span><span style="color:#400000; ">length</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span><span style="color:#008c00; ">2</span><span style="color:#808030; ">)</span>
+      expect<span style="color:#808030; ">(</span>result<span style="color:#808030; ">.</span>pluck<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">date</span><span style="color:#808030; ">)</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to include<span style="color:#808030; ">(</span>Date<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#008c00; ">2016</span><span style="color:#808030; ">,</span><span style="color:#008c00; ">11</span><span style="color:#808030; ">,</span><span style="color:#008c00; ">30</span><span style="color:#808030; ">)</span><span style="color:#808030; ">)</span>
+      expect<span style="color:#808030; ">(</span>result<span style="color:#808030; ">.</span>pluck<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">date</span><span style="color:#808030; ">)</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to include<span style="color:#808030; ">(</span>Date<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#008c00; ">2016</span><span style="color:#808030; ">,</span><span style="color:#008c00; ">11</span><span style="color:#808030; ">,</span><span style="color:#008c00; ">2</span><span style="color:#808030; ">)</span><span style="color:#808030; ">)</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Here I'm making much better use of the Rspec domain specific language by writing more articulate describe, context, and it blocks. First the describe block clearly states what method is about to be tested. Next I have a context block, which I guess could be a second describe block, describing the situation I'm trying to test. I think contexts are actually better suited for testing various sad and happy paths in a method, but I digress. Finally, I have an inner it block that explains what the method is expected to return. None of that speeds up the test, but it does clue in my fellow developers exactly what the method does.</p>
+<p>Also, notice that I take a page out of <a target="_blank" href="https://twitter.com/searls">Justin Searls'</a> playbook where I divide my tests into three clear sections. First I have the setup section. Next I call the method. Third, I make my assertions. I use the variable name "result" to be very clear that this is the thing that is the outcome of my test. If I needed to call this method on a specific photo, I might also use a variable "subject" to signify that this is the subject of the test. This isn't game changing, but it is small readability enhancements that add professional polish to the suite.</p>
+<h3>How I used to Request test</h3>
+<p>Let's imagine an endpoint that serves up one photo per month given. In the past I might have written something like this:</p>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'rails_helper'</span>
+
+describe <span style="color:#0000e6; ">"GET api/v1/photos/one-per-month"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">type</span>: :<span style="color:#005fd2; ">request</span><span style="color:#800000; font-weight:bold; "> do</span>
+  it <span style="color:#0000e6; ">"returns the first photo of each month for a given year as json"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    photo_1 <span style="color:#808030; ">=</span> create :<span style="color:#005fd2; ">photo</span> <span style="color:#005fd2; ">date</span>: Date<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#008c00; ">2016</span><span style="color:#808030; ">,</span><span style="color:#008c00; ">1</span><span style="color:#808030; ">,</span><span style="color:#008c00; ">1</span><span style="color:#808030; ">)</span>
+    photo_2 <span style="color:#808030; ">=</span> create :<span style="color:#005fd2; ">photo</span> <span style="color:#005fd2; ">date</span>: Date<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#008c00; ">2016</span><span style="color:#808030; ">,</span><span style="color:#008c00; ">2</span><span style="color:#808030; ">,</span><span style="color:#008c00; ">1</span><span style="color:#808030; ">)</span>
+    create :<span style="color:#005fd2; ">photo</span> <span style="color:#005fd2; ">date</span>: Date<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#008c00; ">2016</span><span style="color:#808030; ">,</span><span style="color:#008c00; ">1</span><span style="color:#808030; ">,</span><span style="color:#008c00; ">2</span><span style="color:#808030; ">)</span>
+    create :<span style="color:#005fd2; ">photo</span> <span style="color:#005fd2; ">date</span>: Date<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#008c00; ">2017</span><span style="color:#808030; ">,</span><span style="color:#008c00; ">1</span><span style="color:#808030; ">,</span><span style="color:#008c00; ">3</span><span style="color:#808030; ">)</span>
+
+    sign_in user
+
+    get <span style="color:#0000e6; ">"/api/v1/photos/one-per-month?year=2016"</span>
+    photos <span style="color:#808030; ">=</span> JSON<span style="color:#808030; ">.</span>parse<span style="color:#808030; ">(</span>response<span style="color:#808030; ">.</span>body<span style="color:#808030; ">)</span>
+
+    expect<span style="color:#808030; ">(</span>response<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to be_success
+    expect<span style="color:#808030; ">(</span>photos<span style="color:#808030; ">.</span><span style="color:#400000; ">first</span><span style="color:#808030; ">[</span><span style="color:#0000e6; ">"id"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span>photo_1<span style="color:#808030; ">.</span>id<span style="color:#808030; ">)</span>
+    expect<span style="color:#808030; ">(</span>photos<span style="color:#808030; ">.</span>second<span style="color:#808030; ">[</span><span style="color:#0000e6; ">"id"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span>photo_2<span style="color:#808030; ">.</span>id<span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Here I create four photos. I perform the get request. I parse the response, and then I make assertions on that parsed response.</p>
+<h3>How I Now Write Request Specs</h3>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'rails_helper'</span>
+
+describe <span style="color:#0000e6; ">"GET api/v1/photos/one-per-month"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">type</span>: :<span style="color:#005fd2; ">request</span><span style="color:#800000; font-weight:bold; "> do</span>
+  let<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">photos</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> double <span style="color:#800080; ">}</span>
+  let<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">user</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> create :<span style="color:#005fd2; ">user</span> <span style="color:#800080; ">}</span>
+  it <span style="color:#0000e6; ">"returns the first photo of each month for a given year as json"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    expect<span style="color:#808030; ">(</span>Photo<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to receive<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">one_per_month</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>with<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"2016"</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>and_return<span style="color:#808030; ">(</span>photos<span style="color:#808030; ">)</span>
+    sign_in user
+
+    get <span style="color:#0000e6; ">"/api/v1/photos/one-per-month?year=2016"</span>
+
+    expect<span style="color:#808030; ">(</span>response<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to be_ok
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  it <span style="color:#0000e6; ">"returns 302 if a user is not signed in"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    allow<span style="color:#808030; ">(</span>Photo<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to receive<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">one_per_month</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>with<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"2016"</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>and_return<span style="color:#808030; ">(</span>photos<span style="color:#808030; ">)</span>
+
+    get <span style="color:#0000e6; ">"/api/v1/photos/one-per-month?year=2016"</span>
+
+    expect<span style="color:#808030; ">(</span>response<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_http_status<span style="color:#808030; ">(</span><span style="color:#008c00; ">302</span><span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>I've already tested the Photo.one_per_month method on my model. I don't need to test it in my request because I already know it works. The only thing I need to test in my request is the piping that fits everything together. This is the biggest testing epiphone for me since finishing Turing.</p>
+<p>In the above code, I use let, which lazily invokes photos and a user. That means that they aren't actually created unless they are called. This is faster than creating things and not calling them. Next my photos aren't photos at all! They are a double, which is just a thing. This again is much faster than actually creating photos. Now the only thing that I really need to test here is that when a get request is made to this endpoint, the method one_per_month is called on the Photo class and that the response is ok. I don't care about what is in the response here, because I know what is in response from my model testing of this method. </p>
+<p>So I'm going to expect that the photo class receives the method call one_per_month with argument "2016". This shows me that the year parameter on the get request is being parsed correctly and handed off to the right class method. I know the method works, so I'm not going to bother testing that here.</p>
+<p>The result of this approach is that the former request spec might take a second or two to run, where as the latter runs in much less than a second. </p>
+<p>The application I work on professionally has close to 2000 tests. The largest application I worked on at Turing had about 100 or so tests. When working with 100 tests, second or two long tests still gives you a test suite that runs in a minute or two. Running a similarly structured test suite that is ten times as large would mean a total run time of ten minutes. The application I work on has a test suite runtime of 30 - 45 seconds. That's a big deal.</p>
+<p>Thanks for reading along. I hope this helps my fellow Turing comrades and other new developers thinking about upping their testing game.</p>
+</body></html>

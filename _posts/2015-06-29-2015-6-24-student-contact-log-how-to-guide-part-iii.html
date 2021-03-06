@@ -1,0 +1,704 @@
+---
+layout: post
+title: 'Student Contact Log: How to Guide (Part III)'
+categories:
+- Technical
+- Tools
+tags:
+- FormMule
+- Google Spreadsheets
+- Google Forms
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '13'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h2>Using Email Notifications to Fix Bad Numbers</h2>
+<p> Educators know the impact a phone call can have on the trajectory of a student. Studies have also documented the positive effects school to family communication can have on improving attendance.<sup id="fnref:1"><a href="#fn:1" rel="footnote" style="color:#3d9991">1</a></sup> At schools today, one impediment to conducting systematic phone outreach is that contact information can be out of date. Phone numbers change, and oftentimes these changes are not recorded in a school's student information system. With the Google Form from the past two posts <a href="http://www.jessespevack.com/systems-leadership/2015/5/29/student-contact-log-part-i" style="color:#3d9991">Student Contact Log: Rationale and How-To Guide (Part I)</a> and <a href="http://www.jessespevack.com/systems-leadership/2015/6/3/student-contact-log-how-to-guide-part-ii" style="color:#3d9991">Student Contact Log: How To Guide (Part II)</a> and the Add-on <a href="http://cloudlab.newvisions.org/add-ons/formmule-email-merge-utility" style="color:#3d9991">FormMule</a> we can send an automatic email to a designated staff member anytime a bad number is reported. The purpose of sending this kind of alert is to systematically purge bad contact information from the school information system and replace it with accurate numbers, which creates a virtuous cycle. The more bad contacts are found and corrected, the easier it becomes to outreach to families.</p>
+<h2>Sending Emails from a Form</h2>
+<p>Below is the spreadsheet that contains the responses from the aforementioned Google Form.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2254px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:61.93434143066406%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435121779931-H36GEXSMA8YO7UE84T39/ke17ZwdGBToddI8pDm48kH0J6C_rUJ4Y6dN4qmKpN0V7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UZyHR7h_Jkw8i5YRnPLfp37Tdg6scUw5v7-zxzLoT3rUJvwGh1qtNWvMhYKnvaKhbA/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435121779931-H36GEXSMA8YO7UE84T39/ke17ZwdGBToddI8pDm48kH0J6C_rUJ4Y6dN4qmKpN0V7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UZyHR7h_Jkw8i5YRnPLfp37Tdg6scUw5v7-zxzLoT3rUJvwGh1qtNWvMhYKnvaKhbA/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435121779931-H36GEXSMA8YO7UE84T39/ke17ZwdGBToddI8pDm48kH0J6C_rUJ4Y6dN4qmKpN0V7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UZyHR7h_Jkw8i5YRnPLfp37Tdg6scUw5v7-zxzLoT3rUJvwGh1qtNWvMhYKnvaKhbA/image-asset.png" data-image-dimensions="2254x1396" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="558a3865e4b02172c1bb4098" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Make sure you have installed the free New Visions Add-on "<a target="_blank" href="https://chrome.google.com/webstore/detail/formmule-email-merge-util/kabhamaiihmaphgpijdolgcihofefajn?utm_source=permalink">FormMule</a>" written by <a target="_blank" href="https://plus.google.com/+AndrewStillman/posts">Andrew Stillman</a>. To install FormMule either click on the link or in any Google Spreadsheet go to the Add-ons menu, select "Get add-ons..." and then search form "FormMule." Once installed open FormMule by going to the Add-ons menu, selecting "FormMule - Email Merge Utility" and then selecting "Launch."</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1776px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:31.306304931640625%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435121929798-P7RRVM5ISA25R69H1S4D/ke17ZwdGBToddI8pDm48kEUGku4eGJ6gEO78bxy6yK8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dgi30SwDyBv3eIx2A1LIUccVo6mfgO1IP6KfjdzvJpmCCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435121929798-P7RRVM5ISA25R69H1S4D/ke17ZwdGBToddI8pDm48kEUGku4eGJ6gEO78bxy6yK8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dgi30SwDyBv3eIx2A1LIUccVo6mfgO1IP6KfjdzvJpmCCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435121929798-P7RRVM5ISA25R69H1S4D/ke17ZwdGBToddI8pDm48kEUGku4eGJ6gEO78bxy6yK8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dgi30SwDyBv3eIx2A1LIUccVo6mfgO1IP6KfjdzvJpmCCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1776x556" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="558a38f9e4b050f36b366796" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>The first configuration step asks the user to select the sheet that contains email addresses and source data. In this case the sheet name is "Form Responses 1."</p>
+<p>This setup allows users to set triggers. Triggers are events that tell FormMule to perform a particular action. There are two types of triggers in this case. A form trigger is the event that occurs whenever a user submits the form. We need to use the form trigger event because we want FormMule to send an email whenever a user submits a form response that flags a bad number. By turning on form triggers, formMule will run every time a new form submission arrives and evaluate whether or not to take further action. In this way, emails will only send when a user flags a phone number as a bad contact.</p>
+<p>Time triggers are time based events that tell FormMule to run. For example, one can set FormMule to run every hour. The time trigger is a useful safety net, just in case the form trigger does not fire. In other words, as long as a time trigger is set, if the form trigger malfunctions, the most formMule will wait before re-running is one hour.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1496px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:82.21924591064453%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435122011616-7NV7XBI31M8XYH217CVU/ke17ZwdGBToddI8pDm48kCRT6WVN96hG8WDKAIADGER7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmNoh1qFcAgofgkNWMrO_GW3CtOi22SBZW1gMQ2CFbdsABDrnQi_rkig9s5ODycoPZ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435122011616-7NV7XBI31M8XYH217CVU/ke17ZwdGBToddI8pDm48kCRT6WVN96hG8WDKAIADGER7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmNoh1qFcAgofgkNWMrO_GW3CtOi22SBZW1gMQ2CFbdsABDrnQi_rkig9s5ODycoPZ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435122011616-7NV7XBI31M8XYH217CVU/ke17ZwdGBToddI8pDm48kCRT6WVN96hG8WDKAIADGER7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmNoh1qFcAgofgkNWMrO_GW3CtOi22SBZW1gMQ2CFbdsABDrnQi_rkig9s5ODycoPZ/image-asset.png" data-image-dimensions="1496x1230" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="558a3959e4b0a7d87c0c4994" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>In this example I have selected the following options:</p>
+<ol dir="ltr">
+<li>The sheet containing the email addresses and merge source data is "Form Responses 1"</li>
+<li>I'm enabling form triggers</li>
+<li>I'm also enabling time triggers, which I have set to run every hour. Please note, this setting does not mean a new email is sent every hour, rather FormMule evaluates whether or not to send emails each hour. Emails that have already been sent are not re-sent.</li>
+</ol>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1492px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:82.17158508300781%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435122197646-EE39BDZ5XT7EVYV8TEHJ/ke17ZwdGBToddI8pDm48kNqzj5yb97eYILuvhqd7X2J7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmcb7L6gLFtGYKWw0egs8pkHoRdBf49hh4MCHYdokOOTyXJfSoddgckgkZq_tQd65w/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435122197646-EE39BDZ5XT7EVYV8TEHJ/ke17ZwdGBToddI8pDm48kNqzj5yb97eYILuvhqd7X2J7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmcb7L6gLFtGYKWw0egs8pkHoRdBf49hh4MCHYdokOOTyXJfSoddgckgkZq_tQd65w/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435122197646-EE39BDZ5XT7EVYV8TEHJ/ke17ZwdGBToddI8pDm48kNqzj5yb97eYILuvhqd7X2J7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmcb7L6gLFtGYKWw0egs8pkHoRdBf49hh4MCHYdokOOTyXJfSoddgckgkZq_tQd65w/image-asset.png" data-image-dimensions="1492x1226" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="558a3a13e4b027d17c535fbe" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Next, I create one email template with the name "Bad Number" to signify that this is the email template I want FormMule to use if a user flags a number as bad. I then set a condition for when I want FormMule to send an email notification, which is whenever the "Report a bad number" checkbox question in my form comes in as a "Yes". These conditions can be finicky so make sure to double check spelling, capitalization and stray white spaces.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1494px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:82.46318817138672%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435122046623-FDL01XJ3NYOH3KSX75BX/ke17ZwdGBToddI8pDm48kNtncDFRhjV_6y_MsANvgc17gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmZBUL3d4455WGVwpy4ztKw-DH253zLouQm1UDGcym5jKK7A0F7hUmYVr0s9wuNu_6/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435122046623-FDL01XJ3NYOH3KSX75BX/ke17ZwdGBToddI8pDm48kNtncDFRhjV_6y_MsANvgc17gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmZBUL3d4455WGVwpy4ztKw-DH253zLouQm1UDGcym5jKK7A0F7hUmYVr0s9wuNu_6/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435122046623-FDL01XJ3NYOH3KSX75BX/ke17ZwdGBToddI8pDm48kNtncDFRhjV_6y_MsANvgc17gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmZBUL3d4455WGVwpy4ztKw-DH253zLouQm1UDGcym5jKK7A0F7hUmYVr0s9wuNu_6/image-asset.png" data-image-dimensions="1494x1232" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="558a397de4b0691bf6eceb01" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Next, use the "Build / preview templates" screen to create an email template that will be sent whenever the condition is met. For the "To:" field of the email, I want to designate the one person in my school responsible for finding correct contact information (e.g. parent_coordinator@myAwesomeSchool.org) Merge tags are the column headers from the source sheet. By clicking a merge tag button, FormMule will load in that merge tag along with a label to wherever the cursor is within this screen. Merge tags in FormMule are conveniently denoted with double carrots, just like in an <a target="_blank" href="http://cloudlab.newvisions.org/add-ons/autocrat">AutoCrat</a> template. I recommend keeping the template short and sweet by including only the essential information. Another feature worth highlighting is that FormMule accepts HTML in the email body portion of the template builder. With HTML you can do things like bold text, create lists, add tables, and include hyperlinks.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1494px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:82.19544982910156%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435122215928-1E0MM6RWLU53E1J6SLXZ/ke17ZwdGBToddI8pDm48kO-KLBBGCXvPAp8_-tnGE_F7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmuGhkk4eP89AVEQFuWA5BDQ3WkkoDYN7tRJZvZXhvI13weKRXEvTV_OlAQnfgl0bq/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435122215928-1E0MM6RWLU53E1J6SLXZ/ke17ZwdGBToddI8pDm48kO-KLBBGCXvPAp8_-tnGE_F7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmuGhkk4eP89AVEQFuWA5BDQ3WkkoDYN7tRJZvZXhvI13weKRXEvTV_OlAQnfgl0bq/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435122215928-1E0MM6RWLU53E1J6SLXZ/ke17ZwdGBToddI8pDm48kO-KLBBGCXvPAp8_-tnGE_F7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmuGhkk4eP89AVEQFuWA5BDQ3WkkoDYN7tRJZvZXhvI13weKRXEvTV_OlAQnfgl0bq/image-asset.png" data-image-dimensions="1494x1228" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="558a3a25e4b027d17c536011" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Clicking "Preview this" will replace the merge tags with the data from the selected sheet. This is a great way to proofread the emails before going live.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1494px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:82.19544982910156%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435122236065-UADWPMGVH1KOTFJ833NU/ke17ZwdGBToddI8pDm48kO-KLBBGCXvPAp8_-tnGE_F7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmuGhkk4eP89AVEQFuWA5BDQ3WkkoDYN7tRJZvZXhvI13weKRXEvTV_OlAQnfgl0bq/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435122236065-UADWPMGVH1KOTFJ833NU/ke17ZwdGBToddI8pDm48kO-KLBBGCXvPAp8_-tnGE_F7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmuGhkk4eP89AVEQFuWA5BDQ3WkkoDYN7tRJZvZXhvI13weKRXEvTV_OlAQnfgl0bq/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435122236065-UADWPMGVH1KOTFJ833NU/ke17ZwdGBToddI8pDm48kO-KLBBGCXvPAp8_-tnGE_F7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmuGhkk4eP89AVEQFuWA5BDQ3WkkoDYN7tRJZvZXhvI13weKRXEvTV_OlAQnfgl0bq/image-asset.png" data-image-dimensions="1494x1228" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="558a3a39e4b027d17c53605a" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Clicking "Preview and send all" will show another preview of the emails about to be sent along with a count of the total number of emails FormMule will send. The remaining daily send quota will depend on the type of account being used. Commercial gmail accounts have 100 emails per day whereas free Google Apps for Education accounts have 1500 emails per day.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1496px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:82.48663330078125%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435122259104-Y4R8RLKHON3DBWKGVT2Y/ke17ZwdGBToddI8pDm48kMx5wrI0wKm1iqcyrPY0jI17gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmb2DONusmKqTwuAze7TIwX88OTBVvDvAY1f1JcrcTSd4ichqwuWP1ps6hmwJbf_Y5/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435122259104-Y4R8RLKHON3DBWKGVT2Y/ke17ZwdGBToddI8pDm48kMx5wrI0wKm1iqcyrPY0jI17gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmb2DONusmKqTwuAze7TIwX88OTBVvDvAY1f1JcrcTSd4ichqwuWP1ps6hmwJbf_Y5/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435122259104-Y4R8RLKHON3DBWKGVT2Y/ke17ZwdGBToddI8pDm48kMx5wrI0wKm1iqcyrPY0jI17gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmb2DONusmKqTwuAze7TIwX88OTBVvDvAY1f1JcrcTSd4ichqwuWP1ps6hmwJbf_Y5/image-asset.png" data-image-dimensions="1496x1234" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="558a3a51e4b02172c1bb4735" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Clicking "Send now" will fire off the email and the parent coordinator will receive the below email within a few moments. Clicking "Cancel" will close the setup screen, but the settings will be preserved, which means that the next time a form is submitted with a bad contact flag or in the next 60 minutes, all unsent emails will go out.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1714px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:13.185530662536621%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435122315811-6VDMUL3Z7SYBBP3JLGFO/ke17ZwdGBToddI8pDm48kPktt5pc5GFO_-AQqcRX4ckUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2drOp3AW_0gejAShp_v9IoX2krrPnQa_JvCBnj30VYJxrCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435122315811-6VDMUL3Z7SYBBP3JLGFO/ke17ZwdGBToddI8pDm48kPktt5pc5GFO_-AQqcRX4ckUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2drOp3AW_0gejAShp_v9IoX2krrPnQa_JvCBnj30VYJxrCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435122315811-6VDMUL3Z7SYBBP3JLGFO/ke17ZwdGBToddI8pDm48kPktt5pc5GFO_-AQqcRX4ckUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2drOp3AW_0gejAShp_v9IoX2krrPnQa_JvCBnj30VYJxrCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1714x226" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="558a3a8be4b065fae140c915" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h2>Conclusion</h2>
+<p>This concludes the three part series on contact logging. We have looked at</p>
+<ol>
+<li>the purpose and systems design considerations for contact logging</li>
+<li>methods for sharing contact information</li>
+<li>pre-filling forms to make logging easier and more accurate</li>
+<li>automating notifications to a designated staff member in the event a bad number is flagged by another staff member</li>
+</ol>
+<p>Schools have used the above system to monitor the types of outreach staff are performing on a regular basis, the students receiving the most outreach, and the frequency with which each staff member performs outreach.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:811px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:47.34895324707031%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435614613586-IW5GF832WNGH9I1MXQKG/ke17ZwdGBToddI8pDm48kAOSqwl4J_RBK9EZETyZgK5Zw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PI9v14YIq_N3R3JQ2gnbDHa8nUFWH1dwUpzH-zXraV8cw/image-asset.png" alt="Frequency of calls over the 2014-15 school year at a school employing the contact logging system."></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435614613586-IW5GF832WNGH9I1MXQKG/ke17ZwdGBToddI8pDm48kAOSqwl4J_RBK9EZETyZgK5Zw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PI9v14YIq_N3R3JQ2gnbDHa8nUFWH1dwUpzH-zXraV8cw/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435614613586-IW5GF832WNGH9I1MXQKG/ke17ZwdGBToddI8pDm48kAOSqwl4J_RBK9EZETyZgK5Zw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PI9v14YIq_N3R3JQ2gnbDHa8nUFWH1dwUpzH-zXraV8cw/image-asset.png" data-image-dimensions="811x384" data-image-focal-point="0.5,0.5" alt="Frequency of calls over the 2014-15 school year at a school employing the contact logging system." data-load="false" data-image-id="5591bd95e4b0d3a1e1bf65c5" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Frequency of calls over the 2014-15 school year at a school employing the contact logging system.</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:825px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:37.45454406738281%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435614675323-NGA6IRCBZGL21F1HSPH1/ke17ZwdGBToddI8pDm48kDYwjecaltKC2Y6sCGVn4H1Zw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PI3DiRGNTjWfbgDcln_5om1ZN8T_7aou60eJ8kb7v_9TA/image-asset.png" alt="Left, the number of contact logs completed by staff member. Right, the breakdown of logs by type."></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435614675323-NGA6IRCBZGL21F1HSPH1/ke17ZwdGBToddI8pDm48kDYwjecaltKC2Y6sCGVn4H1Zw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PI3DiRGNTjWfbgDcln_5om1ZN8T_7aou60eJ8kb7v_9TA/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1435614675323-NGA6IRCBZGL21F1HSPH1/ke17ZwdGBToddI8pDm48kDYwjecaltKC2Y6sCGVn4H1Zw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PI3DiRGNTjWfbgDcln_5om1ZN8T_7aou60eJ8kb7v_9TA/image-asset.png" data-image-dimensions="825x309" data-image-focal-point="0.5,0.5" alt="Left, the number of contact logs completed by staff member. Right, the breakdown of logs by type." data-load="false" data-image-id="5591bdd3e4b097f200aed8ef" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Left, the number of contact logs completed by staff member. Right, the breakdown of logs by type.</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p id="yui_3_17_2_2_1435608901518_64280">Many of these systems design principles are transferrable to other school-based use cases. The true brilliance of Andrew Stillman's CloudLab tools are their transferability and modularity. Stay tuned for additional build walkthroughs and policy pieces.</p>
+<div class="footnotes"><ol>
+    <li class="footnote" id="fn:1">
+        <p>To name two: <a href="http://scholar.harvard.edu/files/mkraft/files/kraft_rogers_teacher-parent_communication_hks_working_paper.pdf" style="color:#3d9991">Kraft and Rogers 2014</a> and Mcconnell, B., &amp; Kubina, R. (2014). Connecting With Families to Improve Students’ School Attendance: A Review of the Literature. Preventing School Failure: Alternative Education for Children and Youth, 249-256.<a href="#fnref:1" title="return to article"> ↩</a></p>
+<p>
+    </p>
+</li>
+</ol></div>
+</body></html>

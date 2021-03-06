@@ -1,0 +1,28 @@
+---
+layout: post
+title: Posting to Facebook with Ruby on Rails
+categories: []
+tags: []
+status: draft
+type: post
+published: false
+meta:
+  _thumbnail_id: '80'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h2>A Live Blogged How To Facebook with Ruby on Rails Guide</h2>
+<p>As many of you know, I have a <a href="https://spevacktwins.herokuapp.com/">photo sharing application side project</a> that I use to learn new technologies and share photos of my kids with my family. In the past I would upload a photo and then login to Facebook and post a link to my photo app with a brief message. This is something that should be fairly straight forward to automate.</p>
+<p>Unlike past blog posts in which I write detailed steps after the fact and sometimes in fairly contrived contexts, in this post I will write as I develop. It's an experiment which I hope will make it easier for me to get useful content out to all of you. </p>
+<h3>Where To Begin</h3>
+<p>I start by scanning through Facebook's API documentation. A few minutes of Googling makes me fairly certain that the <a href="https://developers.facebook.com/docs/graph-api">Graph API</a> is the thing I will use to post to my own feed. Apparently there is a third party <a href="https://github.com/arsduo/koala">gem</a> I could use, but I think it's a good strategy to avoid dependencies that I have limited control over as much as possible. Furthermore, for the needs of this project I am really only concerned with one API endpoint so adding code that supports the entire Graph API seems like overkill to me.</p>
+<h3>Credentials</h3>
+<p>I'm going to start by getting some credentials so I can use the Graph API with my application. According to the documents, the type of credential I will need is an access token, specifically a user access token.</p>
+
+<figure>
+  <blockquote data-animation-role="quote" data-animation-override>
+    <span></span>An access token is an opaque string that identifies a user, app, or Page and can be used by the app to make graph API calls.<span></span>
+  </blockquote>
+  <figcaption class="source">— https://developers.facebook.com/docs/facebook-login/access-tokens</figcaption>
+</figure>
+</body></html>

@@ -1,0 +1,790 @@
+---
+layout: post
+title: More CRUD with Rails Scaffolds
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '62'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h2>Part 4 Genres</h2>
+<p>In the last <a target="_blank" href="http://www.jessespevack.com/blog/2017/10/27/so-system-tests-are-a-thing-now">post</a> we removed the database cleaner gem and converted our feature test into a new and improved systems test. In this post we will return to the Rails generate scaffold command to build full CRUD functionality for our genres model of our Bookshelf App. We will also create some scopes and methods on our new genre model to facilitate future reporting of reading metrics by genre.</p>
+<p>Our genre model will be very basic. The long term purpose of this model is to be able to get metrics by genre of all the books in our book shelf app. For example, I would like to easily be able to see how many history books I read last month or how many scifi books I read since the start of the year. To do so, our model will need a name attribute.</p>
+<p>We will also want a boolean flag on genre that tells us if the genre is fiction or nonfiction.</p>
+<h2>Rails Scaffold</h2>
+<p>Let's run the following command and let Rails do its thing.</p>
+<p><code>$ rails g scaffold genre name:string fiction:boolean --no-styelsheets --no-assets --no-scaffold-stylesheet --no-controller-specs --no-view-specs --no-helper-specs --no-helper --no-javascripts --no-jbuilder</code></p>
+<p>It almost feels like cheating!</p>
+<h2>Migration</h2>
+<p>The rails scaffold gives us the following migration.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> CreateGenres &lt; ActiveRecord<span style="color:#808030; ">::</span>Migration<span style="color:#808030; ">[</span><span style="color:#008000; ">5.1</span><span style="color:#808030; ">]</span>
+  <span style="color:#800000; font-weight:bold; ">def</span> change
+    create_table :<span style="color:#005fd2; ">genres</span><span style="color:#800000; font-weight:bold; "> do</span> |t|
+      t<span style="color:#808030; ">.</span><span style="color:#400000; ">string</span> :<span style="color:#005fd2; ">name</span>
+      t<span style="color:#808030; ">.</span>boolean :<span style="color:#005fd2; ">fiction</span>
+
+      t<span style="color:#808030; ">.</span>timestamps
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Before we run this migration, let's add a default value to our fiction attribute. By default genres should be fiction: false or nonfiction. To do so, all we need to do is set the default in the create_table block of our migration.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> CreateGenres &lt; ActiveRecord<span style="color:#808030; ">::</span>Migration<span style="color:#808030; ">[</span><span style="color:#008000; ">5.1</span><span style="color:#808030; ">]</span>
+  <span style="color:#800000; font-weight:bold; ">def</span> change
+    create_table :<span style="color:#005fd2; ">genres</span><span style="color:#800000; font-weight:bold; "> do</span> |t|
+      t<span style="color:#808030; ">.</span><span style="color:#400000; ">string</span> :<span style="color:#005fd2; ">name</span>
+      t<span style="color:#808030; ">.</span>boolean :<span style="color:#005fd2; ">fiction</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">default</span>: <span style="color:#800000; font-weight:bold; ">false</span>
+
+      t<span style="color:#808030; ">.</span>timestamps
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<h2>System Test</h2>
+<p>Next let's create a system test file:</p>
+<p><code>$ touch spec/system/genre_spec.rb</code></p>
+<p>We want to test create, read, update, and delete functionality so let's write some helper methods along the lines of using the web interface create a new genre, view all genres, edit a genre, and delete a genre.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/system/genre_spec.rb</span>
+require <span style="color:#0000e6; ">'rails_helper'</span>
+
+describe <span style="color:#0000e6; ">'genre crud'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">type</span>: :<span style="color:#005fd2; ">system</span><span style="color:#800000; font-weight:bold; "> do</span>
+  scenario <span style="color:#0000e6; ">'using web interface'</span><span style="color:#800000; font-weight:bold; "> do</span>
+    create_new_genre
+    view_all_genres
+    edit_genre
+    delete_genre
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> create_new_genre
+    visit new_genre_path
+    fill_in <span style="color:#0000e6; ">'Name'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">'History'</span>
+    click_button <span style="color:#0000e6; ">'Create Genre'</span>
+
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content <span style="color:#0000e6; ">'History'</span>
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content <span style="color:#0000e6; ">'Fiction: false'</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> view_all_genres
+    create :<span style="color:#005fd2; ">genre</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">name</span>: <span style="color:#0000e6; ">'Philosophy'</span>
+    visit genres_path
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_css <span style="color:#0000e6; ">'tr'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">count</span>: <span style="color:#008c00; ">3</span>
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content <span style="color:#0000e6; ">'History'</span>
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content <span style="color:#0000e6; ">'Philosophy'</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> edit_genre
+    visit edit_genre_path<span style="color:#808030; ">(</span>Genre<span style="color:#808030; ">.</span><span style="color:#400000; ">first</span><span style="color:#808030; ">)</span>
+    fill_in <span style="color:#0000e6; ">'Name'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">'Historical Fiction'</span>
+    check <span style="color:#0000e6; ">'Fiction'</span>
+    click_button <span style="color:#0000e6; ">'Update Genre'</span>
+
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content <span style="color:#0000e6; ">'Historical Fiction'</span>
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content <span style="color:#0000e6; ">'Fiction: true'</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> delete_genre
+    visit genres_path
+    <span style="color:#400000; ">first</span><span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">link</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">'Destroy'</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>click
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_css <span style="color:#0000e6; ">'tr'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">count</span>: <span style="color:#008c00; ">2</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The above system tests takes us through all four crud actions. We first create a 'History' genre. Next we visit the genre index to verify that we can see all genres in the database. Next we test editing a genre by changing the name to Historical Fiction and setting fiction equal to true by checking the fiction checkbox. Finally we delete a genre.</p>
+<p>We have a pending migration to run since we took advantage of Rail scaffolds to add the genre model to our app.</p>
+<p><code>$ rake db:migrate db:test:prepare</code></p>
+<p>Running Rspec shows that all tests are passing. That's usually a red flag for me, but if we walk through the app in a browser we can confirm that all the functionality is there. First start our server by typing:</p>
+<p><code>$ rails s</code></p>
+<p>Sure enough we have a genre form:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:754px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:60.477455139160156%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509230574156-LCXPGZ3HV0L94VIQQ0A7/ke17ZwdGBToddI8pDm48kFXIYUSlfPh3GKGAF-4gDaFZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIIL-qYlbFlXjoe7nfify4P8xbK1vNKioUsd_mlEskH20/Screen+Shot+2017-10-28+at+4.41.25+PM.png" alt="Screen Shot 2017-10-28 at 4.41.25 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509230574156-LCXPGZ3HV0L94VIQQ0A7/ke17ZwdGBToddI8pDm48kFXIYUSlfPh3GKGAF-4gDaFZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIIL-qYlbFlXjoe7nfify4P8xbK1vNKioUsd_mlEskH20/Screen+Shot+2017-10-28+at+4.41.25+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509230574156-LCXPGZ3HV0L94VIQQ0A7/ke17ZwdGBToddI8pDm48kFXIYUSlfPh3GKGAF-4gDaFZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIIL-qYlbFlXjoe7nfify4P8xbK1vNKioUsd_mlEskH20/Screen+Shot+2017-10-28+at+4.41.25+PM.png" data-image-dimensions="754x456" data-image-focal-point="0.5,0.5" alt="Screen Shot 2017-10-28 at 4.41.25 PM.png" data-load="false" data-image-id="59f507ec53450a1e3bb163a3" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>We also have a show page for our genres:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:624px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:63.14102554321289%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509230592231-SMF2MIXKSJ84Q058KOLO/ke17ZwdGBToddI8pDm48kDkGnctT6E9Nx4wDdRz9nPRZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpyrRfQoCPmVqopeMwO76rhPVWKrd-dFaBhqehhFYQmHRawAjz-qVz6tAy09UZ555Cs/Screen+Shot+2017-10-28+at+4.41.35+PM.png" alt="Screen Shot 2017-10-28 at 4.41.35 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509230592231-SMF2MIXKSJ84Q058KOLO/ke17ZwdGBToddI8pDm48kDkGnctT6E9Nx4wDdRz9nPRZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpyrRfQoCPmVqopeMwO76rhPVWKrd-dFaBhqehhFYQmHRawAjz-qVz6tAy09UZ555Cs/Screen+Shot+2017-10-28+at+4.41.35+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509230592231-SMF2MIXKSJ84Q058KOLO/ke17ZwdGBToddI8pDm48kDkGnctT6E9Nx4wDdRz9nPRZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpyrRfQoCPmVqopeMwO76rhPVWKrd-dFaBhqehhFYQmHRawAjz-qVz6tAy09UZ555Cs/Screen+Shot+2017-10-28+at+4.41.35+PM.png" data-image-dimensions="624x394" data-image-focal-point="0.5,0.5" alt="Screen Shot 2017-10-28 at 4.41.35 PM.png" data-load="false" data-image-id="59f507ff652dea26878d0f05" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>We can edit a genre:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:682px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:63.04985427856445%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509230636836-GTTMEC6WCJZRDVHWBXTO/ke17ZwdGBToddI8pDm48kIa2Rtt4aohw9G5OnyxID7RZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpyFdzBRDNGybZXYBrwHUPT6-Nl20uu9n_g1OIV7JMe0PkbY5YjGa8c0qhIbd0SidfA/Screen+Shot+2017-10-28+at+4.41.55+PM.png" alt="Screen Shot 2017-10-28 at 4.41.55 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509230636836-GTTMEC6WCJZRDVHWBXTO/ke17ZwdGBToddI8pDm48kIa2Rtt4aohw9G5OnyxID7RZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpyFdzBRDNGybZXYBrwHUPT6-Nl20uu9n_g1OIV7JMe0PkbY5YjGa8c0qhIbd0SidfA/Screen+Shot+2017-10-28+at+4.41.55+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509230636836-GTTMEC6WCJZRDVHWBXTO/ke17ZwdGBToddI8pDm48kIa2Rtt4aohw9G5OnyxID7RZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpyFdzBRDNGybZXYBrwHUPT6-Nl20uu9n_g1OIV7JMe0PkbY5YjGa8c0qhIbd0SidfA/Screen+Shot+2017-10-28+at+4.41.55+PM.png" data-image-dimensions="682x430" data-image-focal-point="0.5,0.5" alt="Screen Shot 2017-10-28 at 4.41.55 PM.png" data-load="false" data-image-id="59f5082c53450a1e3bb167ee" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>We can see a list of all of our genres:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:770px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:62.85714340209961%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509230666260-GMUX41QN0WWI5CG4KQ2V/ke17ZwdGBToddI8pDm48kELFsv2N7a7Epa81ivYft4ZZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PILRUuNkKkWqREFMdffguzZ_uPdUFDAS7XABPOvaoUE0U/Screen+Shot+2017-10-28+at+4.42.25+PM.png" alt="Screen Shot 2017-10-28 at 4.42.25 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509230666260-GMUX41QN0WWI5CG4KQ2V/ke17ZwdGBToddI8pDm48kELFsv2N7a7Epa81ivYft4ZZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PILRUuNkKkWqREFMdffguzZ_uPdUFDAS7XABPOvaoUE0U/Screen+Shot+2017-10-28+at+4.42.25+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509230666260-GMUX41QN0WWI5CG4KQ2V/ke17ZwdGBToddI8pDm48kELFsv2N7a7Epa81ivYft4ZZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PILRUuNkKkWqREFMdffguzZ_uPdUFDAS7XABPOvaoUE0U/Screen+Shot+2017-10-28+at+4.42.25+PM.png" data-image-dimensions="770x484" data-image-focal-point="0.5,0.5" alt="Screen Shot 2017-10-28 at 4.42.25 PM.png" data-load="false" data-image-id="59f5084a71c10b247ddb7141" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>And we can delete a genre by clicking the Destroy link</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:692px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:72.25433349609375%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509230717974-2HN3LGZWC6HOGEMZ8TJO/ke17ZwdGBToddI8pDm48kOo3dI9IRjTs6ibO_60B3UlZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpzwCBKxw5-eK1_KMUErWQnHZcGO7kXafljtfyYtZqJedTKLsL5KwOUK3f_hohGMZZw/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509230717974-2HN3LGZWC6HOGEMZ8TJO/ke17ZwdGBToddI8pDm48kOo3dI9IRjTs6ibO_60B3UlZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpzwCBKxw5-eK1_KMUErWQnHZcGO7kXafljtfyYtZqJedTKLsL5KwOUK3f_hohGMZZw/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509230717974-2HN3LGZWC6HOGEMZ8TJO/ke17ZwdGBToddI8pDm48kOo3dI9IRjTs6ibO_60B3UlZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpzwCBKxw5-eK1_KMUErWQnHZcGO7kXafljtfyYtZqJedTKLsL5KwOUK3f_hohGMZZw/image-asset.png" data-image-dimensions="692x500" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="59f5087d41920221549b099c" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p> </p>
+<h2>Validations</h2>
+<p>Just like with our author model, we'll want to add some database validations to make sure that we do not end up with duplicate genres or blank genres without names.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/models/genre_spec.rb</span>
+require <span style="color:#0000e6; ">'rails_helper'</span>
+
+RSpec<span style="color:#808030; ">.</span>describe Genre<span style="color:#808030; ">,</span> <span style="color:#005fd2; ">type</span>: :<span style="color:#005fd2; ">model</span><span style="color:#800000; font-weight:bold; "> do</span>
+  describe <span style="color:#0000e6; ">"validations"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    it <span style="color:#800080; ">{</span> should validate_presence_of<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">name</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span>
+    it <span style="color:#800080; ">{</span> should validate_uniqueness_of<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">name</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Again, we will use the shoulda_matcher gem to validate that the genre name must exist and be unique. Running the above tests will give us:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1682px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:46.73008346557617%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509223721125-A0BVN5R6UQLMFBWST8EG/ke17ZwdGBToddI8pDm48kE2gV2imZq2qpaiysmfeoFEUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dgawQ3qF81JxNAt-txbE8A7SsiBr2LBxLaas9Q0qoTEGCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509223721125-A0BVN5R6UQLMFBWST8EG/ke17ZwdGBToddI8pDm48kE2gV2imZq2qpaiysmfeoFEUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dgawQ3qF81JxNAt-txbE8A7SsiBr2LBxLaas9Q0qoTEGCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509223721125-A0BVN5R6UQLMFBWST8EG/ke17ZwdGBToddI8pDm48kE2gV2imZq2qpaiysmfeoFEUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dgawQ3qF81JxNAt-txbE8A7SsiBr2LBxLaas9Q0qoTEGCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1682x786" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="59f4ed246c31940534353af0" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>To implement these validations on our model we will add the following code to our genre.rb file.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># models/genre.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> Genre &lt; ApplicationRecord
+  validates_presence_of :<span style="color:#005fd2; ">name</span>
+  validates_uniqueness_of :<span style="color:#005fd2; ">name</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<h3>Fiction vs. NonfictION</h3>
+<p>It would also be nice to be able to ask a genre if it is fiction or nonfiction and have it return a boolean answer. Let's write tests for fiction? and nonfiction? methods on our genre model.</p>
+<pre style="color:#000000;background:#ffffff;">describe <span style="color:#0000e6; ">"#fiction?"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    context <span style="color:#0000e6; ">"when a genre is fictional"</span><span style="color:#800000; font-weight:bold; "> do</span>
+      let<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">genre</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> create :<span style="color:#005fd2; ">genre</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">fiction</span>: <span style="color:#800000; font-weight:bold; ">true</span> <span style="color:#800080; ">}</span>
+
+      it <span style="color:#0000e6; ">"returns true"</span><span style="color:#800000; font-weight:bold; "> do</span>
+        expect<span style="color:#808030; ">(</span>genre<span style="color:#808030; ">.</span>fiction?<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq <span style="color:#800000; font-weight:bold; ">true</span>
+      <span style="color:#800000; font-weight:bold; ">end</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+
+    context <span style="color:#0000e6; ">"when a genre is nonfiction"</span><span style="color:#800000; font-weight:bold; "> do</span>
+      let<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">genre</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> create :<span style="color:#005fd2; ">genre</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">fiction</span>: <span style="color:#800000; font-weight:bold; ">false</span> <span style="color:#800080; ">}</span>
+
+      it <span style="color:#0000e6; ">"returns true"</span><span style="color:#800000; font-weight:bold; "> do</span>
+        expect<span style="color:#808030; ">(</span>genre<span style="color:#808030; ">.</span>fiction?<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq <span style="color:#800000; font-weight:bold; ">false</span>
+      <span style="color:#800000; font-weight:bold; ">end</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  describe <span style="color:#0000e6; ">"#nonfiction?"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    context <span style="color:#0000e6; ">"when a genre is fictional"</span><span style="color:#800000; font-weight:bold; "> do</span>
+      let<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">genre</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> create :<span style="color:#005fd2; ">genre</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">fiction</span>: <span style="color:#800000; font-weight:bold; ">true</span> <span style="color:#800080; ">}</span>
+
+      it <span style="color:#0000e6; ">"returns true"</span><span style="color:#800000; font-weight:bold; "> do</span>
+        expect<span style="color:#808030; ">(</span>genre<span style="color:#808030; ">.</span>nonfiction?<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq <span style="color:#800000; font-weight:bold; ">false</span>
+      <span style="color:#800000; font-weight:bold; ">end</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+
+    context <span style="color:#0000e6; ">"when a genre is nonfiction"</span><span style="color:#800000; font-weight:bold; "> do</span>
+      let<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">genre</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> create :<span style="color:#005fd2; ">genre</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">fiction</span>: <span style="color:#800000; font-weight:bold; ">false</span> <span style="color:#800080; ">}</span>
+
+      it <span style="color:#0000e6; ">"returns true"</span><span style="color:#800000; font-weight:bold; "> do</span>
+        expect<span style="color:#808030; ">(</span>genre<span style="color:#808030; ">.</span>nonfiction?<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq <span style="color:#800000; font-weight:bold; ">true</span>
+      <span style="color:#800000; font-weight:bold; ">end</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Our tests expect genre to have a fiction? and nonfiction? method which return true or false if the genre being questioned falls into their respective categories. We set up a fiction genre by creating a genre with factory bot and setting fiction to be true. We set fiction to be false for our non fiction genre. The name of the genre does not matter for our purpose here.</p>
+<p>Running our tests now will give us four undefined method errors for the four tests we added. We can go ahead and define these methods in our genre file:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1304px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:45.245399475097656%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509224696344-GW09FYLUOHUGIBKQ4SAQ/ke17ZwdGBToddI8pDm48kGrtxxhVpJnYOgo3eYxZ8-QUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcwurS6B0-1M-EtsOy5ZruvS6om-T1BkuApSK9-kbi5S-c1BU0AzO6fe1dbbI2IN3j/Screen+Shot+2017-10-28+at+3.04.44+PM.png" alt="Screen Shot 2017-10-28 at 3.04.44 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509224696344-GW09FYLUOHUGIBKQ4SAQ/ke17ZwdGBToddI8pDm48kGrtxxhVpJnYOgo3eYxZ8-QUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcwurS6B0-1M-EtsOy5ZruvS6om-T1BkuApSK9-kbi5S-c1BU0AzO6fe1dbbI2IN3j/Screen+Shot+2017-10-28+at+3.04.44+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509224696344-GW09FYLUOHUGIBKQ4SAQ/ke17ZwdGBToddI8pDm48kGrtxxhVpJnYOgo3eYxZ8-QUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcwurS6B0-1M-EtsOy5ZruvS6om-T1BkuApSK9-kbi5S-c1BU0AzO6fe1dbbI2IN3j/Screen+Shot+2017-10-28+at+3.04.44+PM.png" data-image-dimensions="1304x590" data-image-focal-point="0.5,0.5" alt="Screen Shot 2017-10-28 at 3.04.44 PM.png" data-load="false" data-image-id="59f4f0f764265f811b346fd1" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># models/genre.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> Genre &lt; ApplicationRecord
+  validates_presence_of :<span style="color:#005fd2; ">name</span>
+  validates_uniqueness_of :<span style="color:#005fd2; ">name</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> fiction?
+
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> nonfiction?
+
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>These methods all return nil when we run our tests:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1606px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:97.63387298583984%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509226006478-G26D2Y0PNXFWPXDVWCWM/ke17ZwdGBToddI8pDm48kFlLO6GY5xk9eRU2q27gLAl7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UcY8fL3GWDzx7GKpWpIhbapp7XMxzF5QsEaVudeA8NOwJvwGh1qtNWvMhYKnvaKhbA/Screen+Shot+2017-10-28+at+3.26.19+PM.png" alt="Screen Shot 2017-10-28 at 3.26.19 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509226006478-G26D2Y0PNXFWPXDVWCWM/ke17ZwdGBToddI8pDm48kFlLO6GY5xk9eRU2q27gLAl7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UcY8fL3GWDzx7GKpWpIhbapp7XMxzF5QsEaVudeA8NOwJvwGh1qtNWvMhYKnvaKhbA/Screen+Shot+2017-10-28+at+3.26.19+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509226006478-G26D2Y0PNXFWPXDVWCWM/ke17ZwdGBToddI8pDm48kFlLO6GY5xk9eRU2q27gLAl7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UcY8fL3GWDzx7GKpWpIhbapp7XMxzF5QsEaVudeA8NOwJvwGh1qtNWvMhYKnvaKhbA/Screen+Shot+2017-10-28+at+3.26.19+PM.png" data-image-dimensions="1606x1568" data-image-focal-point="0.5,0.5" alt="Screen Shot 2017-10-28 at 3.26.19 PM.png" data-load="false" data-image-id="59f4f614c83025bbac0a1661" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>To implement our fiction? and nonfiction? methods we just have to invoke and negate respectively the fiction attribute of the genre model, which is already a boolean.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># models/genre.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> Genre &lt; ApplicationRecord
+  validates_presence_of :<span style="color:#005fd2; ">name</span>
+  validates_uniqueness_of :<span style="color:#005fd2; ">name</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> fiction?
+    fiction
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> nonfiction?
+    !fiction
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<h2>Scopes</h2>
+<p>If we imagine wanting to review reading metrics grouped by fiction and non fiction genres, we can move forward and implement these categories as scopes on the genre model. The goal here is to be able to say Genre.fiction or Genre.nonfiction and get all the fiction and nonfiction genres back respectively. Let's start with a test:</p>
+<pre style="color:#000000;background:#ffffff;">describe <span style="color:#0000e6; ">"Scopes"</span><span style="color:#800000; font-weight:bold; "> do</span>
+  let!<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">fiction</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> create :<span style="color:#005fd2; ">genre</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">name</span>: <span style="color:#0000e6; ">'Science Fiction'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">fiction</span>: <span style="color:#800000; font-weight:bold; ">true</span> <span style="color:#800080; ">}</span>
+  let!<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">nonfiction</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> create :<span style="color:#005fd2; ">genre</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">name</span>: <span style="color:#0000e6; ">'Biology'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">fiction</span>: <span style="color:#800000; font-weight:bold; ">false</span> <span style="color:#800080; ">}</span>
+
+  describe <span style="color:#0000e6; ">"fiction"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    let<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">result</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> described_class<span style="color:#808030; ">.</span>fiction <span style="color:#800080; ">}</span>
+
+    it <span style="color:#0000e6; ">"returns all fictional genres"</span><span style="color:#800000; font-weight:bold; "> do</span>
+      expect<span style="color:#808030; ">(</span>result<span style="color:#808030; ">.</span><span style="color:#400000; ">count</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq <span style="color:#008c00; ">1</span>
+      expect<span style="color:#808030; ">(</span>result<span style="color:#808030; ">.</span><span style="color:#400000; ">first</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq fiction
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  describe <span style="color:#0000e6; ">"nonfiction"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    let<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">result</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> described_class<span style="color:#808030; ">.</span>nonfiction <span style="color:#800080; ">}</span>
+    
+    it <span style="color:#0000e6; ">"returns all nonfiction genres"</span><span style="color:#800000; font-weight:bold; "> do</span>
+      expect<span style="color:#808030; ">(</span>result<span style="color:#808030; ">.</span><span style="color:#400000; ">count</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq <span style="color:#008c00; ">1</span>
+      expect<span style="color:#808030; ">(</span>result<span style="color:#808030; ">.</span><span style="color:#400000; ">first</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq nonfiction
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>In our test we will create two genres, one fiction and the other non fiction. Notice that we are using let! (bang), which forces this creation before each test instead of lazily instantiating these variables. The keyword let without the bang lazily instantiates the variable once it is called later on in the test.</p>
+<p>Next, we expect that when we call fiction on our described_class, Genre we get back a Genre::ActiveRecord_Relation with a count of one. When we explore the only genre returned in our relation (.first) we expect it to equal the fiction genre in the case of the fiction scope test and the nonfiction genre in the case of the nonfiction scope test.</p>
+<p>When we run this test we will get two undefined method errors because the class Genre does not have a method fiction or nonfiction at this point.</p>
+<p>We can use some Rails syntactic sugar to create our scopes by adding the following:</p>
+<pre style="color:#000000;background:#ffffff;">scope :<span style="color:#005fd2; ">fiction</span><span style="color:#808030; ">,</span> <span style="color:#808030; ">-</span>&gt; <span style="color:#800080; ">{</span> where<span style="color:#808030; ">(</span><span style="color:#005fd2; ">fiction</span>: <span style="color:#800000; font-weight:bold; ">true</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span>
+scope :<span style="color:#005fd2; ">nonfiction</span><span style="color:#808030; ">,</span> <span style="color:#808030; ">-</span>&gt; <span style="color:#800080; ">{</span> where<span style="color:#808030; ">(</span><span style="color:#005fd2; ">fiction</span>: <span style="color:#800000; font-weight:bold; ">false</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span>
+</pre>
+<p>Which is shorthand for:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> self.fiction
+  where<span style="color:#808030; ">(</span><span style="color:#005fd2; ">fiction</span>: <span style="color:#800000; font-weight:bold; ">true</span><span style="color:#808030; ">)</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">def</span> self.nonfiction
+  where<span style="color:#808030; ">(</span><span style="color:#005fd2; ">fiction</span>: <span style="color:#800000; font-weight:bold; ">false</span><span style="color:#808030; ">)</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Either implementation will pass our tests. The scope syntax is nice because it becomes easy to group scopes like these at the top of a model file for easy reference in the future.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:882px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:34.46711730957031%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509227449491-GIN0IM14H9ZD3N55SK9A/ke17ZwdGBToddI8pDm48kK29NZUztudJcJMFdbKBHnxZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIA3DhD6qvvWRNR-gWpYHMTafDZUno-LHuHRHVBj5uY0w/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509227449491-GIN0IM14H9ZD3N55SK9A/ke17ZwdGBToddI8pDm48kK29NZUztudJcJMFdbKBHnxZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIA3DhD6qvvWRNR-gWpYHMTafDZUno-LHuHRHVBj5uY0w/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509227449491-GIN0IM14H9ZD3N55SK9A/ke17ZwdGBToddI8pDm48kK29NZUztudJcJMFdbKBHnxZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIA3DhD6qvvWRNR-gWpYHMTafDZUno-LHuHRHVBj5uY0w/image-asset.png" data-image-dimensions="882x304" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="59f4fbb9c83025bbac0a85d5" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>You can start from this point of the live blog journey by cloning / forking<a target="_blank" href="https://github.com/PlanetEfficacy/bookshelf/tree/iteration_3_gentres"> </a><a target="_blank" href="https://github.com/PlanetEfficacy/bookshelf/tree/iteration_3_gentres">this branch of my bookshelf repo</a><a target="_blank" href="https://github.com/PlanetEfficacy/bookshelf/tree/iteration_3_gentres">.</a></p>
+<p>Next we'll be creating books for our bookshelf. Thanks for reading!</p>
+</body></html>

@@ -1,0 +1,170 @@
+---
+layout: post
+title: How to Create a Gmail Filter with Google Apps Script
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '106'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p>I get junk email all the time. Lately I've taken to creating filters in gmail based on the sender of the email. In this guide I will walk through a Google Apps Script function I wrote to repeat this repetitive email cleansing ritual.</p>
+<p>With this script, instead of creating a filter for an email, I just label the email 'filter' (this could be any label you want). I set the script to run every ten minutes (<a target="_blank" href="https://developers.google.com/apps-script/guides/triggers/installable#managing_triggers_manually">here's how</a>) and scans my inbox for threads labeled 'filter'.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          combination-animation-none
+          individual-animation-none
+          individual-text-animation-none
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1730px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:31.2138729095459%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image">
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1536292473557-NAUKMABSAR160M3P6E0H/ke17ZwdGBToddI8pDm48kEx5_3oCjKcYTj4mlEKthVgUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dlzb3C5JOEFXvGydzecHYauNdrp5r81ApfOpGfkpjANfCjLISwBs8eEdxAxTptZAUg/Screen+Shot+2018-09-06+at+11.53.47+PM.png" alt="Screen Shot 2018-09-06 at 11.53.47 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1536292473557-NAUKMABSAR160M3P6E0H/ke17ZwdGBToddI8pDm48kEx5_3oCjKcYTj4mlEKthVgUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dlzb3C5JOEFXvGydzecHYauNdrp5r81ApfOpGfkpjANfCjLISwBs8eEdxAxTptZAUg/Screen+Shot+2018-09-06+at+11.53.47+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1536292473557-NAUKMABSAR160M3P6E0H/ke17ZwdGBToddI8pDm48kEx5_3oCjKcYTj4mlEKthVgUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dlzb3C5JOEFXvGydzecHYauNdrp5r81ApfOpGfkpjANfCjLISwBs8eEdxAxTptZAUg/Screen+Shot+2018-09-06+at+11.53.47+PM.png" data-image-dimensions="1730x540" data-image-focal-point="0.5,0.5" alt="Screen Shot 2018-09-06 at 11.53.47 PM.png" data-load="false" data-image-id="5b91f679575d1f6f954d2799" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>It then creates a new filter based on the sender's address of the email message. All future emails from the same sender will automatically skip my inbox, get marked as read and archived. The script then applies these same actions on the email labeled 'filter'.</p>
+<p>The hardest part of writing this script was understanding how to actually set up a filter with Google App Script. To do so requires using the <a target="_blank" href="https://developers.google.com/apps-script/advanced/gmail">Advanced Gmail Service</a>.</p>
+<p>All told this script saves me about 10 seconds of time per email filter I would have otherwise created manually, so probably a few minutes a month, a few hours a year. Time well spent.</p>
+<p>You can also access this script on <a target="_blank" href="https://github.com/PlanetEfficacy/gmailFilter">github</a>.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; ">/*</span>
+<span style="color:#696969; ">  This function is meant to run on a time-based trigger (I have it set for every 10 minutes).</span>
+<span style="color:#696969; ">  </span>
+<span style="color:#696969; ">  When run, the function will create a filter</span>
+<span style="color:#696969; ">  for all emails with the same sender as the email thread labeled 'filter'.</span>
+<span style="color:#696969; ">  </span>
+<span style="color:#696969; ">  The filter will automatically mark all future emails from the sender as read and archive them.</span>
+<span style="color:#696969; "></span>
+<span style="color:#696969; ">  The script will apply the same actions (mark as read, and archive) to the email labeled fitler.</span>
+<span style="color:#696969; ">  </span>
+<span style="color:#696969; ">  For this function to run correctly you must enable the Advanced Gmail Service</span>
+<span style="color:#696969; ">  see: https://developers.google.com/apps-script/advanced/gmail</span>
+<span style="color:#696969; ">*/</span>
+<span style="color:#800000; font-weight:bold; ">function</span> createFilters<span style="color:#808030; ">(</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span>  
+  <span style="color:#696969; ">// Wrap the entire function in a try / catch, in case there is an error, log it.</span>
+  <span style="color:#800000; font-weight:bold; ">try</span> <span style="color:#800080; ">{</span>
+    
+    <span style="color:#696969; ">// Get the most recent 50 threads in your inbox</span>
+    <span style="color:#800000; font-weight:bold; ">var</span> threads <span style="color:#808030; ">=</span> GmailApp<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">search</span><span style="color:#808030; ">(</span><span style="color:#800000; ">"</span><span style="color:#0000e6; ">in:inbox</span><span style="color:#800000; ">"</span><span style="color:#808030; ">,</span> <span style="color:#008c00; ">0</span><span style="color:#808030; ">,</span> <span style="color:#008c00; ">50</span><span style="color:#808030; ">)</span><span style="color:#800080; ">;</span>
+    
+    <span style="color:#696969; ">// If there are threads</span>
+    <span style="color:#800000; font-weight:bold; ">if</span> <span style="color:#808030; ">(</span>threads<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">length</span> <span style="color:#808030; ">&gt;</span> <span style="color:#008c00; ">0</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span>
+      
+      <span style="color:#696969; ">// For each thread</span>
+      <span style="color:#800000; font-weight:bold; ">for</span> <span style="color:#808030; ">(</span><span style="color:#800000; font-weight:bold; ">var</span> t<span style="color:#808030; ">=</span>threads<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">length</span><span style="color:#808030; ">-</span><span style="color:#008c00; ">1</span><span style="color:#800080; ">;</span> t<span style="color:#808030; ">&gt;=</span><span style="color:#008c00; ">0</span><span style="color:#800080; ">;</span> t<span style="color:#808030; ">--</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span>
+        
+        <span style="color:#696969; ">// Get the labels of the thread</span>
+        <span style="color:#800000; font-weight:bold; ">var</span> labels <span style="color:#808030; ">=</span> threads<span style="color:#808030; ">[</span>t<span style="color:#808030; ">]</span><span style="color:#808030; ">.</span>getLabels<span style="color:#808030; ">(</span><span style="color:#808030; ">)</span><span style="color:#800080; ">;</span>
+        
+        <span style="color:#696969; ">// For each label</span>
+        <span style="color:#800000; font-weight:bold; ">for</span> <span style="color:#808030; ">(</span><span style="color:#800000; font-weight:bold; ">var</span> i <span style="color:#800000; font-weight:bold; ">in</span> labels<span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span>
+          
+          <span style="color:#696969; ">// If the label name is 'filter'</span>
+          <span style="color:#696969; ">// If you'd like to use a different filter name, just change the string 'filter' below to whatever you want.</span>
+          <span style="color:#800000; font-weight:bold; ">if</span> <span style="color:#808030; ">(</span>labels<span style="color:#808030; ">[</span>i<span style="color:#808030; ">]</span><span style="color:#808030; ">.</span>getName<span style="color:#808030; ">(</span><span style="color:#808030; ">)</span> <span style="color:#808030; ">==</span> <span style="color:#800000; ">'</span><span style="color:#0000e6; ">filter</span><span style="color:#800000; ">'</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span>
+            
+            <span style="color:#696969; ">// Get the current thread we are iterating over</span>
+            <span style="color:#800000; font-weight:bold; ">var</span> thread <span style="color:#808030; ">=</span> threads<span style="color:#808030; ">[</span>t<span style="color:#808030; ">]</span><span style="color:#800080; ">;</span>
+            
+            <span style="color:#696969; ">// Get the first message in the thread</span>
+            <span style="color:#800000; font-weight:bold; ">var</span> message <span style="color:#808030; ">=</span> thread<span style="color:#808030; ">.</span>getMessages<span style="color:#808030; ">(</span><span style="color:#808030; ">)</span><span style="color:#808030; ">[</span><span style="color:#008c00; ">0</span><span style="color:#808030; ">]</span><span style="color:#800080; ">;</span>
+            
+            <span style="color:#696969; ">// Get the sender's email address</span>
+            <span style="color:#800000; font-weight:bold; ">var</span> from <span style="color:#808030; ">=</span> message<span style="color:#808030; ">.</span>getFrom<span style="color:#808030; ">(</span><span style="color:#808030; ">)</span><span style="color:#800080; ">;</span>
+            
+            <span style="color:#696969; ">// Create a new filter object</span>
+            <span style="color:#800000; font-weight:bold; ">var</span> filter <span style="color:#808030; ">=</span> Gmail<span style="color:#808030; ">.</span>newFilter<span style="color:#808030; ">(</span><span style="color:#808030; ">)</span><span style="color:#800080; ">;</span>
+              
+            <span style="color:#696969; ">/* </span>
+<span style="color:#696969; ">               Filters in gmail have criteria</span>
+<span style="color:#696969; ">               The criteria is the basis on which the filter is applied (e.g. the rule that enables the filter's action).</span>
+<span style="color:#696969; ">               In this case the criteria is that the email is sent from the same address as the sender of the current thread.</span>
+<span style="color:#696969; ">            */</span> 
+            filter<span style="color:#808030; ">.</span>criteria <span style="color:#808030; ">=</span> Gmail<span style="color:#808030; ">.</span>newFilterCriteria<span style="color:#808030; ">(</span><span style="color:#808030; ">)</span><span style="color:#800080; ">;</span>
+            filter<span style="color:#808030; ">.</span>criteria<span style="color:#808030; ">.</span>from <span style="color:#808030; ">=</span> from<span style="color:#800080; ">;</span>
+
+            <span style="color:#696969; ">/* </span>
+<span style="color:#696969; ">               Filters in gmail have actions</span>
+<span style="color:#696969; ">               The action is what will be performed when the criteria is met.</span>
+<span style="color:#696969; ">               In this case the action is that the email is marked as read and archived.</span>
+<span style="color:#696969; ">            */</span> 
+            filter<span style="color:#808030; ">.</span>action <span style="color:#808030; ">=</span> Gmail<span style="color:#808030; ">.</span>newFilterAction<span style="color:#808030; ">(</span><span style="color:#808030; ">)</span><span style="color:#800080; ">;</span>
+            filter<span style="color:#808030; ">.</span>action<span style="color:#808030; ">.</span>removeLabelIds <span style="color:#808030; ">=</span> <span style="color:#808030; ">[</span><span style="color:#800000; ">'</span><span style="color:#0000e6; ">INBOX</span><span style="color:#800000; ">'</span><span style="color:#808030; ">,</span> <span style="color:#800000; ">'</span><span style="color:#0000e6; ">UNREAD</span><span style="color:#800000; ">'</span><span style="color:#808030; ">]</span><span style="color:#800080; ">;</span>
+                        
+            <span style="color:#696969; ">// Log that the filter was created</span>
+            Logger<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">log</span><span style="color:#808030; ">(</span><span style="color:#800000; ">"</span><span style="color:#0000e6; ">Creating Filter </span><span style="color:#800000; ">"</span> <span style="color:#808030; ">+</span> message<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">getDate</span><span style="color:#808030; ">(</span><span style="color:#808030; ">)</span> <span style="color:#808030; ">+</span> <span style="color:#800000; ">"</span><span style="color:#0000e6; ">::</span><span style="color:#800000; ">"</span> <span style="color:#808030; ">+</span> message<span style="color:#808030; ">.</span>getSubject<span style="color:#808030; ">(</span><span style="color:#808030; ">)</span> <span style="color:#808030; ">+</span> <span style="color:#800000; ">"</span><span style="color:#0000e6; "> :: </span><span style="color:#800000; ">"</span> <span style="color:#808030; ">+</span> from<span style="color:#808030; ">)</span><span style="color:#800080; ">;</span>
+            
+            <span style="color:#696969; ">/*</span>
+<span style="color:#696969; ">              get the email address of the person whose account is running the script</span>
+<span style="color:#696969; ">              In my case, this would be me. In your case, this will be your email.</span>
+<span style="color:#696969; ">              We could also just use the string 'myemail@example.com', but I'm trying to avoid putting my personal email</span>
+<span style="color:#696969; ">              in this code.</span>
+<span style="color:#696969; ">            */</span>
+            <span style="color:#800000; font-weight:bold; ">var</span> me <span style="color:#808030; ">=</span> Session<span style="color:#808030; ">.</span>getEffectiveUser<span style="color:#808030; ">(</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>getEmail<span style="color:#808030; ">(</span><span style="color:#808030; ">)</span><span style="color:#800080; ">;</span>
+            
+            <span style="color:#696969; ">// Create the filter</span>
+            Gmail<span style="color:#808030; ">.</span>Users<span style="color:#808030; ">.</span>Settings<span style="color:#808030; ">.</span>Filters<span style="color:#808030; ">.</span>create<span style="color:#808030; ">(</span>filter<span style="color:#808030; ">,</span> me<span style="color:#808030; ">)</span>
+            
+            <span style="color:#696969; ">// Mark the thread as read and archive it</span>
+            thread<span style="color:#808030; ">.</span>markRead<span style="color:#808030; ">(</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>moveToArchive<span style="color:#808030; ">(</span><span style="color:#808030; ">)</span><span style="color:#800080; ">;</span>
+          <span style="color:#800080; ">}</span>
+        <span style="color:#800080; ">}</span>
+      <span style="color:#800080; ">}</span>
+    <span style="color:#800080; ">}</span>
+  <span style="color:#800080; ">}</span> <span style="color:#800000; font-weight:bold; ">catch</span> <span style="color:#808030; ">(</span>e<span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span>
+    Logger<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">log</span><span style="color:#808030; ">(</span>e<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">toString</span><span style="color:#808030; ">(</span><span style="color:#808030; ">)</span><span style="color:#808030; ">)</span><span style="color:#800080; ">;</span>
+  <span style="color:#800080; ">}</span>
+<span style="color:#800080; ">}</span>
+</pre>
+</body></html>

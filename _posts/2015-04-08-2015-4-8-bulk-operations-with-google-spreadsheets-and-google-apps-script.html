@@ -1,0 +1,324 @@
+---
+layout: post
+title: Bulk Operations with Google Spreadsheets and Google Apps Script
+categories:
+- Technical
+tags:
+- Google Apps Scripts
+status: publish
+type: post
+published: true
+meta:
+  structured_content: '{"oembed":{},"overlay":true}'
+  _thumbnail_id: '6'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p>For a current project I need to aggregate student and staff information from many Google Spreadsheets into a Cloud SQL database. The database is the back end for a web application that securely serves this information to the schools in the New Visions for Public Schools network. Opening each spreadsheet, locating the data of interest, copying and pasting the data into a master spreadsheet, downloading the master spreadsheet as a CSV and then uploading it to the database would take too long to make this project feasible especially considering that the process just described would have to be repeated many times throughout the school year as the data frequently changes. As a result of this need and others like it, the New Visions Systems Team uses bulk operation techniques to make a new kind of data and systems driven network support model possible at the scale of 80 district public high schools in New York City serving over 50,000 students.</p>
+<p>A bulk operation is an action performed multiple times in a predictable manner. In the context of Google Drive, examples of bulk operations are anything from renaming to changing the shared settings on a group of files or, more interestingly, pushing or pulling data from a set of uniformly structured Google Spreadsheets. Whether it be at the district, school, or classroom level, those who can employ bulk operation techniques can make new types of work possible because of the reduction in error and improved speed that automatization produces.</p>
+<p>There are three ideas that together comprise the bulk operation technique I employed on my latest project. First is the reliance on a Google Spreadsheet to act as a dashboard for conducting and monitoring the bulk operation. Second, is the use of a spreadsheet bound Google Apps Script to perform the bulk operation itself, and third, is a more object-oriented approach to the writing of bulk operation functions in Google Apps Scripts.</p>
+<h2>Google Spreadsheet Dashboards</h2>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:951px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:25.026288986206055%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1428534662036-VVKXA0OHKO1LWQMID7KQ/ke17ZwdGBToddI8pDm48kLeUq8gfVwJwvGFSMab2I3lZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PI7_SS97QtytjqQeiK_y6lxoUtH5uYBjXqQKKZc734V0g/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1428534662036-VVKXA0OHKO1LWQMID7KQ/ke17ZwdGBToddI8pDm48kLeUq8gfVwJwvGFSMab2I3lZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PI7_SS97QtytjqQeiK_y6lxoUtH5uYBjXqQKKZc734V0g/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1428534662036-VVKXA0OHKO1LWQMID7KQ/ke17ZwdGBToddI8pDm48kLeUq8gfVwJwvGFSMab2I3lZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PI7_SS97QtytjqQeiK_y6lxoUtH5uYBjXqQKKZc734V0g/image-asset.png" data-image-dimensions="951x238" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5525b584e4b05de5ddb4df2b" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p> Google Spreadsheet dashboard gives users control and information through basic spreadsheet functions and design. In this example, I have one row per file that I intend to operate on. These files are represented by their file ids in column C, which makes them easy to access programmatically via:</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:310px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:8.709677696228027%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1428534756037-XE9T2EG2DX6EWIQC3V6Z/ke17ZwdGBToddI8pDm48kEEhocgLwQMjoNaZold5KTnlfiSMXz2YNBs8ylwAJx2qLijIv1YpVq4N1RMuCCrb3iJz4vYg48fcPCuGX417dnbizVLCd1VNeubldt2NPOApNH-J_QLy-koLPky1aKWClAoyyEsAbPHhHcQMU6bWQFI/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1428534756037-XE9T2EG2DX6EWIQC3V6Z/ke17ZwdGBToddI8pDm48kEEhocgLwQMjoNaZold5KTnlfiSMXz2YNBs8ylwAJx2qLijIv1YpVq4N1RMuCCrb3iJz4vYg48fcPCuGX417dnbizVLCd1VNeubldt2NPOApNH-J_QLy-koLPky1aKWClAoyyEsAbPHhHcQMU6bWQFI/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1428534756037-XE9T2EG2DX6EWIQC3V6Z/ke17ZwdGBToddI8pDm48kEEhocgLwQMjoNaZold5KTnlfiSMXz2YNBs8ylwAJx2qLijIv1YpVq4N1RMuCCrb3iJz4vYg48fcPCuGX417dnbizVLCd1VNeubldt2NPOApNH-J_QLy-koLPky1aKWClAoyyEsAbPHhHcQMU6bWQFI/image-asset.png" data-image-dimensions="310x27" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5525b5e3e4b0debd502cf549" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Next, column D gives me control over which rows I intend to operate on through some cell validation and conditional formatting. Finally, columns E, F, and G contain status messages that let me know if an operation has been completed on a given row successfully.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:392px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:30.102041244506836%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1428534932027-5FUZ9GUR3NU50ZQHNH4Z/ke17ZwdGBToddI8pDm48kHPwIEtMQTKv_oTI7VdGzxRZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVGb3E5ZeOErGx-Gza2IZMDy5oJYVVp9ckrY0U7sM4Rvdu87Nsj43NRAr6WuWZv5DKs/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1428534932027-5FUZ9GUR3NU50ZQHNH4Z/ke17ZwdGBToddI8pDm48kHPwIEtMQTKv_oTI7VdGzxRZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVGb3E5ZeOErGx-Gza2IZMDy5oJYVVp9ckrY0U7sM4Rvdu87Nsj43NRAr6WuWZv5DKs/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1428534932027-5FUZ9GUR3NU50ZQHNH4Z/ke17ZwdGBToddI8pDm48kHPwIEtMQTKv_oTI7VdGzxRZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVGb3E5ZeOErGx-Gza2IZMDy5oJYVVp9ckrY0U7sM4Rvdu87Nsj43NRAr6WuWZv5DKs/image-asset.png" data-image-dimensions="392x118" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5525b693e4b08a049b724914" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>The Google Spreadsheet dashboard contains a bound Google Apps Script file that adds a <a href="https://developers.google.com/apps-script/guides/menus">custom menu</a> to the dashboard called “Batch Set Records”, which gives me the ability to call the two operations I need to perform without having to open the script editor.</p>
+<h2>Spreadsheet Bound Google Apps Script</h2>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:857px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:55.65927505493164%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1428534832809-GV6N9Z3V7I0A1O16GDWC/ke17ZwdGBToddI8pDm48kAQQ4yyDuwAScQNHO0-aWa9Zw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIIqw833d40JvYD2s8Hf2V_mVFUSLNMOhVLIAJkmm8A2A/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1428534832809-GV6N9Z3V7I0A1O16GDWC/ke17ZwdGBToddI8pDm48kAQQ4yyDuwAScQNHO0-aWa9Zw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIIqw833d40JvYD2s8Hf2V_mVFUSLNMOhVLIAJkmm8A2A/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1428534832809-GV6N9Z3V7I0A1O16GDWC/ke17ZwdGBToddI8pDm48kAQQ4yyDuwAScQNHO0-aWa9Zw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIIqw833d40JvYD2s8Hf2V_mVFUSLNMOhVLIAJkmm8A2A/image-asset.png" data-image-dimensions="857x477" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5525b62ee4b0788926c23f3a" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>The above code is one of two operations I needed to perform on the files listed in the dashboard. This function loops through each row of the dashboard spreadsheet and evaluates whether or not the condition for performing the operation has been met. In this case the condition is that column D, “Add Data to Dashboard”, must say “Yes” and the status column F must be blank for a row to be acted upon. In this way I can run the bulk process and control which rows the script acts upon directly from the Spreadsheet. When the script finds a row that meets the condition, it performs an operation called “batchSetWhiteListEntry” which grabs all of the staff members listed on the spreadsheet file being acted on and adds them to the database. After performing the operation the script captures whether or not the action was performed successfully and writes a status message back to the spreadsheet dashboard.</p>
+<p>There are two reasons to include a status column. First, it is important to know whether or not a file has been operated on successfully, especially because the operation may not actually change the file itself. In other words, I could not easily open each spreadsheet file containing staff member information for the database and quickly see if the information was pulled by the script into the database without having the script itself report back and record it’s success or failure.</p>
+<p>The second reason for including a status message is perhaps less obvious. Google Apps Scripts can run for six minutes before timing out. This bulk operation will absolutely take longer than six minutes, so the status column serves as a place marker. I can run the script over and over with a time trigger until all the jobs are complete. Each time the script runs, it will skip over any rows containing status messages until all rows have been operated on.</p>
+<h2>Using Object Oriented Code</h2>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:781px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:37.5160026550293%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1428535661693-W88T13MOKD6VO7TEFZ86/ke17ZwdGBToddI8pDm48kPmD6NwMfw76pChmOY2-QndZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIt1XIDxFUzOVuGixTk_SVhHF-Nffx6yivK7W0DJVqANM/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1428535661693-W88T13MOKD6VO7TEFZ86/ke17ZwdGBToddI8pDm48kPmD6NwMfw76pChmOY2-QndZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIt1XIDxFUzOVuGixTk_SVhHF-Nffx6yivK7W0DJVqANM/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1428535661693-W88T13MOKD6VO7TEFZ86/ke17ZwdGBToddI8pDm48kPmD6NwMfw76pChmOY2-QndZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIt1XIDxFUzOVuGixTk_SVhHF-Nffx6yivK7W0DJVqANM/image-asset.png" data-image-dimensions="781x293" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5525b96be4b0bd5f7400b40a" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>I’m excited to be attempting my current best guess at object oriented code with Google Apps Script. This is in large part due to a few conversations I had with <a href="https://plus.google.com/105880036084283414072/posts">Jared Carrano</a>, the maintainer of <a target="_blank" href="http://cloudlab.newvisions.org/add-ons/autocrat">AutoCrat</a>, who is a little further ahead on his object-oriented journey. I am by no means an expert on this, but I see a big advantage in this approach over what I have done in the past. In the past, I would call the spreadsheet, sheet, headers, and spreadsheet data in all of my functions. If I were to apply this old approach in this project where I have two bulk operation functions, I’d need to repeat the code to get the spreadsheet data two times because both bulk operation functions need that data.</p>
+<p>With a more object-oriented approach, I create a global variable that is equal to a function. This function is an object constructor; whenever it gets called it builds an object that contains the spreadsheet dashboard, the sheet, the data from the dashboard sheet, and the headers all in an easy to access form. Because I define the function globally, it can be called by any subsequent function. Instead of including these lines of code in each of my bulk operation functions, I can just instantiate a new ‘DashboardObject’ that contains all of the spreadsheet data from the dashboard that I need for my function to work. The result is fewer lines of code that are more modular and easier to maintain or hand off to another developer.</p>
+<h2>Final thoughts</h2>
+<p>At New Visions we are pursuing a vision of educators as builders of open-source tools. My hope is that by sharing some of the techniques that make up our bulk process quiver, we will be able to help other educators more fully leverage the Google Apps platform and better serve students. By combining a spreadsheet dashboard, a spreadsheet bound script, and some elementary object-oriented code, I’m able to do work that would otherwise not be possible - continuously aggregate data back from multiple spreadsheets in order to make the data more usable for the educators I help. I did not invent this technique. I’m standing on the shoulders of my team, <a href="https://plus.google.com/+AndrewStillmanNVPS/posts">Andrew Stillman</a>, <a href="https://plus.google.com/105880036084283414072/posts">Jared Carrano</a>, and <a href="https://plus.google.com/+DanielleScaramellino/posts">Danielle Scarmellino</a> each of whom have employed a similar technique to help schools audit their student programs, create exam schedules, plan for graduation, and much more.</p>
+<p> </p>
+</body></html>

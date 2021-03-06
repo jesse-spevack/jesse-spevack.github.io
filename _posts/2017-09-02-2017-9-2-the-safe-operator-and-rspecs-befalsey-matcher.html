@@ -1,0 +1,64 @@
+---
+layout: post
+title: The Safe Operator and Rspec's be_falsey Matcher
+categories: []
+tags: []
+status: draft
+type: post
+published: false
+meta:
+  _thumbnail_id: '88'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p>The Ruby Safe Operator is one of the languages many pieces of syntactic sugar. Imagine we are coding a restaurant. Our restaurant has a model for each ingredient that comes into the kitchen. Each of our our ingredients may have a prep method if it requires some preparation before being used in a recipe.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> Onion
+  attr_reader :<span style="color:#005fd2; ">prepped</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> initialize
+    @prepped <span style="color:#808030; ">=</span> <span style="color:#800000; font-weight:bold; ">false</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> prep
+    @prepped <span style="color:#808030; ">=</span> <span style="color:#800000; font-weight:bold; ">true</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Some ingredients do not require preparation, so they do not have a prep method.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> Salt
+  <span style="color:#800000; font-weight:bold; ">def</span> sprinkle
+    <span style="color:#400000; ">puts</span> <span style="color:#0000e6; ">"Seasoning this dish!"</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Imagine we have a recipe class that is instantiated with an array of ingredients that we need to complete the recipe. Our recipe class has its own prepare_ingredients method that iterates over each ingredient to prep. </p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> Recipe
+  attr_reader :<span style="color:#005fd2; ">ingredients</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> initialize(ingredients)
+    @ingredients <span style="color:#808030; ">=</span> ingredients
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> prepare_ingredients
+    ingredients<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">each</span> <span style="color:#800080; ">{</span> |ingredient| ingredient<span style="color:#808030; ">.</span>prep <span style="color:#800080; ">}</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Let's make some pizza!</p>
+<pre style="color:#000000;background:#ffffff;">tomato_sauce <span style="color:#808030; ">=</span> TomatoSauce<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+cheese <span style="color:#808030; ">=</span> Cheese<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+dough <span style="color:#808030; ">=</span> Dough<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+pepper <span style="color:#808030; ">=</span> Pepper<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+onion <span style="color:#808030; ">=</span> Onion<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+salt <span style="color:#808030; ">=</span> Salt<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+pizza_recipe <span style="color:#808030; ">=</span> Recipe<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#808030; ">[</span>tomato_sauce<span style="color:#808030; ">,</span> cheese<span style="color:#808030; ">,</span> dough<span style="color:#808030; ">,</span> pepper<span style="color:#808030; ">,</span> onion<span style="color:#808030; ">,</span> salt<span style="color:#808030; ">]</span><span style="color:#808030; ">)</span>
+pizza_recipe<span style="color:#808030; ">.</span>prepare_ingredients
+</pre>
+<p>Do you see the problem? Once we try to call prep on salt, we are going to get an undefined method error because there is no prep method on that ingredient.</p>
+<p>Lets re-write the prepare_ingredients method using the safe operator, '&amp;.' to avoid the undefined method error.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> prepare_ingredients
+  ingredients<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">each</span> <span style="color:#800080; ">{</span> |ingredient ingredient&amp;<span style="color:#808030; ">.</span>prep <span style="color:#800080; ">}</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Adding the safe operator is saying try to call the method 'prep' on the ingredient. If the method exists, </p>
+</body></html>

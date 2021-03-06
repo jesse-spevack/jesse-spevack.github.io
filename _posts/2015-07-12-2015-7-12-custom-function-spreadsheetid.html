@@ -1,0 +1,276 @@
+---
+layout: post
+title: 'Custom Function: spreadsheetId()'
+categories:
+- Technical
+tags:
+- Google Spreadsheets
+- Google Apps Scripts
+- Custom Functions
+status: publish
+type: post
+published: true
+meta: {}
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p>A reader requested a custom function for getting the id of the current spreadsheet. This would be useful in conjunction with the importrange() function discussed in a previous post: "<a target="_blank" href="http://www.jessespevack.com/systems-leadership/2015/4/22/pulling-spreadsheet-data-no-scripts-required">Pulling Spreadsheet Data: No Scripts Required</a>."</p>
+<p>In the example below we see cell A1 reads "This Spreadsheet Id is" and cell B1 includes the custom function "=spreadsheetId()" which outputs the id of the current spreadsheet. </p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:600px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:27.5%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1436741455694-16WRYFM4XEHPBH054EYZ/ke17ZwdGBToddI8pDm48kEZbGpYwq0u7dEIg-Wx-b-dZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpwNUhfjprd5sZyGnXY40Ija0GSDSYbo2xVrjHj3Il6z3-cgcwwnzW3q1U6iVehp7lY/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1436741455694-16WRYFM4XEHPBH054EYZ/ke17ZwdGBToddI8pDm48kEZbGpYwq0u7dEIg-Wx-b-dZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpwNUhfjprd5sZyGnXY40Ija0GSDSYbo2xVrjHj3Il6z3-cgcwwnzW3q1U6iVehp7lY/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1436741455694-16WRYFM4XEHPBH054EYZ/ke17ZwdGBToddI8pDm48kEZbGpYwq0u7dEIg-Wx-b-dZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpwNUhfjprd5sZyGnXY40Ija0GSDSYbo2xVrjHj3Il6z3-cgcwwnzW3q1U6iVehp7lY/image-asset.png" data-image-dimensions="600x165" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="55a2ef4ee4b0417147bc1d09" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h2>Set Up:</h2>
+<ul>
+<li>Open a Google Spreadsheet</li>
+<li>Click "Tools" and then "Script Editor"</li>
+<li>Give the new script project a name by clicking "Untitled Project" at the top right, just like one does when renaming a Google document. In this example, I've used the name "custom functions."</li>
+</ul>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:486px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:39.71193313598633%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1436741781485-VQOYFBS55M5HEVQQCR29/ke17ZwdGBToddI8pDm48kL5jn1yxaC9nmg5qYH5pGQtZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVEzQvgim-McfYduM8dbg08pIljPru440GnqX6TEtiN17WbSd6kfRtgWHgNMDgGnmDY/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1436741781485-VQOYFBS55M5HEVQQCR29/ke17ZwdGBToddI8pDm48kL5jn1yxaC9nmg5qYH5pGQtZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVEzQvgim-McfYduM8dbg08pIljPru440GnqX6TEtiN17WbSd6kfRtgWHgNMDgGnmDY/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1436741781485-VQOYFBS55M5HEVQQCR29/ke17ZwdGBToddI8pDm48kL5jn1yxaC9nmg5qYH5pGQtZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVEzQvgim-McfYduM8dbg08pIljPru440GnqX6TEtiN17WbSd6kfRtgWHgNMDgGnmDY/image-asset.png" data-image-dimensions="486x193" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="55a2f095e4b05e24645dfcc9" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<ul dir="ltr"><li>Replace the Code.gs text with:</li></ul>
+<pre style="margin-left: 80px;">/**
+ * Returns the id of a given spreadsheet.
+ *
+ * @return The string for the spreadsheet id
+ * @customfunction
+ */
+function spreadsheetId() {
+  var ss = SpreadsheetApp.getActive(),
+      id = ss.getId();
+  return id;
+}
+</pre>
+<ul dir="ltr"><li>Click save or ctrl+s</li></ul>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:543px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:60.03683090209961%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1436741422076-1CWVSUXS92CP4XK5B1OM/ke17ZwdGBToddI8pDm48kHf2w31AxUcPtEd8NKKhffJZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpwn5Nx-FBw9cxc1XLrWeBpQ4UAlC62M7GX3xN2RD1WHlc06fe5d8V5ZQZUezs2BlAg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1436741422076-1CWVSUXS92CP4XK5B1OM/ke17ZwdGBToddI8pDm48kHf2w31AxUcPtEd8NKKhffJZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpwn5Nx-FBw9cxc1XLrWeBpQ4UAlC62M7GX3xN2RD1WHlc06fe5d8V5ZQZUezs2BlAg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1436741422076-1CWVSUXS92CP4XK5B1OM/ke17ZwdGBToddI8pDm48kHf2w31AxUcPtEd8NKKhffJZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpwn5Nx-FBw9cxc1XLrWeBpQ4UAlC62M7GX3xN2RD1WHlc06fe5d8V5ZQZUezs2BlAg/image-asset.png" data-image-dimensions="543x326" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="55a2ef2de4b0af10ce267808" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<ul><li>Back in the spreadsheet from which the Script Editor was launched, type =spreadsheetId() into any cell.</li></ul>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:537px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:53.8175048828125%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1436742465063-8SX2GVI75ZSRSH6SAQRK/ke17ZwdGBToddI8pDm48kOF503-n22OqFNkUj2K_ZlVZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpxjbn3I-f4IvNyzwhe7EjqFL-zq0ZZKtMe2SWVRHtrCtyNl88QEdOUTdAhyFOp5_CQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1436742465063-8SX2GVI75ZSRSH6SAQRK/ke17ZwdGBToddI8pDm48kOF503-n22OqFNkUj2K_ZlVZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpxjbn3I-f4IvNyzwhe7EjqFL-zq0ZZKtMe2SWVRHtrCtyNl88QEdOUTdAhyFOp5_CQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1436742465063-8SX2GVI75ZSRSH6SAQRK/ke17ZwdGBToddI8pDm48kOF503-n22OqFNkUj2K_ZlVZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpxjbn3I-f4IvNyzwhe7EjqFL-zq0ZZKtMe2SWVRHtrCtyNl88QEdOUTdAhyFOp5_CQ/image-asset.png" data-image-dimensions="537x289" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="55a2f340e4b08b70b94cca0f" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+
+<p>The custom function spreadsheetId() will return the current spreadsheet's ID.</p>
+<p>Keep those questions coming!</p>
+<p id="yui_3_17_2_2_1436742289789_9064"><br></p>
+</body></html>

@@ -1,0 +1,250 @@
+---
+layout: post
+title: Rails Engine
+categories:
+- Turing
+tags:
+- Rails
+- Ruby
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '22'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1>Turing School of Software Design, Module 3, Week 1</h1>
+<p>This week at <a href="https://www.turing.io/">Turing</a> we built an Application Program Interface (API), which can be found in this <a href="https://github.com/PlanetEfficacy/rails_engine">repository</a>.  You can interact with this API on our <a target="_blank" href="https://rails-engine-landing-page.herokuapp.com/">Heroku Landing Page</a> to test it out and understand all the functionality. </p>
+<p>We revisited the Sales Engine dataset from <a href="http://www.jessespevack.com/systems-leadership/2016/7/23/black-thursday">Black Thursday</a>, but instead of running business intelligence queries in straight Ruby, we built a project that can take various HTTP requests for data and respond with the requested data using Ruby on Rails, ActiveRecord, and a PostgreSQL. Personally, this project represented an interesting milestone in my coding journey.</p>
+<p>When I left <a href="http://www.newvisions.org/">New Visions for Public Schools</a>, a school support organization in New York City, my team had just started to build an API in JavaScript to internally serve student data to our various tools. At that point I believed my skills and interests were more solidly in the education world so I chose to pursue school leadership in Denver. Now I am back in technology and I have just completed a project similar to the one that basically scared me out of the technology world just two years ago.</p>
+<p>The <a href="https://github.com/turingschool/lesson_plans/blob/master/ruby_03-professional_rails_applications/rails_engine.md">learning goals</a> for this project were to:</p>
+<ul>
+<li>Learn how to to build Single-Responsibility controllers to provide a well-designed and versioned API.</li>
+<li>Learn how to use controller tests to drive your design.</li>
+<li>Use Ruby and ActiveRecord to perform more complicated business intelligence.</li>
+</ul>
+<p>The project has three parts. The first, and most straightforward step was to establish record endpoints for each of the six Sales Engine data types: Merchants, Transactions, Customers, Invoices, Items, and Invoice Items. The project specification divides this task in half with each partner taking three of the six endpoints. However, since each of these data types has a relationship with all the others I would recommend that future Turing Module 3 students just do the initial database migrations together. The problem to avoid here is trying to create a table with a foreign key from another table that does not yet exist because one's partner is responsible for creating it.</p>
+<p>Here is the schema we ended up with:</p>
+<pre style="color:#000000;background:#ffffff;">ActiveRecord<span style="color:#808030; ">::</span>Schema<span style="color:#808030; ">.</span>define<span style="color:#808030; ">(</span><span style="color:#005fd2; ">version</span>: <span style="color:#008c00; ">6</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+
+  <span style="color:#696969; "># These are extensions that must be enabled in order to support this database</span>
+  enable_extension <span style="color:#0000e6; ">"plpgsql"</span>
+  enable_extension <span style="color:#0000e6; ">"citext"</span>
+
+  create_table <span style="color:#0000e6; ">"customers"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">force</span>: :<span style="color:#005fd2; ">cascade</span><span style="color:#800000; font-weight:bold; "> do</span> |t|
+    t<span style="color:#808030; ">.</span>citext   <span style="color:#0000e6; ">"first_name"</span>
+    t<span style="color:#808030; ">.</span>citext   <span style="color:#0000e6; ">"last_name"</span>
+    t<span style="color:#808030; ">.</span>datetime <span style="color:#0000e6; ">"created_at"</span>
+    t<span style="color:#808030; ">.</span>datetime <span style="color:#0000e6; ">"updated_at"</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  create_table <span style="color:#0000e6; ">"invoice_items"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">force</span>: :<span style="color:#005fd2; ">cascade</span><span style="color:#800000; font-weight:bold; "> do</span> |t|
+    t<span style="color:#808030; ">.</span>integer  <span style="color:#0000e6; ">"item_id"</span>
+    t<span style="color:#808030; ">.</span>integer  <span style="color:#0000e6; ">"invoice_id"</span>
+    t<span style="color:#808030; ">.</span>integer  <span style="color:#0000e6; ">"quantity"</span>
+    t<span style="color:#808030; ">.</span>integer  <span style="color:#0000e6; ">"unit_price"</span>
+    t<span style="color:#808030; ">.</span>datetime <span style="color:#0000e6; ">"created_at"</span>
+    t<span style="color:#808030; ">.</span>datetime <span style="color:#0000e6; ">"updated_at"</span>
+    t<span style="color:#808030; ">.</span><span style="color:#400000; ">index</span> <span style="color:#808030; ">[</span><span style="color:#0000e6; ">"invoice_id"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">name</span>: <span style="color:#0000e6; ">"index_invoice_items_on_invoice_id"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">using</span>: :<span style="color:#005fd2; ">btree</span>
+    t<span style="color:#808030; ">.</span><span style="color:#400000; ">index</span> <span style="color:#808030; ">[</span><span style="color:#0000e6; ">"item_id"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">name</span>: <span style="color:#0000e6; ">"index_invoice_items_on_item_id"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">using</span>: :<span style="color:#005fd2; ">btree</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  create_table <span style="color:#0000e6; ">"invoices"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">force</span>: :<span style="color:#005fd2; ">cascade</span><span style="color:#800000; font-weight:bold; "> do</span> |t|
+    t<span style="color:#808030; ">.</span>integer  <span style="color:#0000e6; ">"customer_id"</span>
+    t<span style="color:#808030; ">.</span>integer  <span style="color:#0000e6; ">"merchant_id"</span>
+    t<span style="color:#808030; ">.</span>citext   <span style="color:#0000e6; ">"status"</span>
+    t<span style="color:#808030; ">.</span>datetime <span style="color:#0000e6; ">"created_at"</span>
+    t<span style="color:#808030; ">.</span>datetime <span style="color:#0000e6; ">"updated_at"</span>
+    t<span style="color:#808030; ">.</span><span style="color:#400000; ">index</span> <span style="color:#808030; ">[</span><span style="color:#0000e6; ">"customer_id"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">name</span>: <span style="color:#0000e6; ">"index_invoices_on_customer_id"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">using</span>: :<span style="color:#005fd2; ">btree</span>
+    t<span style="color:#808030; ">.</span><span style="color:#400000; ">index</span> <span style="color:#808030; ">[</span><span style="color:#0000e6; ">"merchant_id"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">name</span>: <span style="color:#0000e6; ">"index_invoices_on_merchant_id"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">using</span>: :<span style="color:#005fd2; ">btree</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  create_table <span style="color:#0000e6; ">"items"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">force</span>: :<span style="color:#005fd2; ">cascade</span><span style="color:#800000; font-weight:bold; "> do</span> |t|
+    t<span style="color:#808030; ">.</span>citext   <span style="color:#0000e6; ">"name"</span>
+    t<span style="color:#808030; ">.</span>citext   <span style="color:#0000e6; ">"description"</span>
+    t<span style="color:#808030; ">.</span>integer  <span style="color:#0000e6; ">"unit_price"</span>
+    t<span style="color:#808030; ">.</span>integer  <span style="color:#0000e6; ">"merchant_id"</span>
+    t<span style="color:#808030; ">.</span>datetime <span style="color:#0000e6; ">"created_at"</span>
+    t<span style="color:#808030; ">.</span>datetime <span style="color:#0000e6; ">"updated_at"</span>
+    t<span style="color:#808030; ">.</span><span style="color:#400000; ">index</span> <span style="color:#808030; ">[</span><span style="color:#0000e6; ">"merchant_id"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">name</span>: <span style="color:#0000e6; ">"index_items_on_merchant_id"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">using</span>: :<span style="color:#005fd2; ">btree</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  create_table <span style="color:#0000e6; ">"merchants"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">force</span>: :<span style="color:#005fd2; ">cascade</span><span style="color:#800000; font-weight:bold; "> do</span> |t|
+    t<span style="color:#808030; ">.</span>citext   <span style="color:#0000e6; ">"name"</span>
+    t<span style="color:#808030; ">.</span>datetime <span style="color:#0000e6; ">"created_at"</span>
+    t<span style="color:#808030; ">.</span>datetime <span style="color:#0000e6; ">"updated_at"</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  create_table <span style="color:#0000e6; ">"transactions"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">force</span>: :<span style="color:#005fd2; ">cascade</span><span style="color:#800000; font-weight:bold; "> do</span> |t|
+    t<span style="color:#808030; ">.</span>integer  <span style="color:#0000e6; ">"invoice_id"</span>
+    t<span style="color:#808030; ">.</span>text     <span style="color:#0000e6; ">"credit_card_number"</span>
+    t<span style="color:#808030; ">.</span>text     <span style="color:#0000e6; ">"credit_card_expiration_date"</span>
+    t<span style="color:#808030; ">.</span>citext   <span style="color:#0000e6; ">"result"</span>
+    t<span style="color:#808030; ">.</span>datetime <span style="color:#0000e6; ">"created_at"</span>
+    t<span style="color:#808030; ">.</span>datetime <span style="color:#0000e6; ">"updated_at"</span>
+    t<span style="color:#808030; ">.</span><span style="color:#400000; ">index</span> <span style="color:#808030; ">[</span><span style="color:#0000e6; ">"invoice_id"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">name</span>: <span style="color:#0000e6; ">"index_transactions_on_invoice_id"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">using</span>: :<span style="color:#005fd2; ">btree</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  add_foreign_key <span style="color:#0000e6; ">"invoice_items"</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">"invoices"</span>
+  add_foreign_key <span style="color:#0000e6; ">"invoice_items"</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">"items"</span>
+  add_foreign_key <span style="color:#0000e6; ">"invoices"</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">"customers"</span>
+  add_foreign_key <span style="color:#0000e6; ">"invoices"</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">"merchants"</span>
+  add_foreign_key <span style="color:#0000e6; ">"items"</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">"merchants"</span>
+  add_foreign_key <span style="color:#0000e6; ">"transactions"</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">"invoices"</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The spec tasks us with creating an endpoint for each of the above data types that will show an individual record and index all of the records. We also needed to create a single finder endpoint for each data type so that a consumer of our API could request a single record or set of records based on a search query attached to the end of the url. For example: </p>
+<pre><code>GET /api/v1/merchants/find?parameters</code></pre>
+<p>and for multi-finders:</p>
+<pre><code>GET /api/v1/merchants/find_all?parameters</code></pre>
+<h3>Testing Controllers</h3>
+<p>Rails Engine has a reputation of being one of the most difficult projects at Turing and setting up the initial endpoints is just the trail you take to get to the extreme terrain. The real challenge begins with implementing API endpoints that return business logic data that gets generated by ActiveRecord and SQL queries. The implementation of these endpoints always begins with a request test, like the following for finding the date that a given item had the most sales (in terms of quantity).</p>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'rails_helper'</span>
+
+describe <span style="color:#0000e6; ">"get request to single item's best day"</span><span style="color:#800000; font-weight:bold; "> do</span>
+  it <span style="color:#0000e6; ">"returns date (or dates in case of tie) with most sales for item by invoice date"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    item_1 <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">item</span><span style="color:#808030; ">)</span>
+    invoice_most <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">invoice</span><span style="color:#808030; ">)</span>
+    invoice_least <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">invoice</span><span style="color:#808030; ">)</span>
+    invoice_item_most <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">invoice_item</span><span style="color:#808030; ">,</span>
+                                <span style="color:#005fd2; ">item_id</span>: item_1<span style="color:#808030; ">.</span>id<span style="color:#808030; ">,</span>
+                                <span style="color:#005fd2; ">invoice_id</span>: invoice_most<span style="color:#808030; ">.</span>id<span style="color:#808030; ">,</span>
+                                <span style="color:#005fd2; ">quantity</span>: <span style="color:#008c00; ">2</span><span style="color:#808030; ">)</span>
+    invoice_item_least <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">invoice_item</span><span style="color:#808030; ">,</span>
+                                <span style="color:#005fd2; ">item_id</span>: item_1<span style="color:#808030; ">.</span>id<span style="color:#808030; ">,</span>
+                                <span style="color:#005fd2; ">invoice_id</span>: invoice_least<span style="color:#808030; ">.</span>id<span style="color:#808030; ">,</span>
+                                <span style="color:#005fd2; ">quantity</span>: <span style="color:#008c00; ">1</span><span style="color:#808030; ">)</span>
+
+    get <span style="color:#0000e6; ">"/api/v1/items/</span><span style="color:#000000; background:#ffffe8; ">#{item_1</span><span style="color:#808030; background:#ffffe8; ">.</span><span style="color:#000000; background:#ffffe8; ">id}</span><span style="color:#0000e6; ">/best_day"</span>
+    date <span style="color:#808030; ">=</span> JSON<span style="color:#808030; ">.</span>parse<span style="color:#808030; ">(</span>response<span style="color:#808030; ">.</span>body<span style="color:#808030; ">)</span>
+    expected_date <span style="color:#808030; ">=</span> invoice_most<span style="color:#808030; ">.</span>created_at<span style="color:#808030; ">.</span><span style="color:#400000; ">to_i</span>
+    actual_date <span style="color:#808030; ">=</span> DateTime<span style="color:#808030; ">.</span>parse<span style="color:#808030; ">(</span>date<span style="color:#808030; ">[</span><span style="color:#0000e6; ">"best_day"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span><span style="color:#400000; ">to_i</span>
+
+    expect<span style="color:#808030; ">(</span>response<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to be_success
+    expect<span style="color:#808030; ">(</span>date<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to be_instance_of<span style="color:#808030; ">(</span><span style="color:#bb7977; font-weight:bold; ">Hash</span><span style="color:#808030; ">)</span>
+    expect<span style="color:#808030; ">(</span>actual_date<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span>expected_date<span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Let's look at this test chunk by chunk starting with the set up:</p>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'rails_helper'</span>
+
+describe <span style="color:#0000e6; ">"get request to single item's best day"</span><span style="color:#800000; font-weight:bold; "> do</span>
+  it <span style="color:#0000e6; ">"returns date (or dates in case of tie) with most sales for item by invoice date"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    item_1 <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">item</span><span style="color:#808030; ">)</span>
+    invoice_most <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">invoice</span><span style="color:#808030; ">)</span>
+    invoice_least <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">invoice</span><span style="color:#808030; ">)</span>
+    invoice_item_most <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">invoice_item</span><span style="color:#808030; ">,</span>
+                                <span style="color:#005fd2; ">item_id</span>: item_1<span style="color:#808030; ">.</span>id<span style="color:#808030; ">,</span>
+                                <span style="color:#005fd2; ">invoice_id</span>: invoice_most<span style="color:#808030; ">.</span>id<span style="color:#808030; ">,</span>
+                                <span style="color:#005fd2; ">quantity</span>: <span style="color:#008c00; ">2</span><span style="color:#808030; ">)</span>
+    invoice_item_least <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">invoice_item</span><span style="color:#808030; ">,</span>
+                                <span style="color:#005fd2; ">item_id</span>: item_1<span style="color:#808030; ">.</span>id<span style="color:#808030; ">,</span>
+                                <span style="color:#005fd2; ">invoice_id</span>: invoice_least<span style="color:#808030; ">.</span>id<span style="color:#808030; ">,</span>
+                                <span style="color:#005fd2; ">quantity</span>: <span style="color:#008c00; ">1</span><span style="color:#808030; ">)</span>
+</pre>
+<p>In the setup we describe that our API should have a request to a single item's best day. We state that the API should respond to such a request with the date with the most sales for the item based on invoice date. </p>
+<p>Next, we perform a little database setup. To test this functionality we need an item in order to check its best day. We also need two invoices. We would expect our query to return the date from the invoice with the greatest quantity of our item. Quantity is stored on invoice_items, a join table between our invoices table and our items table. So, we'll need two invoice_items as well; one with a larger quantity (2) than the other. Now we should have everything we need to query our database for the best day of a given item - an item, two invoices, and two invoice items.</p>
+<pre style="color:#000000;background:#ffffff;">get <span style="color:#0000e6; ">"/api/v1/items/</span><span style="color:#000000; background:#ffffe8; ">#{item_1</span><span style="color:#808030; background:#ffffe8; ">.</span><span style="color:#000000; background:#ffffe8; ">id}</span><span style="color:#0000e6; ">/best_day"</span>
+date <span style="color:#808030; ">=</span> JSON<span style="color:#808030; ">.</span>parse<span style="color:#808030; ">(</span>response<span style="color:#808030; ">.</span>body<span style="color:#808030; ">)</span>
+expected_date <span style="color:#808030; ">=</span> invoice_most<span style="color:#808030; ">.</span>created_at<span style="color:#808030; ">.</span><span style="color:#400000; ">to_i</span>
+actual_date <span style="color:#808030; ">=</span> DateTime<span style="color:#808030; ">.</span>parse<span style="color:#808030; ">(</span>date<span style="color:#808030; ">[</span><span style="color:#0000e6; ">"best_day"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span><span style="color:#400000; ">to_i</span>
+</pre>
+<p>Next we make a get request to the path that we will use for our query - /api/v1/items/:id/best_day. We store the API's response in a variable called date. We create an expected_date variable to test our actual date against. In this case, this would be the created_at value from the invoice tied to the invoice item with the larger quantity of our item. We also turn that expected_date into an integer to make comparison easier. In order to avoid dealing with dates at all costs, we take the response date, which is a hash, grab the value keyed to "best day", parse it into a DateTime object, and then convert it to an integer. Not pretty, suggestions welcome.</p>
+<pre style="color:#000000;background:#ffffff;">expect<span style="color:#808030; ">(</span>response<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to be_success
+expect<span style="color:#808030; ">(</span>date<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to be_instance_of<span style="color:#808030; ">(</span><span style="color:#bb7977; font-weight:bold; ">Hash</span><span style="color:#808030; ">)</span>
+expect<span style="color:#808030; ">(</span>actual_date<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span>expected_date<span style="color:#808030; ">)</span>
+</pre>
+<p>Lastly, we write our expectations. We expect the API response to be successful. We expect the returned date to be a Hash object. And most importantly, we expect the actual returned date to equal our expected best day.</p>
+<p>When I wrote this test, all the models and factories (we used <a href="https://github.com/thoughtbot/factory_girl">Factory Girl</a> to mock up our Ruby objects) were already set up, so the first error comes from our get request. To solve this error, we need to setup the route our test is expecting to see:</p>
+<pre style="color:#000000;background:#ffffff;">Rails<span style="color:#808030; ">.</span>application<span style="color:#808030; ">.</span>routes<span style="color:#808030; ">.</span>draw<span style="color:#800000; font-weight:bold; "> do</span>
+  namespace :<span style="color:#005fd2; ">api</span><span style="color:#800000; font-weight:bold; "> do</span>
+    namespace :<span style="color:#005fd2; ">v1</span><span style="color:#800000; font-weight:bold; "> do</span>
+      namespace :<span style="color:#005fd2; ">items</span><span style="color:#800000; font-weight:bold; "> do</span>
+        get <span style="color:#0000e6; ">':id/best_day'</span><span style="color:#808030; ">,</span>                         <span style="color:#005fd2; ">to</span>: <span style="color:#0000e6; ">'best_day#show'</span>
+      <span style="color:#800000; font-weight:bold; ">end</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>I simplified the above code snippet for clarity. There are many more routes for items and other models in our routes file, which you can find on our GitHub repository. What the above code says is when the API receives a get request for /api/v1/items/:id/best_day, direct that request to the show method (because it's a singular day we want to return) on the Api::V1::Items::BestDayController.</p>
+<h3>Single Responsibility Controllers</h3>
+<p>One of the goals of this project was to gain experience creating single responsibility controllers. Going back to the Model, View, Controller (MVC) architectural pattern, controllers direct incoming requests to the appropriate model data and render the appropriate view. Since this is an API and there are no views, the controller renders a response in JavaScript Object Notation (JSON), which is special text format that is easily readable by both computers and humans. Our best day Controller is spartan; all of the business logic is pushed into the Item model and we are left with:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> Api<span style="color:#808030; ">::</span>V1<span style="color:#808030; ">::</span>Items<span style="color:#808030; ">::</span>BestDayController &lt; ApplicationController
+  <span style="color:#800000; font-weight:bold; ">def</span> show
+    render <span style="color:#005fd2; ">json</span>: Item<span style="color:#808030; ">.</span><span style="color:#400000; ">find</span><span style="color:#808030; ">(</span>params<span style="color:#808030; ">[</span><span style="color:#0000e6; ">"id"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>best_day
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<h3>Active Record and Business Intelligence</h3>
+<p>The final step is to create a best_day method in the Item model that will return an instance of an Item's best day. At the end of Module 1 we did similar types of queries in Ruby with various enumerables. This is a slower approach than using ActiveRecord and SQL to directly query the database for exactly the data we want. So for querying the best items for a given merchant by both quantity and revenue generated in Module 1, we would do something like:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> MerchantItemAnalyst
+  attr_reader :<span style="color:#005fd2; ">merchant_id</span><span style="color:#808030; ">,</span>
+              :<span style="color:#005fd2; ">analyst</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> initialize(merchant_id, analyst)
+    @merchant_id <span style="color:#808030; ">=</span> merchant_id
+    @analyst <span style="color:#808030; ">=</span> analyst
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> merchant_paid_in_full_invoices
+    analyst<span style="color:#808030; ">.</span>merchants<span style="color:#808030; ">.</span>find_by_id<span style="color:#808030; ">(</span>merchant_id<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>invoices<span style="color:#808030; ">.</span><span style="color:#400000; ">find_all</span><span style="color:#800000; font-weight:bold; "> do</span> |invoice|
+      invoice<span style="color:#808030; ">.</span>is_paid_in_full?
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> merchant_paid_in_full_invoice_items
+    merchant_paid_in_full_invoices<span style="color:#808030; ">.</span><span style="color:#400000; ">map</span><span style="color:#800000; font-weight:bold; "> do</span> |invoice|
+      analyst<span style="color:#808030; ">.</span>invoice_items<span style="color:#808030; ">.</span>find_all_by_invoice_id<span style="color:#808030; ">(</span>invoice<span style="color:#808030; ">.</span>id<span style="color:#808030; ">)</span>
+    <span style="color:#800000; font-weight:bold; ">end</span><span style="color:#808030; ">.</span><span style="color:#400000; ">flatten</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> group_invoice_items_by_quantity
+    merchant_paid_in_full_invoice_items<span style="color:#808030; ">.</span><span style="color:#400000; ">group_by</span><span style="color:#800000; font-weight:bold; "> do</span> |invoice_item|
+      invoice_item<span style="color:#808030; ">.</span>quantity
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> group_invoice_items_by_revenue
+    merchant_paid_in_full_invoice_items<span style="color:#808030; ">.</span><span style="color:#400000; ">group_by</span><span style="color:#800000; font-weight:bold; "> do</span> |invoice_item|
+      invoice_item<span style="color:#808030; ">.</span>price
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> max_quantity_invoice_items
+    invoice_items <span style="color:#808030; ">=</span> group_invoice_items_by_quantity
+    invoice_items<span style="color:#808030; ">[</span>invoice_items<span style="color:#808030; ">.</span><span style="color:#400000; ">keys</span><span style="color:#808030; ">.</span><span style="color:#400000; ">max</span><span style="color:#808030; ">]</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> max_revenue_invoice_items
+    invoice_items <span style="color:#808030; ">=</span> group_invoice_items_by_revenue
+    invoice_items<span style="color:#808030; ">[</span>invoice_items<span style="color:#808030; ">.</span><span style="color:#400000; ">keys</span><span style="color:#808030; ">.</span><span style="color:#400000; ">max</span><span style="color:#808030; ">]</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> most_sold_item_for_merchant
+    max_quantity_invoice_items<span style="color:#808030; ">.</span><span style="color:#400000; ">map</span><span style="color:#800000; font-weight:bold; "> do</span> |invoice_item|
+      analyst<span style="color:#808030; ">.</span>items<span style="color:#808030; ">.</span>find_by_id<span style="color:#808030; ">(</span>invoice_item<span style="color:#808030; ">.</span>item_id<span style="color:#808030; ">)</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> best_item_for_merchant
+    max_revenue_invoice_items<span style="color:#808030; ">.</span><span style="color:#400000; ">map</span><span style="color:#800000; font-weight:bold; "> do</span> |invoice_item|
+      analyst<span style="color:#808030; ">.</span>items<span style="color:#808030; ">.</span>find_by_id<span style="color:#808030; ">(</span>invoice_item<span style="color:#808030; ">.</span>item_id<span style="color:#808030; ">)</span>
+    <span style="color:#800000; font-weight:bold; ">end</span><span style="color:#808030; ">.</span><span style="color:#400000; ">first</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>That's a lot of iterating. ActiveRecord and SQL and do all of this for us. Now to find an item's best day we can write:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> best_day
+  <span style="color:#800080; ">{</span><span style="color:#0000e6; ">"best_day"</span> <span style="color:#808030; ">=</span>&gt; invoices<span style="color:#808030; ">.</span>joins<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">invoice_items</span><span style="color:#808030; ">)</span>
+    <span style="color:#808030; ">.</span>order<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"invoice_items.quantity DESC, invoices.created_at DESC"</span><span style="color:#808030; ">)</span>
+    <span style="color:#808030; ">.</span><span style="color:#400000; ">first</span><span style="color:#808030; ">.</span>created_at<span style="color:#800080; ">}</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>In the above method, which is part of our Item model, we grab all of the invoices associated with a single item. Next we join that with the invoice_items table. My understanding is that the join grabs all the invoice items associated with the invoices that are associated with the given item. Next we use the ActiveRecord method order, to sort our records by first the quantity on the invoice_items and then the date they were created. The specifications state that in the case of a tie for quantity, return the most recent date. Finally we call .first to grab the first invoice on our list and call .created_at to get its date.</p>
+<h3>Concluding Thoughts</h3>
+<p>Rails Engine marks the more than halfway point for my progress at Turing. Reflecting back to what I knew just a few weeks ago I'm satisfied with my progress. Additionally, this week was highly satisfying in terms of instructional structure. <a href="https://twitter.com/joshuamejia">Josh Mejia</a>, our lead instructor, put a few key lessons on Monday but reserved the rest of the week for work and struggle. During the work time we could explore the project's challenges on our own and learn by doing. I was also able to request checkins with Josh to help me with the more complicated business logic. Had I gotten this in the form of a one and a half hour lecture, the instruction would have been far less relevant than getting about 20 minutes of personalized learning in the context of my own project.</p>
+<p>My project partner <a href="https://www.linkedin.com/in/nate-anderson-b4bbb122">Nate Anderson</a> and I also got to pair with a Module 4 student, <a target="_blank" href="https://www.linkedin.com/in/pat-wentz-19a474bb">Pat Wetnz</a>, who had a much tighter handle on the ins and outs of SQL and Active Record. This also speaks to the kind of culture we have at Turing. The rigor of the program builds a level of comradery in which everyone understands the struggles of their fellow students and no one is ever too busy to answer a question.  </p>
+</body></html>

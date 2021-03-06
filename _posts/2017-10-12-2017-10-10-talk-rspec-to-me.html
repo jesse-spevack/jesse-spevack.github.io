@@ -1,0 +1,181 @@
+---
+layout: post
+title: Talk RSpec To Me
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '54'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h2>All the RSpec Style</h2>
+<p>Well written tests can drive the development of software, serve as a quality control mechanism, and document functionality for other developers working on the same codebase. Style matters when it comes to writing tests specifically because tests are documentation of how your methods and classes are expected to work. Specs that obfuscate the functionality under test are counter productive.</p>
+<p>I have many thoughts on what constitutes a readable spec file and in my research process for this post I was encouraged to see that many of my opinions have been echoed in various <a href="https://github.com/reachlocal/rspec-style-guide">RSpec style guides</a> across the interwebs.</p>
+<h3>Describe the Class</h3>
+<p>Each class should have its own spec. Let's imagine we are setting up a spec file to describe our user model. The spec should begin by saying:</p>
+<pre style="background:#fff;color:#3b3b3b"><span style="color:#af82d4"># /spec/models/user_spec.rb</span>
+describe <span style="color:#0053ff;font-weight:700">User</span> <span style="color:#069;font-weight:700">do</span>
+
+<span style="color:#069;font-weight:700">end</span>
+</pre>
+<p>If the class is a model, I next include descriptions of the factory, validations, and associations I intend to implement. Remember, the goal here is threefold - drive development, quality control, and documentation. When all of my model specs are set up with the following pattern, it makes each model that much more readable because developers coming into the code for the first time (or myself after a certain, ever-decreasing period of time) know that the basic behaviors of the model are always articulated clearly at the top of the spec file like so:</p>
+<pre style="background:#fff;color:#3b3b3b">describe <span style="color:#0053ff;font-weight:700">User</span> <span style="color:#069;font-weight:700">do</span>
+  describe <span style="color:#666">"Factory"</span> <span style="color:#069;font-weight:700">do</span>
+    ...
+  <span style="color:#069;font-weight:700">end</span>
+  describe <span style="color:#666">"Associations"</span> <span style="color:#069;font-weight:700">do</span>
+    ...
+  <span style="color:#069;font-weight:700">end</span>
+  describe <span style="color:#666">"Validations"</span> <span style="color:#069;font-weight:700">do</span>
+    ...
+  <span style="color:#069;font-weight:700">end</span>
+<span style="color:#069;font-weight:700">end</span>
+</pre>
+<p>For testing associations and validations, I use <a href="http://matchers.shoulda.io/docs/v3.1.1/">Thoughtbot's Shoulda-matchers</a>. I find the style in their documentation highly readable.</p>
+<h3>Describing Methods</h3>
+<p>Before we dive into the body of a test, let's linger at this first level under the main test block and demonstrate what a method description could look like. I start my method descriptions with a "#" and the method name under test. The advantage here is readability across tests. I know that if I want to look at my test documentation for a particular method, I can do a find for the method name in the test file and the first hit should be the describe block. Every public method gets a test in this fashion:</p>
+<pre style="background:#fff;color:#3b3b3b">describe <span style="color:#0053ff;font-weight:700">User</span> <span style="color:#069;font-weight:700">do</span>
+  describe <span style="color:#666">"#display_name"</span> <span style="color:#069;font-weight:700">do</span>
+    ...
+  <span style="color:#069;font-weight:700">end</span>
+<span style="color:#069;font-weight:700">end</span>
+</pre>
+<h3>Context</h3>
+<p>Context is a special block provided in RSpec that I read as 'when context X exists....' Typically context blocks come in pairs for clarity, so the above context would be followed by 'when context X does not exist....' In practice for our method description above we might have something that looks like this:</p>
+<pre style="background:#fff;color:#3b3b3b">describe <span style="color:#0053ff;font-weight:700">User</span> <span style="color:#069;font-weight:700">do</span>
+  describe <span style="color:#666">"#display_name"</span> <span style="color:#069;font-weight:700">do</span>
+    context <span style="color:#666">"when both first and last names are present"</span> <span style="color:#069;font-weight:700">do</span>
+      ...
+    <span style="color:#069;font-weight:700">end</span>
+    context <span style="color:#666">"when neither first nor last names are present"</span> <span style="color:#069;font-weight:700">do</span>
+      ...
+    <span style="color:#069;font-weight:700">end</span>
+  <span style="color:#069;font-weight:700">end</span>
+<span style="color:#069;font-weight:700">end</span>
+</pre>
+<p>Our tests are really starting to read like documentation - and that is one of the many beauties of RSpec as a testing framework. The above test is saying 'The user class has a display name method which behaves like so when both first and last names are present and like so when neither first nor last names are present.' Your future self or fellow developers will thank you for your eloquence!</p>
+<h3>It Block</h3>
+<p>Not all methods behave differently based on particular contexts. In such cases I omit the context block and dive directly into the it block:</p>
+<pre style="background:#fff;color:#3b3b3b">describe <span style="color:#0053ff;font-weight:700">User</span> <span style="color:#069;font-weight:700">do</span>
+  describe <span style="color:#666">"#my_method_with_one_behavior"</span> <span style="color:#069;font-weight:700">do</span>
+    it <span style="color:#666">"does the thing it always does"</span> <span style="color:#069;font-weight:700">do</span>
+    <span style="color:#069;font-weight:700">end</span>
+  <span style="color:#069;font-weight:700">end</span>
+<span style="color:#069;font-weight:700">end</span>
+</pre>
+<p>Otherwise, the it block should be nested within each context block. The text string in the it block should complete the sentence started in the context block. So for the display name example we might have an it block that reads:</p>
+<pre style="background:#fff;color:#3b3b3b">describe <span style="color:#0053ff;font-weight:700">User</span> <span style="color:#069;font-weight:700">do</span>
+  describe <span style="color:#666">"#display_name"</span> <span style="color:#069;font-weight:700">do</span>
+    context <span style="color:#666">"when both first and last names are present"</span> <span style="color:#069;font-weight:700">do</span>
+      it <span style="color:#666">"returns the two names concatenated together"</span> <span style="color:#069;font-weight:700">do</span>
+        ...
+      <span style="color:#069;font-weight:700">end</span>
+    <span style="color:#069;font-weight:700">end</span>
+    context <span style="color:#666">"when neither first nor last names are present"</span> <span style="color:#069;font-weight:700">do</span>
+      ...
+    <span style="color:#069;font-weight:700">end</span>
+  <span style="color:#069;font-weight:700">end</span>
+<span style="color:#069;font-weight:700">end</span>
+</pre>
+<p>Our full sentence for our first test reads: "When both first and last names our present, it returns the two names concatenated together." Now our display_name method is documented!</p>
+<h3>Setup</h3>
+<p>Like many of you, I try to conceptualize my tests into three parts. The first section is the setup phase where I create the requisite conditions for a test. RSpec has a really nice syntax for this in the "let" statement. Let lazily loads a variable, which means that the variable is not actually created until it is used.</p>
+<pre style="background:#fff;color:#3b3b3b">describe <span style="color:#0053ff;font-weight:700">User</span> <span style="color:#069;font-weight:700">do</span>
+  let(:user) { create :user }
+
+  describe <span style="color:#666">"#display_name"</span> <span style="color:#069;font-weight:700">do</span>
+    context <span style="color:#666">"when both first and last names are present"</span> <span style="color:#069;font-weight:700">do</span>
+      it <span style="color:#666">"returns the two names concatenated together"</span> <span style="color:#069;font-weight:700">do</span>
+        ...
+      <span style="color:#069;font-weight:700">end</span>
+    <span style="color:#069;font-weight:700">end</span>
+  <span style="color:#069;font-weight:700">end</span>
+<span style="color:#069;font-weight:700">end</span>
+</pre>
+<p>The above let statement will call the factory girl method create and make us a user as soon as "user" is called in any child block. Adding an exclamation point is the equivalent of saying, before each block, create a user.</p>
+<pre style="background:#fff;color:#3b3b3b">let!(:user) { create :user }
+</pre>
+<p>I skip a line after each of my let statements because I think it increases the readability of the test.</p>
+<pre style="background:#fff;color:#3b3b3b">describe <span style="color:#0053ff;font-weight:700">User</span> <span style="color:#069;font-weight:700">do</span>
+  let(:user1) { create :user, first_name: <span style="color:#0053ff;font-weight:700">Jon</span>, last_name: <span style="color:#0053ff;font-weight:700">Doe</span> }
+  let(:user2) { create :user, first_name: <span style="color:#a535ae">nil</span>, last_name: <span style="color:#a535ae">nil</span> }
+
+  describe <span style="color:#666">"#display_name"</span> <span style="color:#069;font-weight:700">do</span>
+    context <span style="color:#666">"when both first and last names are present"</span> <span style="color:#069;font-weight:700">do</span>
+      it <span style="color:#666">"returns the two names concatenated together"</span> <span style="color:#069;font-weight:700">do</span>
+        ...
+      <span style="color:#069;font-weight:700">end</span>
+    <span style="color:#069;font-weight:700">end</span>
+  <span style="color:#069;font-weight:700">end</span>
+<span style="color:#069;font-weight:700">end</span>
+</pre>
+<p>The above code is more readable, especially as the test file gets longer, than the below code which omits the extra line space.</p>
+<pre style="background:#fff;color:#3b3b3b">describe <span style="color:#0053ff;font-weight:700">User</span> <span style="color:#069;font-weight:700">do</span>
+  let(:user1) { create :user, first_name: <span style="color:#0053ff;font-weight:700">Jon</span>, last_name: <span style="color:#0053ff;font-weight:700">Doe</span> }
+  let(:user2) { create :user, first_name: <span style="color:#a535ae">nil</span>, last_name: <span style="color:#a535ae">nil</span> }
+  describe <span style="color:#666">"#display_name"</span> <span style="color:#069;font-weight:700">do</span>
+    context <span style="color:#666">"when both first and last names are present"</span> <span style="color:#069;font-weight:700">do</span>
+      it <span style="color:#666">"returns the two names concatenated together"</span> <span style="color:#069;font-weight:700">do</span>
+        ...
+      <span style="color:#069;font-weight:700">end</span>
+    <span style="color:#069;font-weight:700">end</span>
+  <span style="color:#069;font-weight:700">end</span>
+<span style="color:#069;font-weight:700">end</span>
+</pre>
+<p>Also, notice that I'm not stingy when it comes to naming variables. Acronyms and one letter variable names are lazy (the bad kind, not the load kind) and defeat the documentary purpose of a test. Does not typing "ser" in the following test really worth the mental overhead necessary to remember what "u1" means - I think not.</p>
+<pre style="background:#fff;color:#3b3b3b">let(:u1) { create :user, first_name: <span style="color:#0053ff;font-weight:700">Jon</span>, last_name: <span style="color:#0053ff;font-weight:700">Doe</span> }
+</pre>
+<p>This point becomes even more evident with complex model names - imagine we had a UserTransactionParameters model, and referenced "utp" all over our tests. That required internal translation of utp to UserTransactionParameter assumes domain knowledge that may make it difficult for other developers to quickly enter into the code productively.</p>
+<h3>Result</h3>
+<p>After we have written the setup phase of our test, I next think about the action, or method call, under test. This method call produces a result, which in many of my tests I call out explicitly for the purpose of emphasis, uniforimty and readability.</p>
+<pre style="background:#fff;color:#3b3b3b">describe <span style="color:#0053ff;font-weight:700">User</span> <span style="color:#069;font-weight:700">do</span>
+  let(:user1) { create :user, first_name: <span style="color:#0053ff;font-weight:700">Jon</span>, last_name: <span style="color:#0053ff;font-weight:700">Doe</span> }
+
+  describe <span style="color:#666">"#display_name"</span> <span style="color:#069;font-weight:700">do</span>
+    context <span style="color:#666">"when both first and last names are present"</span> <span style="color:#069;font-weight:700">do</span>
+      it <span style="color:#666">"returns the two names concatenated together"</span> <span style="color:#069;font-weight:700">do</span>
+        result <span style="color:#069;font-weight:700">=</span> user1.display_name
+        ...
+      <span style="color:#069;font-weight:700">end</span>
+    <span style="color:#069;font-weight:700">end</span>
+  <span style="color:#069;font-weight:700">end</span>
+<span style="color:#069;font-weight:700">end</span>
+</pre>
+<h3>Assertion</h3>
+<p>The third section of our test is where we make our assertions.</p>
+<pre style="background:#fff;color:#3b3b3b">describe <span style="color:#0053ff;font-weight:700">User</span> <span style="color:#069;font-weight:700">do</span>
+  let(:user1) { create :user, first_name: <span style="color:#0053ff;font-weight:700">Jon</span>, last_name: <span style="color:#0053ff;font-weight:700">Doe</span> }
+
+  describe <span style="color:#666">"#display_name"</span> <span style="color:#069;font-weight:700">do</span>
+    context <span style="color:#666">"when both first and last names are present"</span> <span style="color:#069;font-weight:700">do</span>
+      it <span style="color:#666">"returns the two names concatenated together"</span> <span style="color:#069;font-weight:700">do</span>
+        result <span style="color:#069;font-weight:700">=</span> user1.display_name
+        expect(result).to eq <span style="color:#666">"Jon Doe"</span>
+      <span style="color:#069;font-weight:700">end</span>
+    <span style="color:#069;font-weight:700">end</span>
+  <span style="color:#069;font-weight:700">end</span>
+<span style="color:#069;font-weight:700">end</span>
+</pre>
+<p>I have a strong and in some ways irrational bias towards one line it blocks. So with a test as straightforward as our above example, I might actually write the highly satisfying:</p>
+<pre style="background:#fff;color:#3b3b3b">describe <span style="color:#0053ff;font-weight:700">User</span> <span style="color:#069;font-weight:700">do</span>
+  let(:user1) { create :user, first_name: <span style="color:#0053ff;font-weight:700">Jon</span>, last_name: <span style="color:#0053ff;font-weight:700">Doe</span> }
+
+  describe <span style="color:#666">"#display_name"</span> <span style="color:#069;font-weight:700">do</span>
+    context <span style="color:#666">"when both first and last names are present"</span> <span style="color:#069;font-weight:700">do</span>
+      it <span style="color:#666">"returns the two names concatenated together"</span> <span style="color:#069;font-weight:700">do</span>
+        expect(user1.display_name).to eq <span style="color:#666">"Jon Doe"</span>
+      <span style="color:#069;font-weight:700">end</span>
+    <span style="color:#069;font-weight:700">end</span>
+  <span style="color:#069;font-weight:700">end</span>
+<span style="color:#069;font-weight:700">end</span>
+</pre>
+<h3>DRY</h3>
+<p dir="ltr">I try very hard to keep my tests DRY (don't repeat yourself). As soon as a I start copying setup code in a test that is a clue that I should use RSpec's block scope. The block scope is the idea that setup done in one block is accessible in all child blocks. So even though user1 is defined in the outermost block, I call user1 three blocks deep in the actual test. If I need a particular type of user in one block, I will declare that variable directly above the block in question.</p>
+<h3 dir="ltr">Conclusion</h3>
+<p dir="ltr">Writing tests is hard. Why make it harder by writing disorganized, non-uniform, or repetitive tests? By subscribing to a consistent style that errs on the side of being overly explicit and attends to visual readability we are able to get the most documentation out of the tests we write.</p>
+<p dir="ltr">Thanks for reading!</p>
+<p dir="ltr"> </p>
+</body></html>

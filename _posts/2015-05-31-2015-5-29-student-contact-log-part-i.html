@@ -1,0 +1,1045 @@
+---
+layout: post
+title: 'Student Contact Log: Rationale and How-To Guide (Part I)'
+categories:
+- Technical
+tags:
+- Google Spreadsheets
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '11'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p>When I first started teaching, more veteran teachers and my supervising assistant principal routinely referenced the phone log I should have been keeping to document phone conversations I was having with the families of my students. While now I can recognize the importance of maintaining C.Y.A style records, at the time, the notion of keeping a marble notebook to record my phone calls seemed like a waste of time.</p>
+<p>As an assistant principal and then working with many schools from the network office, I still am not sure how useful disconnected records of calls really are for improving student outcomes, however, I am absolutely certain that the best schools have clear routines and systems in place around family communication. The best systems for family communication solve a few problems:</p>
+<ol>
+<li>Finding and sharing contact information in many schools involves conflicting, duplicative, and often inaccurate lists of contact information.</li>
+<li>Sharing the substance of calls with staff who may have an interest in the communication, but who were not directly involved, often requires additional effort, like writing an email to an advisor, finding another staff member for a face to face conversation, or setting up a meeting.</li>
+<li>Identifying longer term trends that can inform the types of student support services and professional development opportunities offered in a school are simply not possible without a communication tracking system.</li>
+</ol>
+<p>While my marble notebook from 2005 could not solve the above three issues, a Google Form, Spreadsheet, Site, Awesome Table, and the New Visions Add-on called <a href="http://cloudlab.newvisions.org/add-ons/formmule-email-merge-utility">FormMule</a> definitely can. In keeping with my last post "<a target="_blank" href="http://www.jessespevack.com/systems-leadership/2015/5/24/climbing-maslows-paradox-systems-design-a-core-leadership-practice">Climbing Maslow's Paradox</a>" my upcoming talks at <a target="_blank" href="https://myinnedco.zerista.com/event/member/162557">InnEdCo</a> and <a target="_blank" href="http://www.edxednyc.com/#!agenda-working/ckpu">EDXEDNYC</a> education and technology conferences, and the theme of this developing blog, the following will describe how to technically create a free student contact logging system. Without a clear plan or procedure for family communication it is challenging to maintain the type of transformational instruction that should be the goal of our school systems. Creating and maintaining the student contact log represents work at one of the base layers of the Maslovian educator hierarchy; it is a support for transformational instruction.</p>
+<p>I will not be discussing what goes into having an effective conversation with the families of students who need additional support. For tips on that, I would recommend the books <a href="http://www.amazon.com/gp/product/0071771328/ref=as_li_tl?ie=UTF8&amp;camp=1789&amp;creative=9325&amp;creativeASIN=0071771328&amp;linkCode=as2&amp;tag=sysdesblo-20&amp;linkId=SUYJAEBQOWJ2FBRU">Crucial Conversations</a> and <a href="http://www.amazon.com/gp/product/0944634486/ref=as_li_tl?ie=UTF8&amp;camp=1789&amp;creative=9325&amp;creativeASIN=0944634486&amp;linkCode=as2&amp;tag=sysdesblo-20&amp;linkId=2HBKMN3HAK6T6ZVO">Teaching with Love &amp; Logic</a>.</p>
+<h2>Sharing Contact Information</h2>
+<p>In many schools, contact information is held in the “Student Information System,” (SIS) which can range from PowerSchool, to ATS in New York City, to more home-grown solutions in smaller cities and districts. The problem with these SIS’s is that either:</p>
+<ol>
+<li><span><em>Not everyone has access.</em><span> In New York City, only a few members or the school staff have login credentials for ATS, which can only be accessed from certain specially configured computers.</span></span></li>
+<li><span><span><span><em>The SIS requires its own login.</em><span> In cases where everyone has access, SIS’s often require separate logins than email, production, and collaboration tools where work actually happens. In other words, while a teacher may have a login for PowerSchool, it is separate from where the teacher lesson plans or emails, and is therefore not front and center at the times where a teacher might need to reach out to student’s family.</span></span></span></span></li>
+<li><span><em>There are limited reporting capabilities.</em><span> Most call logging features in student SIS’s that I have seen either do not have sufficient aggregate reporting capabilities or aggregate reporting comes at the expense of more granular views, or the reporting is robust, however, it is completely isolated from other student data systems like online gradebooks, schedules, transcripts, testing history, etc. </span></span></li>
+</ol>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1438px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:56.05006790161133%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1432931898725-EUOQLBU56QQGHTTOQ3P9/ke17ZwdGBToddI8pDm48kBLrkysnI_5OH6NWoB2JgdIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcW-QRkBeDFBtxcGnyqUjfu5o8_KXyAyjH5RdpCsLXJyyYAWRtyWi7rLAwW_FuiTKB/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1432931898725-EUOQLBU56QQGHTTOQ3P9/ke17ZwdGBToddI8pDm48kBLrkysnI_5OH6NWoB2JgdIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcW-QRkBeDFBtxcGnyqUjfu5o8_KXyAyjH5RdpCsLXJyyYAWRtyWi7rLAwW_FuiTKB/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1432931898725-EUOQLBU56QQGHTTOQ3P9/ke17ZwdGBToddI8pDm48kBLrkysnI_5OH6NWoB2JgdIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcW-QRkBeDFBtxcGnyqUjfu5o8_KXyAyjH5RdpCsLXJyyYAWRtyWi7rLAwW_FuiTKB/image-asset.png" data-image-dimensions="1438x806" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5568ce3ae4b0a319c8a2fe22" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>For most schools on Google Apps for Education, there is a simple solution that involves:</p>
+<ol>
+<li>Routinely exporting contact information from the SIS as a CSV file.</li>
+<li>Uploading the CSV of contact information into a Google Spreadsheet “container” sheet.</li>
+<li>Displaying filterable contact info securely with an <a href="https://sites.google.com/site/scriptsexamples/available-web-apps/awesome-tables">Awesome Table</a>, produced by <a href="https://plus.google.com/u/0/+RomainVialard-public/about">Romaine Vialard</a>, on a staff Intranet.</li>
+</ol>
+<p><strong>Here is what we will be building for the remainder of this post:</strong></p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          <a class="
+                sqs-block-image-link
+                
+          
+        
+              " href="https://sites.google.com/site/examplestaffintranet/" target="_blank">
+            
+          <div style="padding-bottom:55.08000183105469%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433035593867-7GS2ZUELOZ8MJF6XQ87T/ke17ZwdGBToddI8pDm48kD_FvwXn7iXC8tEYtefQX8F7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0oqTCML9YEpQav0qOnwUNzK6KYgwc_K6dqUl5aR7y_3UPm18qt9PKm4mfFBQjk7bFQ/image-asset.png" alt="Click to view a sample staff intranet site with an example of an Awesome Table housed student contact list"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433035593867-7GS2ZUELOZ8MJF6XQ87T/ke17ZwdGBToddI8pDm48kD_FvwXn7iXC8tEYtefQX8F7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0oqTCML9YEpQav0qOnwUNzK6KYgwc_K6dqUl5aR7y_3UPm18qt9PKm4mfFBQjk7bFQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433035593867-7GS2ZUELOZ8MJF6XQ87T/ke17ZwdGBToddI8pDm48kD_FvwXn7iXC8tEYtefQX8F7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0oqTCML9YEpQav0qOnwUNzK6KYgwc_K6dqUl5aR7y_3UPm18qt9PKm4mfFBQjk7bFQ/image-asset.png" data-image-dimensions="2500x1377" data-image-focal-point="0.5,0.5" alt="Click to view a sample staff intranet site with an example of an Awesome Table housed student contact list" data-load="false" data-image-id="556a6347e4b044fc8d200b1a" data-type="image">
+          </div>
+        
+          </a>
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p><strong>Click to view a sample staff intranet site with an example of an Awesome Table housed student contact list</strong></p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>Exporting from an SIS into Google Spreadsheets</h3>
+<p>There are lots of different SIS’s out there and the best way to find out how to export student contact information is to check the SIS’s documentation. In most cases, getting data out of an SIS means downloading a CSV file (comma separated values). When making decisions about which SIS to purchase for one's school or district, avoid at all costs any SIS without robust data export features.</p>
+<h3><span><span style="font-size:15px">Uploading the CSV of contact information into a Google Spreadsheet “container” sheeT</span></span></h3>
+<p>The first step is to create a new Google Spreadsheet with two sheets (or make a copy of this<a target="_blank" href="https://docs.google.com/spreadsheets/d/1NYDEwrkLa5jU2thrpww3v6d6FEBWul04slWJxi0Y6vM/copy"> template</a>). The first sheet, or the container sheet, is used to house uploaded raw data - like the CSV export from an SIS. At least one other sheet is used to perform calculations or transformations on the raw data. This type of spreadsheet architecture has the benefit of being able to accommodate raw data uploads without requiring the spreadsheet owner to rebuild special functions and reports. The raw data and any type of calculation are happening in two different places and therefore can be changed independently of each other.<span> In this case I've created a tab called "Imported CSV from Student Information System" to hold the raw data. I've created a tab called "Awesome Table Display" to display the data.</span></p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1186px;">
+          
+        
+        
+
+        
+          
+            <button class="
+                  sqs-block-image-button
+                  lightbox
+                  
+          
+        
+                " data-description="" data-lightbox-theme="">
+              <span class="v6-visually-hidden">View fullsize</span>
+              
+          <div style="padding-bottom:13.490724563598633%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1432953618523-4WE6A764BQJMM6LHTVJ2/ke17ZwdGBToddI8pDm48kEkCzSezblE8faaKwtS47hUUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcsiupoXF7AVMfU7omZtLgF_QjZpUs7VdMu8fqnDY8ehAL6Q3VVHBuv7fHc12rJkKz/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1432953618523-4WE6A764BQJMM6LHTVJ2/ke17ZwdGBToddI8pDm48kEkCzSezblE8faaKwtS47hUUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcsiupoXF7AVMfU7omZtLgF_QjZpUs7VdMu8fqnDY8ehAL6Q3VVHBuv7fHc12rJkKz/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1432953618523-4WE6A764BQJMM6LHTVJ2/ke17ZwdGBToddI8pDm48kEkCzSezblE8faaKwtS47hUUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcsiupoXF7AVMfU7omZtLgF_QjZpUs7VdMu8fqnDY8ehAL6Q3VVHBuv7fHc12rJkKz/image-asset.png" data-image-dimensions="1186x160" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="55692312e4b09b4e298b3d10" data-type="image">
+          </div>
+        
+            </button>
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Google has excellent documentation on <a href="https://support.google.com/docs/answer/40608?hl=en">how to upload a CSV into a Google Spreadsheet</a>. The key to remember is to replace the the current sheet. This will replace any data on the current active (open) sheet in the spreadsheet with data from the CSV, without changing any of the formulas referencing data in the current sheet. Make sure to import the CSV file while on the "Import CSV from Student Information System" sheet so as not to replace the functions in the display sheet.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:400px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:126%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1432953533758-IEGEJY3JKS9Q0BHU4J3G/ke17ZwdGBToddI8pDm48kPCCeTmL6cdQqniKgk28RaxZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVExjfxz7MsdeuRnE4qQd68mewDQ5VSij7uODWV4kw6whTqWIIaSPh2v08GbKqpiV54/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1432953533758-IEGEJY3JKS9Q0BHU4J3G/ke17ZwdGBToddI8pDm48kPCCeTmL6cdQqniKgk28RaxZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVExjfxz7MsdeuRnE4qQd68mewDQ5VSij7uODWV4kw6whTqWIIaSPh2v08GbKqpiV54/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1432953533758-IEGEJY3JKS9Q0BHU4J3G/ke17ZwdGBToddI8pDm48kPCCeTmL6cdQqniKgk28RaxZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVExjfxz7MsdeuRnE4qQd68mewDQ5VSij7uODWV4kw6whTqWIIaSPh2v08GbKqpiV54/image-asset.png" data-image-dimensions="400x505" data-image-focal-point="0.8432835820895522,0.49404761904761907" alt="" data-load="false" data-image-id="55692166e4b061dc0759f39d" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p id="yui_3_17_2_3_1432953087272_27311">Clicking import will move all the data from the CSV file into the Google Spreadsheet. I applied some formatting to make the raw data more readable in the example below. <span id="yui_3_17_2_3_1432953087272_27313">A few seconds of effort differentiating the header row with color and playing with column spacing can go a long way to making raw data easier to look at.</span></p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:400px;">
+          
+        
+        
+
+        
+          
+            <button class="
+                  sqs-block-image-button
+                  lightbox
+                  
+          
+        
+                " data-description="" data-lightbox-theme="">
+              <span class="v6-visually-hidden">View fullsize</span>
+              
+          <div style="padding-bottom:51.5%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1432953495724-XV3414RXPU25PFD258OL/ke17ZwdGBToddI8pDm48kCVbSgcb_61JzXBZX0zkTiZZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVGdu7vnegGQ-OawlCNQPnZdfXbtJLW7PwQhMebdsyvXhmQ6l2WM7tn7mqHTODzkmeM/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1432953495724-XV3414RXPU25PFD258OL/ke17ZwdGBToddI8pDm48kCVbSgcb_61JzXBZX0zkTiZZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVGdu7vnegGQ-OawlCNQPnZdfXbtJLW7PwQhMebdsyvXhmQ6l2WM7tn7mqHTODzkmeM/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1432953495724-XV3414RXPU25PFD258OL/ke17ZwdGBToddI8pDm48kCVbSgcb_61JzXBZX0zkTiZZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVGdu7vnegGQ-OawlCNQPnZdfXbtJLW7PwQhMebdsyvXhmQ6l2WM7tn7mqHTODzkmeM/image-asset.png" data-image-dimensions="400x206" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="55692265e4b044fc8d1c441e" data-type="image">
+          </div>
+        
+            </button>
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>Creating a Display Sheet</h3>
+<p>On the second sheet, create a set of headers to label the columns of raw data that will be displayed in the Awesome Table. Notice that there are two sets of headers, but header names are not repeated. The first headers in red are used to sort the raw data alphabetically by student (advisor, grade level, class would work just as well). Some of this unformatted data will be used to populate the <a target="_blank" href="https://docs.google.com/document/d/1G9JiOOFT5VKYGITvrLdlv0pBnJM0rXdrruSd91zAcCM/preview#heading=h.vxnpjk2q793q">filters</a> in the Awesome Table. The second group of headers in orange will use HTML to format the data in the red columns for actual display in Awesome Table. Remember, for an Awesome Table to work properly it is important to have unique header titles.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1584px;">
+          
+        
+        
+
+        
+          
+            <button class="
+                  sqs-block-image-button
+                  lightbox
+                  
+          
+        
+                " data-description="" data-lightbox-theme="">
+              <span class="v6-visually-hidden">View fullsize</span>
+              
+          <div style="padding-bottom:38.00505065917969%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433037044438-WSWQPYLM43BZ80BUF2ZW/ke17ZwdGBToddI8pDm48kNH10KDMPf4JJgy2mKNOwQwUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2ds_VgNpzySMeZc428P9NcomtN4nTFgmoiugM0V4rMHj7CjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433037044438-WSWQPYLM43BZ80BUF2ZW/ke17ZwdGBToddI8pDm48kNH10KDMPf4JJgy2mKNOwQwUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2ds_VgNpzySMeZc428P9NcomtN4nTFgmoiugM0V4rMHj7CjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433037044438-WSWQPYLM43BZ80BUF2ZW/ke17ZwdGBToddI8pDm48kNH10KDMPf4JJgy2mKNOwQwUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2ds_VgNpzySMeZc428P9NcomtN4nTFgmoiugM0V4rMHj7CjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1584x602" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="556a68f4e4b03db784349f82" data-type="image">
+          </div>
+        
+            </button>
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>The next step is to get all of the raw data of interest sorted alphabetically under the red header columns. In cell A3 enter the following formula:</p>
+<pre><span style="font-size:14px">=</span><span style="font-size:14px">sort</span><span style="font-size:14px">(</span><span style="font-size:14px">'Imported CSV from Student Information System'!C2:C</span><span style="font-size:14px">,</span><span style="font-size:14px">'Imported CSV from Student Information System'!$B2:$B</span><span style="font-size:14px">,</span><span style="font-size:14px">1</span><span style="font-size:14px">)</span></pre>
+<p>The above formula will sort the data in column C of the 'Imported CSV from Student Information System' sheet, which is student ID numbers, by column B of that sheet, which is student last name. The '1' means that data will be sorted alphabetically by column B.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1928px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:65.35269927978516%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433038015970-VKPYO5ENS7DM7SGHWZ3S/ke17ZwdGBToddI8pDm48kHdCH3FTLVB_m9d09upIpn97gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1Uet_NTefK3Ay5a_0rX0nrqROGAR57tO1E1T28C70nrQYm7cT0R_dexc_UL_zbpz6JQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433038015970-VKPYO5ENS7DM7SGHWZ3S/ke17ZwdGBToddI8pDm48kHdCH3FTLVB_m9d09upIpn97gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1Uet_NTefK3Ay5a_0rX0nrqROGAR57tO1E1T28C70nrQYm7cT0R_dexc_UL_zbpz6JQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433038015970-VKPYO5ENS7DM7SGHWZ3S/ke17ZwdGBToddI8pDm48kHdCH3FTLVB_m9d09upIpn97gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1Uet_NTefK3Ay5a_0rX0nrqROGAR57tO1E1T28C70nrQYm7cT0R_dexc_UL_zbpz6JQ/image-asset.png" data-image-dimensions="1928x1260" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="556a6cbfe4b03bee99e99420" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Repeat the process above for the remaining red column headers. Below the data is sorted alphabetically by last name.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1948px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:45.99589538574219%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433038199065-SDPHQFGFY3CNLVGDX45J/ke17ZwdGBToddI8pDm48kCkeAB142fwWEU92Eca3agoUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dm_cJC7xyelHeqwIKQHdKpmomGES0Ewklf6r5OsR_lYmCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433038199065-SDPHQFGFY3CNLVGDX45J/ke17ZwdGBToddI8pDm48kCkeAB142fwWEU92Eca3agoUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dm_cJC7xyelHeqwIKQHdKpmomGES0Ewklf6r5OsR_lYmCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433038199065-SDPHQFGFY3CNLVGDX45J/ke17ZwdGBToddI8pDm48kCkeAB142fwWEU92Eca3agoUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dm_cJC7xyelHeqwIKQHdKpmomGES0Ewklf6r5OsR_lYmCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1948x896" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="556a6d76e4b050c616e601a8" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Next it is time to decide which of the red columns contain data which we want our teachers to be able to filter on. Student Id is probably not a useful filter, but name and grade certainly are. Adding filters is as simple as putting in a few keywords from the Awesome Table <a target="_blank" href="https://docs.google.com/document/d/1G9JiOOFT5VKYGITvrLdlv0pBnJM0rXdrruSd91zAcCM/preview">documentation</a> in the second row. The three keywords below mean:</p>
+<ul>
+<li>nofilter - do not apply a filter to this column of data</li>
+<li>hidden - hide this column from view</li>
+<li>categoryFilter - use a drop down list style filter for this column of data</li>
+</ul>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1906px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:11.542497634887695%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433038451476-C4VXUHH1IWHYWEQCVRC8/ke17ZwdGBToddI8pDm48kHePv3UEsqhsauif3D9SvHMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2douGuAiYpd-jvFGqT23bpqjVydzm3edUB43nt-DmRhtgCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433038451476-C4VXUHH1IWHYWEQCVRC8/ke17ZwdGBToddI8pDm48kHePv3UEsqhsauif3D9SvHMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2douGuAiYpd-jvFGqT23bpqjVydzm3edUB43nt-DmRhtgCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433038451476-C4VXUHH1IWHYWEQCVRC8/ke17ZwdGBToddI8pDm48kHePv3UEsqhsauif3D9SvHMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2douGuAiYpd-jvFGqT23bpqjVydzm3edUB43nt-DmRhtgCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1906x220" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="556a6e73e4b050c616e604de" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>In columns F through I we will concatenate data from columns A through E along with some handy HTML to create formatted data that the Awesome Table will render. In the spreadsheet, columns F through I will not be human readable, but in the Awesome Table the data will display nicely.</p>
+<p>In cell F3 enter the following formula: </p>
+<pre><span style="font-size:14px">=</span><span style="font-size:14px">"&lt;div style="</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">char</span><span style="font-size:14px">(</span><span style="font-size:14px">34</span><span style="font-size:14px">)</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">"width:200px"</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">char</span><span style="font-size:14px">(</span><span style="font-size:14px">34</span><span style="font-size:14px">)</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">"&gt;"</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">B3</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">" "</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">C3</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">"&lt;/div&gt;"</span></pre>
+<p>The above formula is taking the "&lt;div&gt;" HTML tag and adding a width style property. A div is a container on a webpage. In this case we want to build a container that is 200 pixels wide and holds the contents of cells B3 and C3, or the students first and last name. <span>Applying an inline style, like the widt</span><span>h property, in HTML requires the use of quotation marks. However, spreadsheets use quotation marks to denote strings of text so whenever an actual quotation mark is necessary in the HTML you will see the function "<a target="_blank" href="https://support.google.com/docs/answer/3094120">char</a>(34)" which gets evaluated into a quotation mark.</span></p>
+<p>You do not need to know HTML to put this build together, just copy the above formula. If you do not know HTML, but are interested in learning, I recommend the free <a target="_blank" href="http://www.codecademy.com/en/tracks/web">Code Academy HTML and CSS</a> online course.</p>
+<p>The width property may have to be adjusted depending on how wide the data is that is being displayed. To change the width, just change "200px" to a smaller quantity for a narrower column or a larger quantity for a wider column. The process of landing on the correct width is just trial and error, but the values listed are a good place to start.</p>
+<p>Copy the formula in F3 down to the last row of data.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1896px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:17.088607788085938%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433038695118-IMCH7ZYBEVWY8ZEW72JO/ke17ZwdGBToddI8pDm48kHpvY57Y20jJmFtcfNiOUV8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dhKnffpEpJF55YeaNCWQwqr5_to4mZWgvpV4EKnwBif1CjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433038695118-IMCH7ZYBEVWY8ZEW72JO/ke17ZwdGBToddI8pDm48kHpvY57Y20jJmFtcfNiOUV8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dhKnffpEpJF55YeaNCWQwqr5_to4mZWgvpV4EKnwBif1CjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433038695118-IMCH7ZYBEVWY8ZEW72JO/ke17ZwdGBToddI8pDm48kHpvY57Y20jJmFtcfNiOUV8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dhKnffpEpJF55YeaNCWQwqr5_to4mZWgvpV4EKnwBif1CjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1896x324" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="556a6f66e4b0e0e4f7e84c0f" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>In cell G3  enter the following formula:</p>
+<pre><span style="font-size:14px">=</span><span style="font-size:14px">"&lt;center&gt;&lt;div style="</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">char</span><span style="font-size:14px">(</span><span style="font-size:14px">34</span><span style="font-size:14px">)</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">"width:25px"</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">char</span><span style="font-size:14px">(</span><span style="font-size:14px">34</span><span style="font-size:14px">)</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">"&gt;"</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">D3</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">"&lt;/div&gt;&lt;/center&gt;"</span></pre>
+<p>The above formula is taking the grade of a student and putting it in a div with a width of 25 px. The entire div is centered with a "&lt;center&gt;" tag. Copy cell G3 down to the last row of data as well.</p>
+<p>In cell H3 enter the following formula:</p>
+<pre><span style="font-size:14px">=</span><span style="font-size:14px">"&lt;center&gt;&lt;div style="</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">char</span><span style="font-size:14px">(</span><span style="font-size:14px">34</span><span style="font-size:14px">)</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">"width:100px"</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">char</span><span style="font-size:14px">(</span><span style="font-size:14px">34</span><span style="font-size:14px">)</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">"&gt;"</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">E3</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">"&lt;/div&gt;&lt;/center&gt;"</span></pre>
+<p>The above formula is taking the phone number of a student and putting it in a dive with a width of 100 px. The entire div is centered with a "&lt;center&gt;" tag as well. Copy cell H3 down to the last row of data.</p>
+<p>In cell I3 enter the following formula:</p>
+<pre><span style="font-size:14px">=</span><span style="font-size:14px">"&lt;center&gt;&lt;a style=align:center;color:black!important;text-decoration:none; href="</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">char</span><span style="font-size:14px">(</span><span style="font-size:14px">34</span><span style="font-size:14px">)</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">"&lt;&lt;MY PREFILLED FORM LINK GOES HERE&gt;&gt;"</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">char</span><span style="font-size:14px">(</span><span style="font-size:14px">34</span><span style="font-size:14px">)</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">"target="</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">char</span><span style="font-size:14px">(</span><span style="font-size:14px">34</span><span style="font-size:14px">)</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">"_blank"</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">char</span><span style="font-size:14px">(</span><span style="font-size:14px">34</span><span style="font-size:14px">)</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">"&gt;&lt;span style="</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">char</span><span style="font-size:14px">(</span><span style="font-size:14px">34</span><span style="font-size:14px">)</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">"width:100px;background-color:#f5f5f5;background-image:-webkit-linear-gradient(top,#f5f5f5,#f1f1f1),color: #444;border:1px solid rgba(0,0,0,0);border-radius:2px;display:inline-block;font-size:11px;font-weight:bold;height:27px;line-height:27px;padding:0px 20px 0px 20px;text-align:center;text-transform:uppercase;white-space:nowrap;font-color:black"</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">char</span><span style="font-size:14px">(</span><span style="font-size:14px">34</span><span style="font-size:14px">)</span><span style="font-size:14px"> </span><span style="font-size:14px">&amp;</span><span style="font-size:14px"> </span><span style="font-size:14px">"&gt;Log Contact&lt;/span&gt;&lt;/a&gt;&lt;/center&gt;"</span></pre>
+<p>The above formula is much less complicated than it looks. Basically it is creating an anchor tag, which holds a link, that holds a span, which is just another type of container tag in HTML. The span is styled to look like one of Google's grey buttons. Copy the contents of cell H3 down to the last row of data. Notice, the "&lt;&lt;MY PREFILLED FORM LINK GOES HERE&gt;&gt;" section of the formula. Add a link to a Google Form for logging contact outreach between the quotation marks. In a subsequent post, I will outline how to create a pre-filled form link for exactly this purpose.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1992px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:46.28514099121094%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433039797987-LBF9EDG7TW0T0119Z8JJ/ke17ZwdGBToddI8pDm48kPst0Uj27rmf_84ZwA2WAAYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dgq-cu5QL7fd1_CZONJnm8ompAN7lXAVa2TUHtel4eChCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433039797987-LBF9EDG7TW0T0119Z8JJ/ke17ZwdGBToddI8pDm48kPst0Uj27rmf_84ZwA2WAAYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dgq-cu5QL7fd1_CZONJnm8ompAN7lXAVa2TUHtel4eChCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433039797987-LBF9EDG7TW0T0119Z8JJ/ke17ZwdGBToddI8pDm48kPst0Uj27rmf_84ZwA2WAAYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dgq-cu5QL7fd1_CZONJnm8ompAN7lXAVa2TUHtel4eChCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1992x922" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="556a73b5e4b0e5c055747fff" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>Displaying HTML in an Awesome Table</h3>
+<p>On a Google Site, use the "Edit Page" tool and then click the "Insert". Choose "More Gadgets...". </p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1218px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:62.06896209716797%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433098636088-48O50H1U15PF58GG9U2R/ke17ZwdGBToddI8pDm48kLKzpZtUbjQqSY5TLhfVeBEUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcE9JCPfnZhWHY189qM8M0qy43e09PjpZMNLYCtCxsLVgYhdJoSqPtg3ARIkIx31BX/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433098636088-48O50H1U15PF58GG9U2R/ke17ZwdGBToddI8pDm48kLKzpZtUbjQqSY5TLhfVeBEUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcE9JCPfnZhWHY189qM8M0qy43e09PjpZMNLYCtCxsLVgYhdJoSqPtg3ARIkIx31BX/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433098636088-48O50H1U15PF58GG9U2R/ke17ZwdGBToddI8pDm48kLKzpZtUbjQqSY5TLhfVeBEUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcE9JCPfnZhWHY189qM8M0qy43e09PjpZMNLYCtCxsLVgYhdJoSqPtg3ARIkIx31BX/image-asset.png" data-image-dimensions="1218x756" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="556b598be4b00f4c459e2121" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Next, search for "Awesome Table".</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1794px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:62.87625503540039%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433098672514-DU6K655GU3TFV2YJQBWT/ke17ZwdGBToddI8pDm48kIynIo71n46plAavdhKYvDh7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UUHyTK7YsMbZJn6gW4Qkx14ZffnW_sHEXsYBfG8AE14jZtJ3qR9G2BYeA0wOAaeYNg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433098672514-DU6K655GU3TFV2YJQBWT/ke17ZwdGBToddI8pDm48kIynIo71n46plAavdhKYvDh7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UUHyTK7YsMbZJn6gW4Qkx14ZffnW_sHEXsYBfG8AE14jZtJ3qR9G2BYeA0wOAaeYNg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433098672514-DU6K655GU3TFV2YJQBWT/ke17ZwdGBToddI8pDm48kIynIo71n46plAavdhKYvDh7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UUHyTK7YsMbZJn6gW4Qkx14ZffnW_sHEXsYBfG8AE14jZtJ3qR9G2BYeA0wOAaeYNg/image-asset.png" data-image-dimensions="1794x1128" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="556b59b0e4b0807cd7b5cd9c" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Click "Select".</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1792px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:62.388389587402344%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433098758201-4PMH9N0Y6ZKXTP20V5JA/ke17ZwdGBToddI8pDm48kMVYw_f7IgvREGwDnXug54N7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UdMn8mwyR_-oV5jEgREeW2KA_ops1gZZCZiPwzTv9Q52JvwGh1qtNWvMhYKnvaKhbA/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433098758201-4PMH9N0Y6ZKXTP20V5JA/ke17ZwdGBToddI8pDm48kMVYw_f7IgvREGwDnXug54N7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UdMn8mwyR_-oV5jEgREeW2KA_ops1gZZCZiPwzTv9Q52JvwGh1qtNWvMhYKnvaKhbA/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433098758201-4PMH9N0Y6ZKXTP20V5JA/ke17ZwdGBToddI8pDm48kMVYw_f7IgvREGwDnXug54N7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UdMn8mwyR_-oV5jEgREeW2KA_ops1gZZCZiPwzTv9Q52JvwGh1qtNWvMhYKnvaKhbA/image-asset.png" data-image-dimensions="1792x1118" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="556b5a05e4b07e55e3698480" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Add the URL of the Google Spreadsheet containing the data to display. Next enter the name of the sheet containing the display data, in this case it is "Awesome Table Display". Finally, enter the range of data. In this case, it is A1:I. Remember, columns A through E will be used to create filters. The HTML in columns F through I will actually be displayed. Click the green "Save" button at the top and then the "OK" button.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1788px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:61.073829650878906%;" class="
+                image-block-wrapper
+                
+          
+        
+                
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433098802026-JWBRO1HM68P9PRJVJ2PB/ke17ZwdGBToddI8pDm48kLNpv2k84OU2eyOU3fGk89R7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UZ4hnUyh2aYmrCpbibeyb9XTMw7py7shOZPjLgVtStx_m7cT0R_dexc_UL_zbpz6JQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433098802026-JWBRO1HM68P9PRJVJ2PB/ke17ZwdGBToddI8pDm48kLNpv2k84OU2eyOU3fGk89R7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UZ4hnUyh2aYmrCpbibeyb9XTMw7py7shOZPjLgVtStx_m7cT0R_dexc_UL_zbpz6JQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433098802026-JWBRO1HM68P9PRJVJ2PB/ke17ZwdGBToddI8pDm48kLNpv2k84OU2eyOU3fGk89R7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UZ4hnUyh2aYmrCpbibeyb9XTMw7py7shOZPjLgVtStx_m7cT0R_dexc_UL_zbpz6JQ/image-asset.png" data-image-dimensions="1788x1092" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="556b5a32e4b03531d6ce8b87" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>You now have a filterable table of student contact information along with links for teachers to log calls. </p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2200px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:63.272727966308594%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433099028297-DKGSKPRBFD4YFF2DKMSH/ke17ZwdGBToddI8pDm48kNY8CfOFNa71xD2haPr0mTR7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UVaw57hY7JjlCrVfurA7Ddc3UJvDFynYX2iWy-lmyJrBOpYghpI-Ha_TwZsqqmJXng/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433099028297-DKGSKPRBFD4YFF2DKMSH/ke17ZwdGBToddI8pDm48kNY8CfOFNa71xD2haPr0mTR7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UVaw57hY7JjlCrVfurA7Ddc3UJvDFynYX2iWy-lmyJrBOpYghpI-Ha_TwZsqqmJXng/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1433099028297-DKGSKPRBFD4YFF2DKMSH/ke17ZwdGBToddI8pDm48kNY8CfOFNa71xD2haPr0mTR7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UVaw57hY7JjlCrVfurA7Ddc3UJvDFynYX2iWy-lmyJrBOpYghpI-Ha_TwZsqqmJXng/image-asset.png" data-image-dimensions="2200x1392" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="556b5b13e4b099a4afae5bce" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Stay tuned for the next post on creating the actual Google Form for logging contacts!</p>
+</body></html>

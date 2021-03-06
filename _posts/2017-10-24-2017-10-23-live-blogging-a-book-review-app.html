@@ -1,0 +1,357 @@
+---
+layout: post
+title: Live Blogging a Book Review App
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '56'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1>Part I - rails new</h1>
+<p>For the past few years I have been posting short reviews on all the books I read on Facebook. My current process is problematic for a few reasons. First, I probably have friends on Facebook who do not care to read my book reviews in their newsfeeds. Second, my current system for posting reviews is a lost opportunity because I am not systematically collecting data that could be used to inform future reading habits.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2482px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:46.817081451416016%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508811919880-V90MRMHSEGE7KPDR5GMD/ke17ZwdGBToddI8pDm48kDCgEyd5tDkn10hJQbNYhIN7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1US3BtZlB5xwZb7NVgEwTsWQvAjez8782gXRNPzlGYY6-m7cT0R_dexc_UL_zbpz6JQ/Screen+Shot+2017-10-23+at+8.24.43+PM.png" alt="Screen Shot 2017-10-23 at 8.24.43 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508811919880-V90MRMHSEGE7KPDR5GMD/ke17ZwdGBToddI8pDm48kDCgEyd5tDkn10hJQbNYhIN7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1US3BtZlB5xwZb7NVgEwTsWQvAjez8782gXRNPzlGYY6-m7cT0R_dexc_UL_zbpz6JQ/Screen+Shot+2017-10-23+at+8.24.43+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508811919880-V90MRMHSEGE7KPDR5GMD/ke17ZwdGBToddI8pDm48kDCgEyd5tDkn10hJQbNYhIN7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1US3BtZlB5xwZb7NVgEwTsWQvAjez8782gXRNPzlGYY6-m7cT0R_dexc_UL_zbpz6JQ/Screen+Shot+2017-10-23+at+8.24.43+PM.png" data-image-dimensions="2482x1162" data-image-focal-point="0.5,0.5" alt="Screen Shot 2017-10-23 at 8.24.43 PM.png" data-load="false" data-image-id="59eea489be42d6f681f3bbbc" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>I know generally that I read a mostly nonfiction, mostly historical and political, written mostly by white male authors. I would like a way to save my book reviews so that I have the ability to calculate various metrics over time, because I am cool like that. I would also like my friends, who are interested, to be able to comment on my reviews. I also intend to continue to post my reviews on social media, but I think sharing a url to a review in this app rather than the full text of a review will be less intrusive in my friends' newsfeeds.</p>
+<p>I believe there is a straightforward software solution to my needs and as a result I have decided to invite you all on a journey. As with any personal project, I expect to learn quite a bit in the process of creating an app to solve the aforementioned problem. This will be the first of hopefully many (no promises) posts that I write as I develop the bookshelf app.</p>
+<h2>SCHEMA BrainstoRM</h2>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1724px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:86.07888793945312%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508811273275-RAFIE2802CFE602VYNU0/ke17ZwdGBToddI8pDm48kB_fiySNPpJi_swvdVV9Ukh7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UQ-tSgVlSVuyD--PJn035hbtUDRSWN7SUAuHrdd0un2ObSexTd1-frD7527z4SM9QQ/Screen+Shot+2017-10-23+at+8.14.14+PM.png" alt="Screen Shot 2017-10-23 at 8.14.14 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508811273275-RAFIE2802CFE602VYNU0/ke17ZwdGBToddI8pDm48kB_fiySNPpJi_swvdVV9Ukh7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UQ-tSgVlSVuyD--PJn035hbtUDRSWN7SUAuHrdd0un2ObSexTd1-frD7527z4SM9QQ/Screen+Shot+2017-10-23+at+8.14.14+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508811273275-RAFIE2802CFE602VYNU0/ke17ZwdGBToddI8pDm48kB_fiySNPpJi_swvdVV9Ukh7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UQ-tSgVlSVuyD--PJn035hbtUDRSWN7SUAuHrdd0un2ObSexTd1-frD7527z4SM9QQ/Screen+Shot+2017-10-23+at+8.14.14+PM.png" data-image-dimensions="1724x1484" data-image-focal-point="0.5,0.5" alt="Screen Shot 2017-10-23 at 8.14.14 PM.png" data-load="false" data-image-id="59eea208017db2e4f36c8b65" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>When I start an app I like to draft a database schema before I start coding. In this case I'm imagining a few tables shown above. First, I'll have a book table, which will be the main model in this App. My book model is going to store some basic information along with Amazon and Audible affiliate links so I can become rich. </p>
+<p>I will also have a review model, which will store the text review I write about a given book. I am imagining a one to one relationship between books and reviews.</p>
+<p>To help track interesting metrics I also will have a table for storing genres and authors. Both the author and genre will have books. I could have a book_genres or author_books table, if I anticipate needing the functionality of having a book in multiple genres or with multiple authors, but I am okay with limiting myself to one genre per book and I cannot remember the last co-written book I've read which makes me think that it will not be a common enough use case to merit this type of database design.</p>
+<p>Next, I'll want to have comments because I want my friends to be able to comment on my reviews. Reviews will have many comments. I do not like anonymous internet comments, so I will also need to have a way to store people's identities. To that end I'll also have a users table.</p>
+<p>I will also say that users have many reviews, although I will be the only user writing reviews I can imagine a subsequent iteration in which we try to compete with GoodReads and implement some sort of multi-tenancy platform where all users can post reviews of the books they read. It's also a good excuse to walk through an omniauth implementation with the Devise gem.</p>
+<p>For the remainder of this post, we'll focus on the nitty gritty setup I run when I start a new Rails application.</p>
+<h2>Rails NeW</h2>
+<p>To start our new book review application we will run the following command:</p>
+<pre style="color:#000000;background:#ffffff;">rails new bookshelf <span style="color:#44aadd; ">-d</span> postgresql --skip-turbolinks --skip-spring -T
+</pre>
+<p>This will create a new rails application called "bookshelf" using a Postgresql database (easy to deploy to Heroku later), skipping turbolinks and spring (we can add them later if we need the, and I don't think we'll need them) and skipping the test directory. Do not worry, we'll be tdd-ing this app, I just prefer RSpec to minitest.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1422px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:164.97889709472656%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508813204430-8BLLBGWD493ELCV4FIA7/ke17ZwdGBToddI8pDm48kNq8yfkPm6XvR6mB8nDut1N7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmggKHC0797iIaz3NjkGoDuXTUqQpCnyNv6xX5Gye2228Lu_BKfneLbJF_StBvP9n4/Screen+Shot+2017-10-23+at+8.46.18+PM.png" alt="Behold the glory that is rails new"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508813204430-8BLLBGWD493ELCV4FIA7/ke17ZwdGBToddI8pDm48kNq8yfkPm6XvR6mB8nDut1N7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmggKHC0797iIaz3NjkGoDuXTUqQpCnyNv6xX5Gye2228Lu_BKfneLbJF_StBvP9n4/Screen+Shot+2017-10-23+at+8.46.18+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1508813204430-8BLLBGWD493ELCV4FIA7/ke17ZwdGBToddI8pDm48kNq8yfkPm6XvR6mB8nDut1N7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmggKHC0797iIaz3NjkGoDuXTUqQpCnyNv6xX5Gye2228Lu_BKfneLbJF_StBvP9n4/Screen+Shot+2017-10-23+at+8.46.18+PM.png" data-image-dimensions="1422x2346" data-image-focal-point="0.5,0.5" alt="Behold the glory that is rails new" data-load="false" data-image-id="59eea993e9bfdf7f73a8abc7" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>Behold the glory that is rails new</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>I have mentioned <a href="https://twitter.com/ryan_flach">Ryan Flach's</a> common rails setup <a target="_blank" href="https://gist.github.com/ryanflach/9fe657471bc9282a18d6904171645278">gist</a> a few times on this blog. I still swear by it for all my rails new needs. Let's change directories to our new bookshelf folder.</p>
+<p><code>$ cd bookshelf</code></p>
+<h2>Version Control</h2>
+<p>I'll be using git for version control for this project, which I may or may not reference in subsequent posts. I will try to save various iterations of this app on GitHub so readers can see the progression or pick up from a certain point of particular point along the way.</p>
+<p>I've already created a repository on GitHub, so now to initialize a new git repository in my bookshelf directory I run:</p>
+<p><code>$ git init</code></p>
+<p>Next I add a remote to my repository, which points my local repository to my repository on GitHub.</p>
+<p><code>$ git remote add origin https://github.com/&lt;your_github_username&gt;/&lt;repository_name&gt;.git</code></p>
+<p>After that I add all the changes I've made by running rails new.</p>
+<p><code>$ git add .</code></p>
+<p>Next, I add a commit message.</p>
+<p><code>$ git commit -m "Initial commit"</code></p>
+<p>Finally, I push my commit to GitHub. I use the force flag to override the readme I accidentally created when I created my repository on GitHub.</p>
+<p><code>$ git push --force</code></p>
+<p>It is a bad idea to get in the habit of using the --force flag because you may unintentionally overwrite code on GitHub.</p>
+<h2>Gems</h2>
+<p>Gems are code libraries that add additional functionality to a Ruby project. I will open my project's Gemfile add the following gems: figaro, rspec-rails, capybara, launchy, shoulda-matchers, database_cleaner, factory_gril_rails, which again you read about <a href="https://gist.github.com/ryanflach/9fe657471bc9282a18d6904171645278">here</a>.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#400000; ">source</span> <span style="color:#0000e6; ">'https://rubygems.org'</span>
+
+git_source<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">github</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span> |repo_name|
+  repo_name <span style="color:#808030; ">=</span> <span style="color:#0000e6; ">"</span><span style="color:#000000; background:#ffffe8; ">#{repo_name}</span><span style="color:#0000e6; ">/</span><span style="color:#000000; background:#ffffe8; ">#{repo_name}</span><span style="color:#0000e6; ">"</span> <span style="color:#800000; font-weight:bold; ">unless</span> repo_name<span style="color:#808030; ">.</span><span style="color:#400000; ">include?</span><span style="color:#808030; ">(</span><span style="color:#0000e6; ">"/"</span><span style="color:#808030; ">)</span>
+  <span style="color:#0000e6; ">"https://github.com/</span><span style="color:#000000; background:#ffffe8; ">#{repo_name}</span><span style="color:#0000e6; ">.git"</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+
+
+<span style="color:#696969; "># Bundle edge Rails instead: gem 'rails', github: 'rails/rails'</span>
+<span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'rails'</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">'~&gt; 5.1.2'</span>
+<span style="color:#696969; "># Use postgresql as the database for Active Record</span>
+<span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'pg'</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">'~&gt; 0.18'</span>
+<span style="color:#696969; "># Use Puma as the app server</span>
+<span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'puma'</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">'~&gt; 3.7'</span>
+<span style="color:#696969; "># Use SCSS for stylesheets</span>
+<span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'sass-rails'</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">'~&gt; 5.0'</span>
+<span style="color:#696969; "># Use Uglifier as compressor for JavaScript assets</span>
+<span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'uglifier'</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">'&gt;= 1.3.0'</span>
+<span style="color:#696969; "># See </span><span style="color:#5555dd; ">https://github.com/rails/execjs#readme</span><span style="color:#696969; "> for more supported runtimes</span>
+<span style="color:#696969; "># gem 'therubyracer', platforms: :ruby</span>
+
+<span style="color:#696969; "># Use CoffeeScript for .coffee assets and views</span>
+<span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'coffee-rails'</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">'~&gt; 4.2'</span>
+<span style="color:#696969; "># Build JSON APIs with ease. Read more: </span><span style="color:#5555dd; ">https://github.com/rails/jbuilder</span>
+<span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'jbuilder'</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">'~&gt; 2.5'</span>
+<span style="color:#696969; "># Use Redis adapter to run Action Cable in production</span>
+<span style="color:#696969; "># gem 'redis', '~&gt; 3.0'</span>
+<span style="color:#696969; "># Use ActiveModel has_secure_password</span>
+<span style="color:#696969; "># gem 'bcrypt', '~&gt; 3.1.7'</span>
+
+<span style="color:#696969; "># Use Capistrano for deployment</span>
+<span style="color:#696969; "># gem 'capistrano-rails', group: :development</span>
+
+<span style="color:#696969; "># Store environment variables securely across my app</span>
+<span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'figaro'</span>
+
+<span style="color:#400000; ">group</span> :<span style="color:#005fd2; ">development</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">test</span><span style="color:#800000; font-weight:bold; "> do</span>
+  <span style="color:#696969; "># Call 'byebug' anywhere in the code to stop execution and get a debugger console</span>
+  <span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'byebug'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">platforms</span>: <span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">mri</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">mingw</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">x64_mingw</span><span style="color:#808030; ">]</span>
+  <span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'pry'</span> <span style="color:#696969; "># use pry debugger tool</span>
+  <span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'rspec-rails'</span> <span style="color:#696969; "># use rspec in place of minitest</span>
+  <span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'shoulda-matchers'</span> <span style="color:#696969; "># easy model association and validation testing</span>
+  <span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'capybara'</span> <span style="color:#696969; "># integration testing</span>
+  <span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'launchy'</span> <span style="color:#696969; "># open the app in a browser for additional debugging</span>
+  <span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'database_cleaner'</span> <span style="color:#696969; "># clean the db between tests</span>
+  <span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'factory_girl_rails'</span> <span style="color:#696969; "># generate db objects wihout repetitive code in tests</span>
+  <span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'simplecov'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">require</span>: <span style="color:#800000; font-weight:bold; ">false</span> <span style="color:#696969; "># generate test coverage reports</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#400000; ">group</span> :<span style="color:#005fd2; ">development</span><span style="color:#800000; font-weight:bold; "> do</span>
+  <span style="color:#696969; "># Access an IRB console on exception pages or by using &lt;%= console %&gt; anywhere in the code.</span>
+  <span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'web-console'</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">'&gt;= 3.3.0'</span>
+  <span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'listen'</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">'&gt;= 3.0.5'</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">'&lt; 3.2'</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#696969; "># Windows does not include zoneinfo files, so bundle the tzinfo-data gem</span>
+<span style="color:#400000; ">gem</span> <span style="color:#0000e6; ">'tzinfo-data'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">platforms</span>: <span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">mingw</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">mswin</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">x64_mingw</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">jruby</span><span style="color:#808030; ">]</span>
+</pre>
+<p>Next I'll run the following commands in order:</p>
+<p>Run bundle to install the gems we just added</p>
+<pre><code>$ bundle</code></pre>
+<p>Setup RSpec</p>
+<pre><code>$ rails g rspec:install</code></pre>
+<p>Setup Figaro</p>
+<pre><code>$ bundle exec figaro install</code></pre>
+<p>Make spec support folder</p>
+<pre><code>$ mkdir spec/support</code></pre>
+<p>Make a factory_girl config file</p>
+<pre><code>$ touch spec/support/factory_gril.rb</code></pre>
+<p>Make a factories folder to hold all our forthcoming factories</p>
+<pre><code>$ mkdir spec/factories</code></pre>
+<p>Make a database_cleaner config file</p>
+<pre><code>$ touch spec/support/database_cleaner.rb</code></pre>
+<p>I will add the following configurations to the following files:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/rails_helper.rb</span>
+
+require <span style="color:#0000e6; ">'capybara/rails'</span>
+
+Shoulda<span style="color:#808030; ">::</span>Matchers<span style="color:#808030; ">.</span>configure<span style="color:#800000; font-weight:bold; "> do</span> |config|
+  config<span style="color:#808030; ">.</span>integrate<span style="color:#800000; font-weight:bold; "> do</span> |with|
+    with<span style="color:#808030; ">.</span>test_framework :<span style="color:#005fd2; ">rspec</span>
+    with<span style="color:#808030; ">.</span>library :<span style="color:#005fd2; ">rails</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#696969; "># Uncomment Dir[Rails.root.join('spec/support/**/*.rb')].each { |f| require f }</span><p>And this:</p><pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/support/factory_girl.rb</span>
+
+RSpec<span style="color:#808030; ">.</span>configure<span style="color:#800000; font-weight:bold; "> do</span> |config|
+  config<span style="color:#808030; ">.</span>include FactoryGirl<span style="color:#808030; ">::</span>Syntax<span style="color:#808030; ">::</span>Methods
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre><p>And this:</p><pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/support/database_cleaner.rb</span>
+
+RSpec<span style="color:#808030; ">.</span>configure<span style="color:#800000; font-weight:bold; "> do</span> |config|
+
+  config<span style="color:#808030; ">.</span>before<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">suite</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+    DatabaseCleaner<span style="color:#808030; ">.</span>clean_with<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">truncation</span><span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  config<span style="color:#808030; ">.</span>before<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">each</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+    DatabaseCleaner<span style="color:#808030; ">.</span>strategy <span style="color:#808030; ">=</span> :<span style="color:#005fd2; ">transaction</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  config<span style="color:#808030; ">.</span>before<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">each</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">js</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#800000; font-weight:bold; ">true</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+    DatabaseCleaner<span style="color:#808030; ">.</span>strategy <span style="color:#808030; ">=</span> :<span style="color:#005fd2; ">truncation</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  config<span style="color:#808030; ">.</span>before<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">each</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+    DatabaseCleaner<span style="color:#808030; ">.</span><span style="color:#400000; ">start</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  config<span style="color:#808030; ">.</span>after<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">each</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+    DatabaseCleaner<span style="color:#808030; ">.</span>clean
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre><h2>Wrapping up</h2><p>Finally, we'll commit the work we've done! Nailed it. You can find everything we've discussed in <a target="_blank" href="https://github.com/PlanetEfficacy/bookshelf/tree/iteration_0_initial_setup">this branch of my bookshelf repo</a>.</p>
+
+
+ 
+   <div style="width:100%;height:0;padding-bottom:58%;position:relative;"><iframe src="https://giphy.com/embed/8VrtCswiLDNnO" width="100%" height="100%" style="position:absolute" frameborder="0" class="giphy-embed" allowfullscreen></iframe></div>
+ 
+
+<p>In my next post we'll start with some of the actual implementation of our bookshelf application. Thanks again to Ryan Flach for an awesome Rails setup gist.</p><p>If you like the idea of me writing a series of detailed technical posts about this side project, let me know. Thanks for reading!</p></pre>
+</body></html>

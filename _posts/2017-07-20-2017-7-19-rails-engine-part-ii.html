@@ -1,0 +1,385 @@
+---
+layout: post
+title: Rails Engine Part II
+categories:
+- Turing
+- Technical
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '82'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h3>Me = Mock and Stub Freak</h3>
+<p>No one at work has ever accused me of being underzealous in my use of mocks and stubs in my testing. Mocks are fake objects and stubs are fake behaviors employed in software tests. There are three reasons for my bullishness on using fake objects and messages in lieu of actual database entities and method calls.</p>
+<p>First, speed. Mocks and stubs perform faster than real database objects and as a proponent of test driven development (TDD), slow tests can break flow state which then has a multiplier effect on retarding progress on a tough project.</p>
+<p>Second, mocks and stubs can reveal code smells and encourage encapsulation. If a new method has many inputs, needs to know about methods on other classes, and has multiple side effects, well mocks and stubs are not going to fix that. But, they can help lead to more encapsulated solutions.</p>
+<p>Finally, I think mocks and stubs are fun. They are fun because they allow me to work on a large and often alien codebase and still remain productive, as long as I can limit my attention to the one thing I need to change.</p>
+<p>They are also fun because they encourage a type of test driven development known as the London School-TDD, which is a sort of top down approach to test driven development you can read about in this <a href="https://github.com/testdouble/contributing-tests/wiki/London-school-TDD">article</a> by <a href="#">Justin Searls</a>. As Turing School students, we have have been schooled in more of the Detroit style of TDD, which is a more bottom up approach that stresses the red, green, refactor cycle.</p>
+<h3>Applying Mocks and Stubs</h3>
+<p>To illustrate some of the reasons I like mocks and stubs so much, I'm going to refactor a test from one of my old Turing projects, called Rails Engine, which I write about more extensively <a target="_blank" href="http://www.jessespevack.com/blog/2016/10/7/rails-engine">here</a>. Rails Engine is great for this task because there are many database models compared to other projects so there are plenty of tests that require the instantiation of multiple objects with complicated relationships to one another.</p>
+<p>First I went back and ran my test suite ten times in a row to find a rough starting place from which we can improve. In this case the test suite on average takes 3.207 seconds to run. But imagine working on a larger side project, or even a small production app that is say, 10 times the size of the 120 tests I wrote for Rails Engine. A 30 second wait between test runs is not insignificant. Sure, you can run tests by directory, file, and even line, so some will see my work here as an exercise primarily in compulsivity.</p>
+<p>Next let's look at a sample controller test:</p>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'rails_helper'</span>
+
+<span style="color:#696969; "># GET /api/v1/merchants/:id/favorite_customer returns the customer</span>
+<span style="color:#696969; "># who has conducted the most total number of successful transactions.</span>
+describe <span style="color:#0000e6; ">"get to customers favorite merchant"</span><span style="color:#800000; font-weight:bold; "> do</span>
+  it <span style="color:#0000e6; ">"returns the merchant who has the most transactions with that customer"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    customer <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">customer</span><span style="color:#808030; ">)</span>
+    merchant_1 <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">merchant</span><span style="color:#808030; ">)</span>
+    merchant_2 <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">merchant</span><span style="color:#808030; ">)</span>
+    customer_1_invoices <span style="color:#808030; ">=</span> create_list<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">invoice</span><span style="color:#808030; ">,</span> <span style="color:#008c00; ">2</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">customer_id</span>: customer<span style="color:#808030; ">.</span>id<span style="color:#808030; ">,</span> <span style="color:#005fd2; ">merchant_id</span>: merchant_1<span style="color:#808030; ">.</span>id<span style="color:#808030; ">)</span>
+    customer_2_invoice <span style="color:#808030; ">=</span> create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">invoice</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">customer_id</span>: customer<span style="color:#808030; ">.</span>id<span style="color:#808030; ">,</span> <span style="color:#005fd2; ">merchant_id</span>: merchant_2<span style="color:#808030; ">.</span>id<span style="color:#808030; ">)</span>
+    create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">transaction</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">invoice_id</span>: customer_2_invoice<span style="color:#808030; ">.</span>id<span style="color:#808030; ">,</span> <span style="color:#005fd2; ">result</span>: <span style="color:#0000e6; ">"success"</span><span style="color:#808030; ">)</span>
+    customer_1_invoices<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">each</span><span style="color:#800000; font-weight:bold; "> do</span> |invoice|
+      create<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">transaction</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">invoice_id</span>: invoice<span style="color:#808030; ">.</span>id<span style="color:#808030; ">,</span> <span style="color:#005fd2; ">result</span>: <span style="color:#0000e6; ">"success"</span><span style="color:#808030; ">)</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+
+    get <span style="color:#0000e6; ">"/api/v1/customers/</span><span style="color:#000000; background:#ffffe8; ">#{customer</span><span style="color:#808030; background:#ffffe8; ">.</span><span style="color:#000000; background:#ffffe8; ">id}</span><span style="color:#0000e6; ">/favorite_merchant"</span>
+    merchant <span style="color:#808030; ">=</span> JSON<span style="color:#808030; ">.</span>parse<span style="color:#808030; ">(</span>response<span style="color:#808030; ">.</span>body<span style="color:#808030; ">)</span>
+
+    expect<span style="color:#808030; ">(</span>response<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to be_success
+    expect<span style="color:#808030; ">(</span>merchant<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to be_instance_of<span style="color:#808030; ">(</span><span style="color:#bb7977; font-weight:bold; ">Hash</span><span style="color:#808030; ">)</span>
+    expect<span style="color:#808030; ">(</span>merchant<span style="color:#808030; ">[</span><span style="color:#0000e6; ">"id"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span>merchant_1<span style="color:#808030; ">.</span>id<span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The above file is a test for a customers controller. It has one path, a get to /customers/:id/favorite_merchant, which returns a JSON version of the merchant with whom the given customer has done the most business. The above test across ten runs takes on average 2.148227 seconds to run.</p>
+
+
+ 
+   <iframe width="600" height="371" seamless frameborder="0" scrolling="no" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTVS1KnHONLljmkKGXUQBBNUxv4dnDBfAhK364Tc7PpmY5dKha3mM_pHG7kGQYlbgNfF9FhDltYzBhn/pubchart?oid=796009983&amp;format=interactive"></iframe>
+ 
+
+<p>Looking at the test one line at a time, we see that first we create a customer with <a target="_blank" href="https://github.com/thoughtbot/factory_girl">Factory Girl</a>. Next we create two merchants. Next we create two invoices between the customer and each of the merchants. Finally we create two transactions for the two invoices, which record things like payment type and status.</p>
+<p>After our setup, we make a get request to our desired path. We parse the response body and make assertions about which of our two merchants should be returned. This is a great test, but it's totally out of place.</p>
+<p>Since we have a method on our Customer object called "favorite_merchant", which we test thoroughly in our model test, we can trust at the controller level this method will continue to work as planned. At the controller we are only really interested in testing the route and that our favorite_merchant is called.</p>
+<h3>Let's refactor</h3>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'rails_helper'</span>
+
+describe <span style="color:#0000e6; ">"get to customers favorite merchant"</span><span style="color:#800000; font-weight:bold; "> do</span>
+  it <span style="color:#0000e6; ">"routes correctly"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    customer <span style="color:#808030; ">=</span> double
+    allow<span style="color:#808030; ">(</span>Customer<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to receive<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">find</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>with<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'1'</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> customer <span style="color:#800080; ">}</span>
+    expect<span style="color:#808030; ">(</span>customer<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to receive<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">favorite_merchant</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>once
+
+    get <span style="color:#0000e6; ">"/api/v1/customers/1/favorite_merchant"</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Taking this new test line by line we see first we are creating a customer. This time, though, we are just saying that a customer is a double, which means it is a mock object. This is part of <a target="_blank" href="https://relishapp.com/rspec/rspec-mocks/v/3-6/docs">Rspec's built in mocking and stubbing library.</a> I actually use <a target="_blank" href="https://github.com/freerange/mocha">Rspec with Mocha</a> for mocking at work, which I've grown to really like. </p>
+<p>Now we have a test double, which we store in the customer variable. Next we say allow Customer (the class, not the test double), to receive the message "find" with the string "1" as an argument and return customer (our test double). This line is an example of stubbing. We aren't actually calling Customer.find(1) in our test, rather we are replacing that behavior with the stubbed behavior described in our test. Instead of Customer.find going to the database and looking for the customer with an id of 1, it will just return our customer test double.</p>
+<p>Next we expect that our customer (test double) will receive the message "favorite_merchant" one time. We don't have to worry about what this method does, or what various models it looks at because we only care about the route here, not the functionality which is tested on the model. Since we don't have to worry about the functionality, we don't need to set any of the models up in our test.</p>
+<p>We kick everything off by making the get request to our desired route. This is confusing because in typical tests, setup steps come first followed by our expectations. With mocks and stubs you are writing what you expect to happen in the future and then call the action that starts everything off.</p>
+<p>When we run our test everything should pass because the implementation is already done.</p>
+<h3>Benchmarking</h3>
+<p>Running this test 10 times, we see a pretty dramatic speed increase. File load time is not really going to change, so just looking at test run time, before we were at roughly .788 seconds. Now we are down to .705 seconds. On one test, this is obviously not a big deal, but over hundreds or thousands of tests, these speed gains add up and become quite significant. Again, just multiplying this by 1000 to simulate what we could hypothetically expect in a test suite with 1000 tests. That would give us a test suite that will run in 788 seconds, or 13 minutes. Our mocked and stubbed version would run in 11 minutes 45 seconds. That's 1 minute and 15 seconds of extra development time for every full test suite run! I'm only being half feciscious. </p>
+
+
+ 
+   <iframe width="600" height="371" seamless frameborder="0" scrolling="no" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTVS1KnHONLljmkKGXUQBBNUxv4dnDBfAhK364Tc7PpmY5dKha3mM_pHG7kGQYlbgNfF9FhDltYzBhn/pubchart?oid=403935861&amp;format=interactive"></iframe>
+ 
+
+<h3>Here is our Controller implementation</h3>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> Api<span style="color:#808030; ">::</span>V1<span style="color:#808030; ">::</span>Customers<span style="color:#808030; ">::</span>MerchantsController &lt; ApplicationController
+  <span style="color:#800000; font-weight:bold; ">def</span> show
+    render <span style="color:#005fd2; ">json</span>: Customer<span style="color:#808030; ">.</span><span style="color:#400000; ">find</span><span style="color:#808030; ">(</span>params<span style="color:#808030; ">[</span><span style="color:#0000e6; ">"id"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>favorite_merchant
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Does it not just make intuitive sense that for this one line method we should only have a few lines of test? Before we were testing this with something like 24 lines of code. We are down to 9 with our mocking and stubbing.</p>
+<p>Part of the reason we test is so that in the future if a developer makes a change to the code, they'll know quickly if that change has broken some key piece of functionality. Let's mess with implementation to see what kind of errors our test will throw.</p>
+<p>Let's start with tearing everything out:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> Api<span style="color:#808030; ">::</span>V1<span style="color:#808030; ">::</span>Customers<span style="color:#808030; ">::</span>MerchantsController &lt; ApplicationController
+  <span style="color:#800000; font-weight:bold; ">def</span> show
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Will give us the following when we run our mock and stub test:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2494px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:32.878910064697266%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1500524460187-UXDVO8D39IHS55KJAQ5K/ke17ZwdGBToddI8pDm48kHLSwlJB3hJbJfDjWspE3F8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dtVWmpmQTsT7f_0Y0llAdkDHIxAXc79Kl3K4IoZxJeOVCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1500524460187-UXDVO8D39IHS55KJAQ5K/ke17ZwdGBToddI8pDm48kHLSwlJB3hJbJfDjWspE3F8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dtVWmpmQTsT7f_0Y0llAdkDHIxAXc79Kl3K4IoZxJeOVCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1500524460187-UXDVO8D39IHS55KJAQ5K/ke17ZwdGBToddI8pDm48kHLSwlJB3hJbJfDjWspE3F8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dtVWmpmQTsT7f_0Y0llAdkDHIxAXc79Kl3K4IoZxJeOVCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="2494x820" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="59702fab46c3c4b9204eab2c" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Our test fails because we expected our test double to receive the method call favorite_merchant 1 time, but it never happened. That makes sense because our show method is completely empty.</p>
+<p>How about if we just find our customer:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> Api<span style="color:#808030; ">::</span>V1<span style="color:#808030; ">::</span>Customers<span style="color:#808030; ">::</span>MerchantsController &lt; ApplicationController
+  <span style="color:#800000; font-weight:bold; ">def</span> show
+    render <span style="color:#005fd2; ">json</span>: Customer<span style="color:#808030; ">.</span><span style="color:#400000; ">find</span><span style="color:#808030; ">(</span><span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:38.119998931884766%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1500524614192-QS0Y8XRKPJZ4GQ57BF0X/ke17ZwdGBToddI8pDm48kGhrcnfzQ7Cn4fRw5JP2gVsUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnJ8B3d9f9ru3cpDN5dVDL6zAuRIkK_t3SrZPyKnnq0qn3VNpTh6rREgnnj2wUK_jNA/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1500524614192-QS0Y8XRKPJZ4GQ57BF0X/ke17ZwdGBToddI8pDm48kGhrcnfzQ7Cn4fRw5JP2gVsUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnJ8B3d9f9ru3cpDN5dVDL6zAuRIkK_t3SrZPyKnnq0qn3VNpTh6rREgnnj2wUK_jNA/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1500524614192-QS0Y8XRKPJZ4GQ57BF0X/ke17ZwdGBToddI8pDm48kGhrcnfzQ7Cn4fRw5JP2gVsUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnJ8B3d9f9ru3cpDN5dVDL6zAuRIkK_t3SrZPyKnnq0qn3VNpTh6rREgnnj2wUK_jNA/image-asset.png" data-image-dimensions="2500x953" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="59703045b3db2bb651d346ac" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+
+<p>In our above run, our test fails because we were expecting Customer (the class) to have "find" called on it with argument "1", but instead no argument was used in the find.</p>
+<p>Now lets pass in the correct argument:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> Api<span style="color:#808030; ">::</span>V1<span style="color:#808030; ">::</span>Customers<span style="color:#808030; ">::</span>MerchantsController &lt; ApplicationController
+  <span style="color:#800000; font-weight:bold; ">def</span> show
+    render <span style="color:#005fd2; ">json</span>: Customer<span style="color:#808030; ">.</span><span style="color:#400000; ">find</span><span style="color:#808030; ">(</span>params<span style="color:#808030; ">[</span><span style="color:#0000e6; ">'id'</span><span style="color:#808030; ">]</span><span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2494px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:32.878910064697266%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1500524862807-D4XIYKV1DG3EM00401CY/ke17ZwdGBToddI8pDm48kHLSwlJB3hJbJfDjWspE3F8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dtVWmpmQTsT7f_0Y0llAdkDHIxAXc79Kl3K4IoZxJeOVCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1500524862807-D4XIYKV1DG3EM00401CY/ke17ZwdGBToddI8pDm48kHLSwlJB3hJbJfDjWspE3F8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dtVWmpmQTsT7f_0Y0llAdkDHIxAXc79Kl3K4IoZxJeOVCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1500524862807-D4XIYKV1DG3EM00401CY/ke17ZwdGBToddI8pDm48kHLSwlJB3hJbJfDjWspE3F8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dtVWmpmQTsT7f_0Y0llAdkDHIxAXc79Kl3K4IoZxJeOVCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="2494x820" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5970313dc534a5793b99894e" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Now we are failing because our customer (test double) never has "favorite_merchant" called on it.</p>
+<p>Going back to the original implementation (ok, I wrote a private customer method because it was bothering me), we get a passing test:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> Api<span style="color:#808030; ">::</span>V1<span style="color:#808030; ">::</span>Customers<span style="color:#808030; ">::</span>MerchantsController &lt; ApplicationController
+  <span style="color:#800000; font-weight:bold; ">def</span> show
+    render <span style="color:#005fd2; ">json</span>: customer<span style="color:#808030; ">.</span>favorite_merchant
+  <span style="color:#800000; font-weight:bold; ">end</span>
+  private
+
+  <span style="color:#800000; font-weight:bold; ">def</span> customer
+    Customer<span style="color:#808030; ">.</span><span style="color:#400000; ">find</span><span style="color:#808030; ">(</span>params<span style="color:#808030; ">[</span><span style="color:#0000e6; ">'id'</span><span style="color:#808030; ">]</span><span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1464px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:23.770492553710938%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1500525053095-5CMKHDIK3DUGCJYNSIR8/ke17ZwdGBToddI8pDm48kER0ehQyZh-YrNXCgMUBJMUUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcPw-7KYluEOJSRtO8AZEadyQv0z69vKzfM3B45g_fBcUScrxtJkYFhES7QVQjJSHB/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1500525053095-5CMKHDIK3DUGCJYNSIR8/ke17ZwdGBToddI8pDm48kER0ehQyZh-YrNXCgMUBJMUUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcPw-7KYluEOJSRtO8AZEadyQv0z69vKzfM3B45g_fBcUScrxtJkYFhES7QVQjJSHB/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1500525053095-5CMKHDIK3DUGCJYNSIR8/ke17ZwdGBToddI8pDm48kER0ehQyZh-YrNXCgMUBJMUUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcPw-7KYluEOJSRtO8AZEadyQv0z69vKzfM3B45g_fBcUScrxtJkYFhES7QVQjJSHB/image-asset.png" data-image-dimensions="1464x348" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="597031fcb8a79b1e06806999" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<h3>It's not all Smiles Und SunshinE</h3>
+<p dir="ltr">There are definitely downsides to an over reliance on mocks and stubs. First, they can make tests more fragile and lead to false positives when test suites fail. Second, they can take longer to implement than a more straightforward Factory Girl style test.</p>
+<p dir="ltr">That said, they are fun and when used responsibly, quite effective.</p>
+
+
+ 
+   <iframe src="//www.youtube.com/embed/LGauZm2pOSQ?wmode=opaque&amp;enablejsapi=1" height="480" width="854" scrolling="no" frameborder="0" allowfullscreen="">
+</iframe>
+</body></html>

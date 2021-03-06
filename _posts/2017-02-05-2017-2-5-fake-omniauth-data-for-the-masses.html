@@ -1,0 +1,199 @@
+---
+layout: post
+title: Fake Omniauth Data for the Masses
+categories:
+- Tools
+tags:
+- Ruby
+- Rails
+- Gem
+- Faker
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '70'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1>New Faker Gem Feature Announcement</h1>
+<p>I am excited to announce that my contribution to the <a href="https://github.com/stympy/faker">Faker</a> Gem has been accepted and is now available to the public with:</p>
+<p><code>gem install faker</code></p>
+<p>The Faker Gem is a widely used fake data generation library in the Ruby community. According to <a target="_blank" href="https://rubygems.org/gems/faker">RubyGems</a>, as of this writing, it has over 12.6 million downloads. It is a library I have used on many projects for creating fake names for products, customers, fake dates, and even fake hipster copy. I was eager to contribute to this open source tool and I stumbled upon a feature request for something I know a fair bit about - <a href="http://www.jessespevack.com/blog/2016/10/16/how-to-test-drive-omniauth-google-oauth2-for-your-rails-app">omniauth</a>.</p>
+<p>The request was to build a module that could create fake omniauth hashes. Omniauth is a library that standardizes multi-provider authentication for web applications. It is what allows a user to sign into a web application with user credentials from another application, like Twitter or Facebook.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:480px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:47.916664123535156%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1486333298146-CD3MH6B8W37ELV8OWVB0/ke17ZwdGBToddI8pDm48kF2dQ_C50JHe18OInOKt_tRZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVHuAQ1JX4uhMMuJJjfcWPAi8eYaDBIvauFAWSsphcXQ7KQvevUbj177dmcMs1F0H-0/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1486333298146-CD3MH6B8W37ELV8OWVB0/ke17ZwdGBToddI8pDm48kF2dQ_C50JHe18OInOKt_tRZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVHuAQ1JX4uhMMuJJjfcWPAi8eYaDBIvauFAWSsphcXQ7KQvevUbj177dmcMs1F0H-0/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1486333298146-CD3MH6B8W37ELV8OWVB0/ke17ZwdGBToddI8pDm48kF2dQ_C50JHe18OInOKt_tRZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVHuAQ1JX4uhMMuJJjfcWPAi8eYaDBIvauFAWSsphcXQ7KQvevUbj177dmcMs1F0H-0/image-asset.png" data-image-dimensions="480x230" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5897a571b8a79b7055433d84" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>To understand what an Omniauth hash is, lets first think about what happens when you click a "Login with Facebook" button in some application. At a high level, the host application is sending a request to Facebook that says, "Hey, this person wants to sign in to our application. Can you (Facebook) verify that they are who they are for us?" Upon clicking the sign in button, the user is directed to a Facebook page.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1250px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:83.36000061035156%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1486333996771-K11EDNDAIG6TDNP76VKB/ke17ZwdGBToddI8pDm48kBYmqOapgCVYe9xCNHP0P657gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmLxdyi92Zc6df1cpd6teprIaL-eIUDFBiQfOYNXp_VB7rf9aahYj8QlzQcxtdznF8/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1486333996771-K11EDNDAIG6TDNP76VKB/ke17ZwdGBToddI8pDm48kBYmqOapgCVYe9xCNHP0P657gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmLxdyi92Zc6df1cpd6teprIaL-eIUDFBiQfOYNXp_VB7rf9aahYj8QlzQcxtdznF8/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1486333996771-K11EDNDAIG6TDNP76VKB/ke17ZwdGBToddI8pDm48kBYmqOapgCVYe9xCNHP0P657gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmLxdyi92Zc6df1cpd6teprIaL-eIUDFBiQfOYNXp_VB7rf9aahYj8QlzQcxtdznF8/image-asset.png" data-image-dimensions="1250x1042" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5897a82c3a041168c4c1c4fd" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p> </p>
+<p>At that point, Facebook says, "Hey, user, this application is asking if I know you. Do you want me to say that I know you?" When the user clicks 'Continue', Facebook, then sends the user back to the original application along with some user data. Facebook is saying, "Hey application, this person is cool, you should let them sign in. Here is their information."</p>
+<p>Omniauth hashes are the data sent back to the original application by Facebook, Google, Twitter, LinkedIn, and any number of other Oauth providers. The data looks different depending on the Oauth provider. It is annoying to create this data for testing purposes because doing so requires looking through documentation for each individual Oauth provider.</p>
+<p>Enter my contribution to the Faker Gem!</p>
+<p>Once you've installed the latest version of the Gem, you get access to a module called:</p>
+<p><code>Faker::Omniauth</code></p>
+<p>The Omniauth module has four methods:</p>
+<pre style="color:#000000;background:#ffffff;">Faker<span style="color:#808030; ">::</span>Omniauth<span style="color:#808030; ">.</span>google
+Faker<span style="color:#808030; ">::</span>Omniauth<span style="color:#808030; ">.</span>facebook
+Faker<span style="color:#808030; ">::</span>Omniauth<span style="color:#808030; ">.</span>twitter
+Faker<span style="color:#808030; ">::</span>Omniauth<span style="color:#808030; ">.</span>linkedin
+</pre>
+<p>Calling any of the above methods will randomly generate a fake Omniauth hash based on the specifications of that specific OAuth provider. This is meant to help ease the burden of testing your login features.</p>
+<p>Here is an example of the facebook hash: </p>
+<pre style="color:#000000;background:#ffffff;">Faker<span style="color:#808030; ">::</span>Omniauth<span style="color:#808030; ">.</span>facebook <span style="color:#696969; ">#=&gt;</span>
+ <span style="color:#800080; ">{</span>
+   <span style="color:#005fd2; ">provider</span>: <span style="color:#0000e6; ">'facebook'</span><span style="color:#808030; ">,</span>
+   <span style="color:#005fd2; ">uid</span>: <span style="color:#0000e6; ">'1234567'</span><span style="color:#808030; ">,</span>
+   <span style="color:#005fd2; ">info</span>: <span style="color:#800080; ">{</span>
+     <span style="color:#005fd2; ">email</span>: <span style="color:#0000e6; ">'joe@bloggs.com'</span><span style="color:#808030; ">,</span>
+     <span style="color:#005fd2; ">name</span>: <span style="color:#0000e6; ">'Joe Bloggs'</span><span style="color:#808030; ">,</span>
+     <span style="color:#005fd2; ">first_name</span>: <span style="color:#0000e6; ">'Joe'</span><span style="color:#808030; ">,</span>
+     <span style="color:#005fd2; ">last_name</span>: <span style="color:#0000e6; ">'Bloggs'</span><span style="color:#808030; ">,</span>
+     <span style="color:#005fd2; ">image</span>: <span style="color:#0000e6; ">'http://graph.facebook.com/1234567/picture?type=square'</span><span style="color:#808030; ">,</span>
+     <span style="color:#005fd2; ">verified</span>: <span style="color:#800000; font-weight:bold; ">true</span>
+   <span style="color:#800080; ">}</span><span style="color:#808030; ">,</span>
+   <span style="color:#005fd2; ">credentials</span>: <span style="color:#800080; ">{</span>
+     <span style="color:#005fd2; ">token</span>: <span style="color:#0000e6; ">'ABCDEF...'</span><span style="color:#808030; ">,</span>
+     <span style="color:#005fd2; ">expires_at</span>: <span style="color:#008c00; ">1321747205</span><span style="color:#808030; ">,</span>
+     <span style="color:#005fd2; ">expires</span>: <span style="color:#800000; font-weight:bold; ">true</span>
+   <span style="color:#800080; ">}</span><span style="color:#808030; ">,</span>
+   <span style="color:#005fd2; ">extra</span>: <span style="color:#800080; ">{</span>
+     <span style="color:#005fd2; ">raw_info</span>: <span style="color:#800080; ">{</span>
+       <span style="color:#005fd2; ">id</span>: <span style="color:#0000e6; ">'1234567'</span><span style="color:#808030; ">,</span>
+       <span style="color:#005fd2; ">name</span>: <span style="color:#0000e6; ">'Joe Bloggs'</span><span style="color:#808030; ">,</span>
+       <span style="color:#005fd2; ">first_name</span>: <span style="color:#0000e6; ">'Joe'</span><span style="color:#808030; ">,</span>
+       <span style="color:#005fd2; ">last_name</span>: <span style="color:#0000e6; ">'Bloggs'</span><span style="color:#808030; ">,</span>
+       <span style="color:#005fd2; ">link</span>: <span style="color:#0000e6; ">'http://www.facebook.com/jbloggs'</span><span style="color:#808030; ">,</span>
+       <span style="color:#005fd2; ">username</span>: <span style="color:#0000e6; ">'jbloggs'</span><span style="color:#808030; ">,</span>
+       <span style="color:#005fd2; ">location</span>: <span style="color:#800080; ">{</span> <span style="color:#005fd2; ">id</span>: <span style="color:#0000e6; ">'123456789'</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">name</span>: <span style="color:#0000e6; ">'Palo Alto, California'</span> <span style="color:#800080; ">}</span><span style="color:#808030; ">,</span>
+       <span style="color:#005fd2; ">gender</span>: <span style="color:#0000e6; ">'male'</span><span style="color:#808030; ">,</span>
+       <span style="color:#005fd2; ">email</span>: <span style="color:#0000e6; ">'joe@bloggs.com'</span><span style="color:#808030; ">,</span>
+       <span style="color:#005fd2; ">timezone</span>: <span style="color:#808030; ">-</span><span style="color:#008c00; ">8</span><span style="color:#808030; ">,</span>
+       <span style="color:#005fd2; ">locale</span>: <span style="color:#0000e6; ">'en_US'</span><span style="color:#808030; ">,</span>
+       <span style="color:#005fd2; ">verified</span>: <span style="color:#800000; font-weight:bold; ">true</span><span style="color:#808030; ">,</span>
+       <span style="color:#005fd2; ">updated_time</span>: <span style="color:#0000e6; ">'2011-11-11T06:21:03+0000'</span><span style="color:#808030; ">,</span>
+     <span style="color:#800080; ">}</span>
+   <span style="color:#800080; ">}</span>
+ <span style="color:#800080; ">}</span>
+</pre>
+<p>You can checkout examples of all of the fake hashes on Faker's <a href="https://github.com/stympy/faker/blob/master/doc/omniauth.md">documentation</a>. You can learn more about Omniauth <a href="https://github.com/omniauth/omniauth">here</a>. If you want to take a look under the hood and see how I am creating these hashes, you can see the merged pull request <a href="https://github.com/stympy/faker/commit/e69921a28b158faccf0cf8e236a1ad4a669b547d">here</a>.</p>
+<p>I am very excited to be a contributing member of the Faker Gem community and I encourage all of you to take some time to contribute to Faker and your other favorite open source projects. Open Source is a powerful political statement and in times like these all of our actions count!</p>
+</body></html>

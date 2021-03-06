@@ -1,0 +1,3062 @@
+---
+layout: post
+title: How to Test Drive OmniAuth Google OAuth2 for your Rails App
+categories:
+- Technical
+tags:
+- Ruby
+- Rails
+- Omniauth
+- Signin
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '20'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p>This past week at Turing we spent some time hand rolling third party authentication as well as implementing third party sign in using omniauth gems in our various Rails Apps. There are an impressive number of step by step tutorials for oauth with <a href="https://richonrails.com/articles/google-authentication-in-ruby-on-rails">Google</a>, but none that I found start with a test. To fill that void, I present to you all a guide to implementing Google Sign-in for your Rails App that starts with a test. Pour yourself some coffee, put on some headphones, and enjoy following the next twenty steps to test drive your Google OAuth2 implementation.</p>
+<h3>Step 1: Create a New Rails App</h3>
+<pre><code>rails new google-omniauth-demo -d postgresql --skip-turbolinks --skip-spring -T</code></pre>
+<h3>Step 2: Add Gems</h3>
+<p>Available in all environments:</p>
+<pre><code>gem 'omniauth-google-oauth2'
+gem 'figaro'</code></pre>
+<p>Available in group test:</p>
+<pre><code>gem 'rspec-rails'
+gem 'capybara'</code></pre>
+<h3>Step 3: Install gems</h3>
+<p dir="ltr">Omniauth uses a single gem for each third-party authentication we want to add to our application. So, we have to include the Google oauth2 gem, but this guide should hold similarly true for sign in using Twitter or GitHub (I know because I've done it) and I'm guessing any other service (Facebook, etc).</p>
+<p dir="ltr">Figaro is a gem that allows us to automatically hide our API keys in an application.yml file so that if we push this app to GitHub, we don't have to worry about accidentally exposing our keys to the public.</p>
+<p dir="ltr">RSpec is a popular testing framework for Ruby on Rails and Capybara is a library that allows our testing suite to simulate a user clicking through our site and is crucial for the feature testing methodology described below.</p>
+<p>From terminal run:</p>
+<p><code>bundle</code></p>
+<p>And then:</p>
+<pre><code>rails g rspec:install</code></pre>
+<p>And finally:</p>
+<pre><code>bundle exec figaro install</code></pre>
+<h3>STEP 4: Write a Feature Test</h3>
+<p>A feature test is one that describes a user story. In this case our story is that When a user visits our website, and clicks "Sign in with Google", and enters their Google account credentials, and clicks  "authorize", they are signed in and will see a page that says, "Welcome &lt;&lt; name &gt;&gt;" and that contains a link "Logout." Starting first with the user story when developing a feature helps a developer stay focused as they go on to implement. Writing a test reinforces this focus.</p>
+<p>First make a features directory and then a new spec file:</p>
+<pre><code>mkdir spec/features
+touch spec/features/user_logs_in_with_google_spec.rb</code></pre>
+<p>Next, let's start writing our feature test in the spec/features/user_logs_in_with_google_spec.rb file:</p>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'rails_helper'</span>
+
+RSpec<span style="color:#808030; ">.</span>feature <span style="color:#0000e6; ">"user logs in"</span><span style="color:#800000; font-weight:bold; "> do</span>
+  scenario <span style="color:#0000e6; ">"using google oauth2"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>We will create a method called 'stub_omniauth' that will be used to fake our login for our test.</p>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'rails_helper'</span>
+
+RSpec<span style="color:#808030; ">.</span>feature <span style="color:#0000e6; ">"user logs in"</span><span style="color:#800000; font-weight:bold; "> do</span>
+  scenario <span style="color:#0000e6; ">"using google oauth2"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    stub_omniauth
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Creating stub_omniauth involves writing a hash to simulate the hash returned by Google's oauth request response. Unless you have done this before, it's basically impossible to know what this hash should look like without looking at an actual hash from Google or the docs assocaited with your authorization gem. Also, each third party authentication service sends information back in a slightly different form, so the stub_omniauth method will look different depending on what provider you are using.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> stub_omniauth
+  <span style="color:#696969; "># first, set OmniAuth to run in test mode</span>
+  OmniAuth<span style="color:#808030; ">.</span>config<span style="color:#808030; ">.</span>test_mode <span style="color:#808030; ">=</span> <span style="color:#800000; font-weight:bold; ">true</span>
+  <span style="color:#696969; "># then, provide a set of fake oauth data that</span>
+  <span style="color:#696969; "># omniauth will use when a user tries to authenticate:</span>
+  OmniAuth<span style="color:#808030; ">.</span>config<span style="color:#808030; ">.</span>mock_auth<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">google</span><span style="color:#808030; ">]</span> <span style="color:#808030; ">=</span> OmniAuth<span style="color:#808030; ">::</span>AuthHash<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#800080; ">{</span>
+
+  <span style="color:#800080; ">}</span><span style="color:#808030; ">)</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>We can find the structure of the Omniauth hash by looking at the documentation. But, who likes reading the docs (I'd much prefer a 20 step tutorial). Let's continue writing the test and then add the Hash later on once we are in a place to actually inspect what Google's Omniauth returns to us.</p>
+<pre style="color:#000000;background:#ffffff;">RSpec<span style="color:#808030; ">.</span>feature <span style="color:#0000e6; ">"user logs in"</span><span style="color:#800000; font-weight:bold; "> do</span>
+  scenario <span style="color:#0000e6; ">"using google oauth2"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    stub_omniauth
+    visit root_path
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_link<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"Sign in with Google"</span><span style="color:#808030; ">)</span>
+    click_link <span style="color:#0000e6; ">"Sign in with Google"</span>
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_content<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"Jesse Spevack"</span><span style="color:#808030; ">)</span>
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_link<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"Logout"</span><span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Going back to our test, we give Capybara a few instructions. The first instruction is to visit our root_path, which is the same as "/" and has not been defined in our routes file yet. We then tell RSpec to expect that the root_path will have a link that reads, "Sign in with Google". We tell Capybara to click that link. We expect the page to then contain my name, signifying that I have signed in with Google and to have a link that reads, "Logout".</p>
+<p>Before we run the test, we'll have to run:</p>
+<pre><code>rake db:create</code></pre>
+<p>From the root of our project, we can run 'rspec' in the terminal and if everything is working we should get a failure saying that the test can't find the root_path. </p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:36.55999755859375%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476653757772-IJJUSB9A1ITEE772Q64U/ke17ZwdGBToddI8pDm48kEs-sVkGQCXbQe4oPTtMR20UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnGR4Fza0zMlDNUaQwnF0KUiDlOBDQo63vFqyA_REIDnw0VQQ9OyEd8jCt9jevLIZ8Q/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476653757772-IJJUSB9A1ITEE772Q64U/ke17ZwdGBToddI8pDm48kEs-sVkGQCXbQe4oPTtMR20UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnGR4Fza0zMlDNUaQwnF0KUiDlOBDQo63vFqyA_REIDnw0VQQ9OyEd8jCt9jevLIZ8Q/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476653757772-IJJUSB9A1ITEE772Q64U/ke17ZwdGBToddI8pDm48kEs-sVkGQCXbQe4oPTtMR20UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnGR4Fza0zMlDNUaQwnF0KUiDlOBDQo63vFqyA_REIDnw0VQQ9OyEd8jCt9jevLIZ8Q/image-asset.png" data-image-dimensions="2500x914" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5803f2bc03596e5d12bb87c0" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>Step 5: Create a Route</h3>
+<pre style="color:#000000;background:#ffffff;">Rails<span style="color:#808030; ">.</span>application<span style="color:#808030; ">.</span>routes<span style="color:#808030; ">.</span>draw<span style="color:#800000; font-weight:bold; "> do</span>
+  root <span style="color:#005fd2; ">to</span>: <span style="color:#0000e6; ">'home#index'</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>We'll next re-run our test which should fail because we have not defined the home controller that we specified in our route.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:28.279998779296875%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476654115268-2S9AFVGPIA0IWDKK26XV/ke17ZwdGBToddI8pDm48kIOyR6w6-oH2IiPWMZr0gVkUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnNX5gCSkKKxnHyceH5ShRSwTwxL8La7g_rv7LURiDxEv5gaxpWAIJbGBhctiwDo6rw/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476654115268-2S9AFVGPIA0IWDKK26XV/ke17ZwdGBToddI8pDm48kIOyR6w6-oH2IiPWMZr0gVkUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnNX5gCSkKKxnHyceH5ShRSwTwxL8La7g_rv7LURiDxEv5gaxpWAIJbGBhctiwDo6rw/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476654115268-2S9AFVGPIA0IWDKK26XV/ke17ZwdGBToddI8pDm48kIOyR6w6-oH2IiPWMZr0gVkUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnNX5gCSkKKxnHyceH5ShRSwTwxL8La7g_rv7LURiDxEv5gaxpWAIJbGBhctiwDo6rw/image-asset.png" data-image-dimensions="2500x707" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5803f41fe58c625ab6df8468" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>Step 6: Create a Controller</h3>
+<pre><code>touch app/controllers/home_controller.rb</code></pre>
+<p>We can run the test again and it will blow up because we haven't yet defined the controller in the file we just created.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:26.760000228881836%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476654505431-TEBJBZUFPJ9AODK8IY3M/ke17ZwdGBToddI8pDm48kNvvs85zJ7rEaZ08HJyAMIYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnDaDtTCoVXInpzENm8uxtgWfoUTzCH6n0ioVrJUgyo6I2PJw4fDTms4ZE6FJ97f-BA/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476654505431-TEBJBZUFPJ9AODK8IY3M/ke17ZwdGBToddI8pDm48kNvvs85zJ7rEaZ08HJyAMIYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnDaDtTCoVXInpzENm8uxtgWfoUTzCH6n0ioVrJUgyo6I2PJw4fDTms4ZE6FJ97f-BA/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476654505431-TEBJBZUFPJ9AODK8IY3M/ke17ZwdGBToddI8pDm48kNvvs85zJ7rEaZ08HJyAMIYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnDaDtTCoVXInpzENm8uxtgWfoUTzCH6n0ioVrJUgyo6I2PJw4fDTms4ZE6FJ97f-BA/image-asset.png" data-image-dimensions="2500x669" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5803f5a7579fb3a0f45d7ddd" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>So we can go into the app/controllers/home_controller.rb file and define our controller as follows:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> HomeController &lt; ApplicationController
+
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>When we run the test now, we'll get a failure because we have not defined our index method, specified in our routes file.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:25.400001525878906%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476654701032-QYAU9S0GIQGUVKFKQT68/ke17ZwdGBToddI8pDm48kDJVOyiZxV_-dowl7sRu02MUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnM_12NgTIazSm1At4R8ulVAcqDD8dBOmEycJv1fx_vd3MyvpBiIzzydoM1I6fLa65Q/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476654701032-QYAU9S0GIQGUVKFKQT68/ke17ZwdGBToddI8pDm48kDJVOyiZxV_-dowl7sRu02MUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnM_12NgTIazSm1At4R8ulVAcqDD8dBOmEycJv1fx_vd3MyvpBiIzzydoM1I6fLa65Q/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476654701032-QYAU9S0GIQGUVKFKQT68/ke17ZwdGBToddI8pDm48kDJVOyiZxV_-dowl7sRu02MUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnM_12NgTIazSm1At4R8ulVAcqDD8dBOmEycJv1fx_vd3MyvpBiIzzydoM1I6fLa65Q/image-asset.png" data-image-dimensions="2500x635" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5803f66bebbd1af6b0fde653" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> HomeController &lt; ApplicationController
+  <span style="color:#800000; font-weight:bold; ">def</span> index
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Next we should get a failure because we do not have an index template.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:36.71999740600586%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476654904437-ATQSFQGJN4AMAGTUB4TW/ke17ZwdGBToddI8pDm48kMWEs4zZNtixMMg22pvOvM4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnHr4D2nZ9WdBzx5z_GcbBat3L0DN5xBjYDkmf7RmMAw-3e8Mg_PtJRS1yBtXLx7P0A/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476654904437-ATQSFQGJN4AMAGTUB4TW/ke17ZwdGBToddI8pDm48kMWEs4zZNtixMMg22pvOvM4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnHr4D2nZ9WdBzx5z_GcbBat3L0DN5xBjYDkmf7RmMAw-3e8Mg_PtJRS1yBtXLx7P0A/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476654904437-ATQSFQGJN4AMAGTUB4TW/ke17ZwdGBToddI8pDm48kMWEs4zZNtixMMg22pvOvM4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnHr4D2nZ9WdBzx5z_GcbBat3L0DN5xBjYDkmf7RmMAw-3e8Mg_PtJRS1yBtXLx7P0A/image-asset.png" data-image-dimensions="2500x918" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5803f7352994ca4ac211204d" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>Step 7: Create an index page</h3>
+<p>First we'll create a home directory under the views directory and an index file:</p>
+<pre><code>mkdir app/views/home
+touch app/views/home/index.html.erb</code></pre>
+<p>Running our test should let us know that Capybara can not find the "Sign in with Google" link:</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:31.31999969482422%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476655145272-HHQW31TEDBIOKR8QPHGB/ke17ZwdGBToddI8pDm48kFPwV1L0YWCxaJWYKIi9WBcUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnNYFaQ-b8qk3ZD9gC5oex4ab2VpQS9ENFAGeLvJ2K9uHKLSDa_0boH3wj4u26lbqRw/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476655145272-HHQW31TEDBIOKR8QPHGB/ke17ZwdGBToddI8pDm48kFPwV1L0YWCxaJWYKIi9WBcUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnNYFaQ-b8qk3ZD9gC5oex4ab2VpQS9ENFAGeLvJ2K9uHKLSDa_0boH3wj4u26lbqRw/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476655145272-HHQW31TEDBIOKR8QPHGB/ke17ZwdGBToddI8pDm48kFPwV1L0YWCxaJWYKIi9WBcUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnNYFaQ-b8qk3ZD9gC5oex4ab2VpQS9ENFAGeLvJ2K9uHKLSDa_0boH3wj4u26lbqRw/image-asset.png" data-image-dimensions="2500x783" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5803f827be6594564b262a75" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>So we'll add a "Sign in with Google" link to our app/views/home/index.html.erb file:</p>
+<pre style="color:#000000;background:#ffffff;">&lt;<span style="color:#3f5fbf; ">%= link_to "Sign in with Google", "/auth/google" %&gt;</span>
+</pre>
+<p>We haven't defined the /auth/google path yet, so that should give us a failure when we run our test:</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:27.599998474121094%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476717390818-7EKTW8S89Q0WNBEDJ9OX/ke17ZwdGBToddI8pDm48kLz4J9SjPM2Z1vtDsourGaIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnGbo0BWNQiwRz4wOx6m2T6DGgCZDhU7wRX-Rpz-ivZNojYdRfEYMPM_HKHgvWSiTzQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476717390818-7EKTW8S89Q0WNBEDJ9OX/ke17ZwdGBToddI8pDm48kLz4J9SjPM2Z1vtDsourGaIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnGbo0BWNQiwRz4wOx6m2T6DGgCZDhU7wRX-Rpz-ivZNojYdRfEYMPM_HKHgvWSiTzQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476717390818-7EKTW8S89Q0WNBEDJ9OX/ke17ZwdGBToddI8pDm48kLz4J9SjPM2Z1vtDsourGaIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnGbo0BWNQiwRz4wOx6m2T6DGgCZDhU7wRX-Rpz-ivZNojYdRfEYMPM_HKHgvWSiTzQ/image-asset.png" data-image-dimensions="2500x690" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5804eb4ed482e93e77222c60" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>Step 8: Add a login route</h3>
+<p>We can add the following route to handle the call back from Google once the login button is clicked by our user.</p>
+<pre style="color:#000000;background:#ffffff;">Rails<span style="color:#808030; ">.</span>application<span style="color:#808030; ">.</span>routes<span style="color:#808030; ">.</span>draw<span style="color:#800000; font-weight:bold; "> do</span>
+  root                            <span style="color:#005fd2; ">to</span>: <span style="color:#0000e6; ">'home#index'</span>
+  get <span style="color:#0000e6; ">'auth/:provider/callback'</span><span style="color:#808030; ">,</span>  <span style="color:#005fd2; ">to</span>: <span style="color:#0000e6; ">'sessions#create'</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<h3>Step 9: Create a Sessions Controller</h3>
+<p>When we run our test after adding the new route, we will get a controller failure because we have not yet defined a sessions controller to handle the login and logout process.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:25.479999542236328%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476670948952-8QPTJOVK04INHQAB04B1/ke17ZwdGBToddI8pDm48kPMImBcp9SRdPmij695wTVcUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnOKAgQLqsfXF0A2HIfG4jOF8EDlJkqf3wmfEAnEqCc4T789Ohv8Mp2zHjq90T2-ewg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476670948952-8QPTJOVK04INHQAB04B1/ke17ZwdGBToddI8pDm48kPMImBcp9SRdPmij695wTVcUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnOKAgQLqsfXF0A2HIfG4jOF8EDlJkqf3wmfEAnEqCc4T789Ohv8Mp2zHjq90T2-ewg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476670948952-8QPTJOVK04INHQAB04B1/ke17ZwdGBToddI8pDm48kPMImBcp9SRdPmij695wTVcUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnOKAgQLqsfXF0A2HIfG4jOF8EDlJkqf3wmfEAnEqCc4T789Ohv8Mp2zHjq90T2-ewg/image-asset.png" data-image-dimensions="2500x637" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="580435e2414fb5f8c41d3854" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>To create a sessions controller type the following command into terminal:</p>
+<pre><code>touch app/controllers/sessions_controller.rb</code></pre>
+<p>Next we'll get an uninitialized constant failure which tells us that it is time to define the sessions controller in the file we just created.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:24.51999855041504%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671119370-0RZ2U0VKK72Q21MYI32J/ke17ZwdGBToddI8pDm48kBQ2Y2cSZAOs42QoWzL1tOoUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnFR0yv7XkCBIb_4NuytfVldZShIsJ04NMkdUz_yI7ncXpLYno9Y0YqUjWD-DN_8rEQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671119370-0RZ2U0VKK72Q21MYI32J/ke17ZwdGBToddI8pDm48kBQ2Y2cSZAOs42QoWzL1tOoUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnFR0yv7XkCBIb_4NuytfVldZShIsJ04NMkdUz_yI7ncXpLYno9Y0YqUjWD-DN_8rEQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671119370-0RZ2U0VKK72Q21MYI32J/ke17ZwdGBToddI8pDm48kBQ2Y2cSZAOs42QoWzL1tOoUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnFR0yv7XkCBIb_4NuytfVldZShIsJ04NMkdUz_yI7ncXpLYno9Y0YqUjWD-DN_8rEQ/image-asset.png" data-image-dimensions="2500x613" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5804368d440243644ef0dfaa" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>To define the sessions controller we add the following to the app/controllers/sessions_controller.rb file:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> SessionsController &lt; ApplicationController
+
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>When we run our test, we'll get a failure because we have not defined a create method in our controller:</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:24%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671266489-32L9JSWIW0MNB3FLT847/ke17ZwdGBToddI8pDm48kI8ilMVa_g9Y1CtW8ihjXDYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnHFIkt9YahOH7alx23KHjz3xAcdJLuMGUx71tDNDeEgoZK8QgUh0BAeUn_raYPGGzA/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671266489-32L9JSWIW0MNB3FLT847/ke17ZwdGBToddI8pDm48kI8ilMVa_g9Y1CtW8ihjXDYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnHFIkt9YahOH7alx23KHjz3xAcdJLuMGUx71tDNDeEgoZK8QgUh0BAeUn_raYPGGzA/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671266489-32L9JSWIW0MNB3FLT847/ke17ZwdGBToddI8pDm48kI8ilMVa_g9Y1CtW8ihjXDYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnHFIkt9YahOH7alx23KHjz3xAcdJLuMGUx71tDNDeEgoZK8QgUh0BAeUn_raYPGGzA/image-asset.png" data-image-dimensions="2500x600" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5804371ed482e974a190d89a" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>To fix this we'll add a create method to our controller, which will then give us a missing template failure.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> SessionsController &lt; ApplicationController
+  <span style="color:#800000; font-weight:bold; ">def</span> create
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:36.68000030517578%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671407551-XYWM51AEMV314KV04OM3/ke17ZwdGBToddI8pDm48kI87z90ccK9kyToEOB_z21MUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnJX1Hh085_s7013CAqrDs9BGR22CoWbtVRWM1uDpMvyR3Ll6Mv7OTpRSKBZIUX5Acg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671407551-XYWM51AEMV314KV04OM3/ke17ZwdGBToddI8pDm48kI87z90ccK9kyToEOB_z21MUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnJX1Hh085_s7013CAqrDs9BGR22CoWbtVRWM1uDpMvyR3Ll6Mv7OTpRSKBZIUX5Acg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671407551-XYWM51AEMV314KV04OM3/ke17ZwdGBToddI8pDm48kI87z90ccK9kyToEOB_z21MUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnJX1Hh085_s7013CAqrDs9BGR22CoWbtVRWM1uDpMvyR3Ll6Mv7OTpRSKBZIUX5Acg/image-asset.png" data-image-dimensions="2500x917" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="580437ae3e00be5b9aa30881" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>Step 9: API Keys</h3>
+<p>Before we can fix this failure, we need to get our API Keys from Google. To do so, go to the <a target="_blank" href="https://console.developers.google.com">developers console</a>. Click "Create Project."</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:32.040000915527344%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671616039-R4H130HKGZXBT1X0PUBY/ke17ZwdGBToddI8pDm48kEHnYaJ7VNRnymLJS0ZqTCEUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnIXae0u4j4Iu5pg744HjgOSamOovyoxpEgRjyRpnogsKaKSJm9zL1edhw1bCi7WAVw/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671616039-R4H130HKGZXBT1X0PUBY/ke17ZwdGBToddI8pDm48kEHnYaJ7VNRnymLJS0ZqTCEUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnIXae0u4j4Iu5pg744HjgOSamOovyoxpEgRjyRpnogsKaKSJm9zL1edhw1bCi7WAVw/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671616039-R4H130HKGZXBT1X0PUBY/ke17ZwdGBToddI8pDm48kEHnYaJ7VNRnymLJS0ZqTCEUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnIXae0u4j4Iu5pg744HjgOSamOovyoxpEgRjyRpnogsKaKSJm9zL1edhw1bCi7WAVw/image-asset.png" data-image-dimensions="2500x801" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5804387fb3db2b014697c114" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Give the new project a name and click "Create".</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1016px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:48.42519760131836%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671712627-4MVPQRWPR4LPKWNW7K02/ke17ZwdGBToddI8pDm48kEM0reBifsVsNC7rbo-fQkgUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKc07GPBYadRZ-OQl7FrfDDRi0wDQ7ZlZ5ZTs7yvzQPu626-6Lt_l4wlJOo_sIyQChX/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671712627-4MVPQRWPR4LPKWNW7K02/ke17ZwdGBToddI8pDm48kEM0reBifsVsNC7rbo-fQkgUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKc07GPBYadRZ-OQl7FrfDDRi0wDQ7ZlZ5ZTs7yvzQPu626-6Lt_l4wlJOo_sIyQChX/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671712627-4MVPQRWPR4LPKWNW7K02/ke17ZwdGBToddI8pDm48kEM0reBifsVsNC7rbo-fQkgUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKc07GPBYadRZ-OQl7FrfDDRi0wDQ7ZlZ5ZTs7yvzQPu626-6Lt_l4wlJOo_sIyQChX/image-asset.png" data-image-dimensions="1016x492" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="580438e08419c20761d8d646" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Under library, search for "Contacts" to enable the contacts API.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:32.08000183105469%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671819799-Y201YNQVNJG4BG3LWH89/ke17ZwdGBToddI8pDm48kGFPQkdFWzCNCAUr1UoC7KoUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnLpGhNecqflnUmmAn0rPuITkrxzEleaYi1vNGea3K6M9aBoRiP-vAjLW5Js6xM4WiQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671819799-Y201YNQVNJG4BG3LWH89/ke17ZwdGBToddI8pDm48kGFPQkdFWzCNCAUr1UoC7KoUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnLpGhNecqflnUmmAn0rPuITkrxzEleaYi1vNGea3K6M9aBoRiP-vAjLW5Js6xM4WiQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671819799-Y201YNQVNJG4BG3LWH89/ke17ZwdGBToddI8pDm48kGFPQkdFWzCNCAUr1UoC7KoUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnLpGhNecqflnUmmAn0rPuITkrxzEleaYi1vNGea3K6M9aBoRiP-vAjLW5Js6xM4WiQ/image-asset.png" data-image-dimensions="2500x802" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5804394a5016e1b3e34ad671" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Click "Contacts API", which should be the first search result and also a link. Next click "Enable" at the top of the screen.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:36.31999969482422%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671886827-B2C6XOJHQ0TSAV3R02RD/ke17ZwdGBToddI8pDm48kIdRTo5j-SEJfcUk_t4JN8wUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnJcM82Zo7Z7epIyAjUJ_F1JIceJN0blTH0oyYGi0kR5OigkrSiYStqCMbJuwREVqqg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671886827-B2C6XOJHQ0TSAV3R02RD/ke17ZwdGBToddI8pDm48kIdRTo5j-SEJfcUk_t4JN8wUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnJcM82Zo7Z7epIyAjUJ_F1JIceJN0blTH0oyYGi0kR5OigkrSiYStqCMbJuwREVqqg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671886827-B2C6XOJHQ0TSAV3R02RD/ke17ZwdGBToddI8pDm48kIdRTo5j-SEJfcUk_t4JN8wUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnJcM82Zo7Z7epIyAjUJ_F1JIceJN0blTH0oyYGi0kR5OigkrSiYStqCMbJuwREVqqg/image-asset.png" data-image-dimensions="2500x908" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5804398d29687f23906db520" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:69%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671944485-GDAUH5XL2WFAMJMT0TZU/ke17ZwdGBToddI8pDm48kPIWxhR0J8TOmkw8gjtpUdh7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0lrNIhCeJuCYkhFcQKDStAJWuEwpe50SMIjJ9TF0_X6NXAhLcykwrxjQMY69rKbAmQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671944485-GDAUH5XL2WFAMJMT0TZU/ke17ZwdGBToddI8pDm48kPIWxhR0J8TOmkw8gjtpUdh7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0lrNIhCeJuCYkhFcQKDStAJWuEwpe50SMIjJ9TF0_X6NXAhLcykwrxjQMY69rKbAmQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476671944485-GDAUH5XL2WFAMJMT0TZU/ke17ZwdGBToddI8pDm48kPIWxhR0J8TOmkw8gjtpUdh7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0lrNIhCeJuCYkhFcQKDStAJWuEwpe50SMIjJ9TF0_X6NXAhLcykwrxjQMY69rKbAmQ/image-asset.png" data-image-dimensions="2500x1725" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="580439c5440243644ef0fe2d" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Next we will go back to the library and follow the same process as before for the Google Plus API.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:37.560001373291016%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476672031918-JKBOSAM570WDIK5S7UAF/ke17ZwdGBToddI8pDm48kFhqQspbq-3zxrGkZK349eMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnIoj1qr_zEsEbSWATbGw6GP_S0Q0J07B3DQtcOdgbZHvP7ki6bfOAnDjegrhHP2Bqw/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476672031918-JKBOSAM570WDIK5S7UAF/ke17ZwdGBToddI8pDm48kFhqQspbq-3zxrGkZK349eMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnIoj1qr_zEsEbSWATbGw6GP_S0Q0J07B3DQtcOdgbZHvP7ki6bfOAnDjegrhHP2Bqw/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476672031918-JKBOSAM570WDIK5S7UAF/ke17ZwdGBToddI8pDm48kFhqQspbq-3zxrGkZK349eMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnIoj1qr_zEsEbSWATbGw6GP_S0Q0J07B3DQtcOdgbZHvP7ki6bfOAnDjegrhHP2Bqw/image-asset.png" data-image-dimensions="2500x939" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="58043a1e37c581856f71ec13" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:35.880001068115234%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476672054368-YPARELWQT501BCHISIOZ/ke17ZwdGBToddI8pDm48kBrAp4952DqGDkE1W2cX4GwUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnJr0zSQL-66hgzJONP31Q5TiyjKJ_hBm7kjCG7CR5SgGQ-FWQo-xQw9_NwkNeGxjNQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476672054368-YPARELWQT501BCHISIOZ/ke17ZwdGBToddI8pDm48kBrAp4952DqGDkE1W2cX4GwUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnJr0zSQL-66hgzJONP31Q5TiyjKJ_hBm7kjCG7CR5SgGQ-FWQo-xQw9_NwkNeGxjNQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476672054368-YPARELWQT501BCHISIOZ/ke17ZwdGBToddI8pDm48kBrAp4952DqGDkE1W2cX4GwUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnJr0zSQL-66hgzJONP31Q5TiyjKJ_hBm7kjCG7CR5SgGQ-FWQo-xQw9_NwkNeGxjNQ/image-asset.png" data-image-dimensions="2500x897" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="58043a35d482e974a190f509" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:66.79999542236328%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476672088789-MFN0HT3DHFH99L8FDGPC/ke17ZwdGBToddI8pDm48kL1JskOfCAWzsz2n9srxq9J7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0qWKWgsZKGpJRT2p4dO-HjPW7FY_kqVdb0F08cCh8vox_UiyxulSi3pjs9xEyNJrpA/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476672088789-MFN0HT3DHFH99L8FDGPC/ke17ZwdGBToddI8pDm48kL1JskOfCAWzsz2n9srxq9J7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0qWKWgsZKGpJRT2p4dO-HjPW7FY_kqVdb0F08cCh8vox_UiyxulSi3pjs9xEyNJrpA/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476672088789-MFN0HT3DHFH99L8FDGPC/ke17ZwdGBToddI8pDm48kL1JskOfCAWzsz2n9srxq9J7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0qWKWgsZKGpJRT2p4dO-HjPW7FY_kqVdb0F08cCh8vox_UiyxulSi3pjs9xEyNJrpA/image-asset.png" data-image-dimensions="2500x1670" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="58043a57d482e974a190f631" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Next click "Credentials" from the menu on the left sidebar. Click "OAuth consent screen".</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:42.47999954223633%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476672130393-BVI788968LR2ZFBU00GZ/ke17ZwdGBToddI8pDm48kFGCpaOjhjwSKWfmDrKx0CV7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0s1KNBZih5JtyI4uTSXBL0ISEfvVTZKV_86XgjrnKMGwbB4bH_M4de6lLrscqcLQNg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476672130393-BVI788968LR2ZFBU00GZ/ke17ZwdGBToddI8pDm48kFGCpaOjhjwSKWfmDrKx0CV7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0s1KNBZih5JtyI4uTSXBL0ISEfvVTZKV_86XgjrnKMGwbB4bH_M4de6lLrscqcLQNg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476672130393-BVI788968LR2ZFBU00GZ/ke17ZwdGBToddI8pDm48kFGCpaOjhjwSKWfmDrKx0CV7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0s1KNBZih5JtyI4uTSXBL0ISEfvVTZKV_86XgjrnKMGwbB4bH_M4de6lLrscqcLQNg/image-asset.png" data-image-dimensions="2500x1062" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="58043a802994ca4ac2139ecd" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Add a product name and click "Save".</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:778px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:116.19536590576172%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476672474578-I2RKKZ5OSO4JJKGH3GD0/ke17ZwdGBToddI8pDm48kPqlkPFFRPCxR_ZdVi6h5kRZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIzm1W_Dfwohj9V3H4ebqxTeWXRZBR-vnMT0-_w_LmPL8/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476672474578-I2RKKZ5OSO4JJKGH3GD0/ke17ZwdGBToddI8pDm48kPqlkPFFRPCxR_ZdVi6h5kRZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIzm1W_Dfwohj9V3H4ebqxTeWXRZBR-vnMT0-_w_LmPL8/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476672474578-I2RKKZ5OSO4JJKGH3GD0/ke17ZwdGBToddI8pDm48kPqlkPFFRPCxR_ZdVi6h5kRZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIzm1W_Dfwohj9V3H4ebqxTeWXRZBR-vnMT0-_w_LmPL8/image-asset.png" data-image-dimensions="778x904" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="58043bda414fb5f8c41d7429" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Back on the credentials page, click "Create Credentials" and select "OAuth client ID". This will ask the user for consent so that the app we are building can access the user's data. </p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:998px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:105.2104263305664%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476672196425-83PLJ2EQIBRLDD8I9WVL/ke17ZwdGBToddI8pDm48kCFHoPfPEjm71W2NjpSGmjkUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8PaoYXhp6HxIwZIk7-Mi3Tsic-L2IOPH3Dwrhl-Ne3Z2Umhc96H3e-8NsbBlPMVl6BCq5ffQXff5FB5CImyw9BsKMshLAGzx4R3EDFOm1kBS/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476672196425-83PLJ2EQIBRLDD8I9WVL/ke17ZwdGBToddI8pDm48kCFHoPfPEjm71W2NjpSGmjkUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8PaoYXhp6HxIwZIk7-Mi3Tsic-L2IOPH3Dwrhl-Ne3Z2Umhc96H3e-8NsbBlPMVl6BCq5ffQXff5FB5CImyw9BsKMshLAGzx4R3EDFOm1kBS/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476672196425-83PLJ2EQIBRLDD8I9WVL/ke17ZwdGBToddI8pDm48kCFHoPfPEjm71W2NjpSGmjkUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8PaoYXhp6HxIwZIk7-Mi3Tsic-L2IOPH3Dwrhl-Ne3Z2Umhc96H3e-8NsbBlPMVl6BCq5ffQXff5FB5CImyw9BsKMshLAGzx4R3EDFOm1kBS/image-asset.png" data-image-dimensions="998x1050" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="58043ac315d5db9c862b8a91" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Select "Web application" for application type and then add the following url to the Authorized redirect URIs:</p>
+<pre><code>http://localhost:3000/auth/google/callback</code></pre>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1370px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:61.167884826660156%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476675341466-0208PO4DFL5SMET0WHWE/ke17ZwdGBToddI8pDm48kN35SVTNjbcpCTNHsB-cLuYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcU64mpsEbH0Me5ULgKnPhPBhirPsd5LPExIsWZjl-FXR9eE00oogH-jnGGRT-wWiy/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476675341466-0208PO4DFL5SMET0WHWE/ke17ZwdGBToddI8pDm48kN35SVTNjbcpCTNHsB-cLuYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcU64mpsEbH0Me5ULgKnPhPBhirPsd5LPExIsWZjl-FXR9eE00oogH-jnGGRT-wWiy/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476675341466-0208PO4DFL5SMET0WHWE/ke17ZwdGBToddI8pDm48kN35SVTNjbcpCTNHsB-cLuYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcU64mpsEbH0Me5ULgKnPhPBhirPsd5LPExIsWZjl-FXR9eE00oogH-jnGGRT-wWiy/image-asset.png" data-image-dimensions="1370x838" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5804470dbebafb5d75d857a6" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>After clicking "Create", a box will pop up with your client id and client secret. Copy these keys to a text file outside of the project directory.</p>
+<h3>Step 10: Figaro</h3>
+<p>With our keys from the previous step, we will configure two environment variables using Figaro. When we ran "bundle exec figaro install", the Figaro gem created an application.yml file and added this file to our .gitignore file. This will ensure that the information in the application.yml does not make its way into a public repository on github. Add the following two lines to the config/application.yml.</p>
+<pre><code>GOOGLE_CLIENT_ID: &lt;&lt; MY-CLIENT-ID &gt;&gt;
+GOOGLE_CLIENT_SECRET: &lt;&lt; MY-CLIENT-SECRET &gt;&gt;</code></pre>
+<p>Replace &lt;&lt; MY-CLIENT-ID &gt;&gt; and &lt;&lt; MY-CLIENT-SECRET &gt;&gt; with the keys you just got from Google. No "&lt;&lt;" or "&gt;&gt;" should be included. No quotes are needed either. This allows us to call the following variables throughout our code:</p>
+<pre><code>ENV["GOOGLE_CLIENT_ID"]
+ENV["GOOGLE_CLIENT_SECRET"]</code></pre>
+<h3>Step 11: Omniauth Initializer</h3>
+<p>Next we need to create an omniauth initializer. Type the following command into terminal:</p>
+<pre><code>touch config/initializers/omniauth.rb</code></pre>
+<p>In the config/initializers/omnauth.rb file add the following code:</p>
+<pre style="color:#000000;background:#ffffff;">Rails<span style="color:#808030; ">.</span>application<span style="color:#808030; ">.</span>config<span style="color:#808030; ">.</span>middleware<span style="color:#808030; ">.</span>use OmniAuth<span style="color:#808030; ">::</span>Builder<span style="color:#800000; font-weight:bold; "> do</span>
+  provider :<span style="color:#005fd2; ">google_oauth2</span><span style="color:#808030; ">,</span> ENV<span style="color:#808030; ">[</span><span style="color:#0000e6; ">"GOOGLE_CLIENT_ID"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span> ENV<span style="color:#808030; ">[</span><span style="color:#0000e6; ">"GOOGLE_CLIENT_SECRET"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span> <span style="color:#800080; ">{</span>
+    :<span style="color:#005fd2; ">name</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"google"</span><span style="color:#808030; ">,</span>
+    :<span style="color:#005fd2; ">scope</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#808030; ">[</span><span style="color:#0000e6; ">'contacts'</span><span style="color:#808030; ">,</span><span style="color:#0000e6; ">'plus.login'</span><span style="color:#808030; ">,</span><span style="color:#0000e6; ">'plus.me'</span><span style="color:#808030; ">,</span><span style="color:#0000e6; ">'email'</span><span style="color:#808030; ">,</span><span style="color:#0000e6; ">'profile'</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span>
+    :<span style="color:#005fd2; ">prompt</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"select_account"</span><span style="color:#808030; ">,</span>
+    :<span style="color:#005fd2; ">image_aspect_ratio</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"square"</span><span style="color:#808030; ">,</span>
+    :<span style="color:#005fd2; ">image_size</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#008c00; ">50</span><span style="color:#808030; ">,</span>
+    :<span style="color:#005fd2; ">access_type</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">'offline'</span>
+  <span style="color:#800080; ">}</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Notice that we reference the environment variables for our client id and client secret we created with Figaro in the previous step. We also pass in a hash with several key value pairs. The name is set to Google and I believe this is useful in case we want to add additional omniauth strategies to this app. For example, we may want our users to be able to login with their Twitter accounts. Scope is an argument that defines the permissions we are asking the user to grant this app. Prompt keyed to "select_account" means that the user will always be prompted to select an account. We are also defining the shape and size of the profile image of the user that our app will have access to. Finally, access type I beleive means that Google will send our app a refresh token that we can use when our user wants to login again or if the actual auth token expires. For more info about the hash options available in omniauth, checkout the <a target="_blank" href="https://github.com/zquestz/omniauth-google-oauth2">docs</a>.</p>
+<h3>Step 12: Make a fake login</h3>
+<p>When we run our test we should get an undefined template failure.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:37.20000076293945%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476718510288-FA16S94JODSYBG74U2RJ/ke17ZwdGBToddI8pDm48kL44xIHFFSDZxZ24lLalh2cUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnLWsplxJycS2ZC4W0pkg7tcvEJKVjhREkS1BB6uZyBzMW_T1ew2o-whLGJPhnYX5Nw/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476718510288-FA16S94JODSYBG74U2RJ/ke17ZwdGBToddI8pDm48kL44xIHFFSDZxZ24lLalh2cUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnLWsplxJycS2ZC4W0pkg7tcvEJKVjhREkS1BB6uZyBzMW_T1ew2o-whLGJPhnYX5Nw/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476718510288-FA16S94JODSYBG74U2RJ/ke17ZwdGBToddI8pDm48kL44xIHFFSDZxZ24lLalh2cUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnLWsplxJycS2ZC4W0pkg7tcvEJKVjhREkS1BB6uZyBzMW_T1ew2o-whLGJPhnYX5Nw/image-asset.png" data-image-dimensions="2500x930" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5804efad414fb5d2df098e2d" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Now if we actually run our server by typing the following into terminal from our project root directory:</p>
+<pre><code>rails s</code></pre>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:20.84000015258789%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476718941062-XQO4827IAX5R1FHUVION/ke17ZwdGBToddI8pDm48kN39dsL0qHnbvHPwRenhon0UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnJIr1vyYTStaM_cqH7JkQRcmRmZcpr6hGyl49ZB-dXDoAiKNYzBEMLLf65-Sm8K7bw/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476718941062-XQO4827IAX5R1FHUVION/ke17ZwdGBToddI8pDm48kN39dsL0qHnbvHPwRenhon0UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnJIr1vyYTStaM_cqH7JkQRcmRmZcpr6hGyl49ZB-dXDoAiKNYzBEMLLf65-Sm8K7bw/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476718941062-XQO4827IAX5R1FHUVION/ke17ZwdGBToddI8pDm48kN39dsL0qHnbvHPwRenhon0UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnJIr1vyYTStaM_cqH7JkQRcmRmZcpr6hGyl49ZB-dXDoAiKNYzBEMLLf65-Sm8K7bw/image-asset.png" data-image-dimensions="2500x521" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5804f15c414fb5d2df09a29e" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p> and visit local host by typing the following into our browser:</p>
+<pre><code>localhost:3000</code></pre>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1458px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:33.333335876464844%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476719037503-Q7RDPK7KX0NZFCXXJ3TM/ke17ZwdGBToddI8pDm48kDRMOrj1vSPlhos6hzk5sBYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcgMv4QtHnrXWUBAaxMbMIdncUWbXIfj4RlZExRt-9Z3JI2azft8QC8jBHswA5OaW9/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476719037503-Q7RDPK7KX0NZFCXXJ3TM/ke17ZwdGBToddI8pDm48kDRMOrj1vSPlhos6hzk5sBYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcgMv4QtHnrXWUBAaxMbMIdncUWbXIfj4RlZExRt-9Z3JI2azft8QC8jBHswA5OaW9/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476719037503-Q7RDPK7KX0NZFCXXJ3TM/ke17ZwdGBToddI8pDm48kDRMOrj1vSPlhos6hzk5sBYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcgMv4QtHnrXWUBAaxMbMIdncUWbXIfj4RlZExRt-9Z3JI2azft8QC8jBHswA5OaW9/image-asset.png" data-image-dimensions="1458x486" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5804f1bdd2b85773b25ebc4e" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Click on the link, "Sign in with Google" and you should see a Google screen asking us to choose an account. Once we choose an account and provide the credentials, we should get an error like this:</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:48.400001525878906%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476719178953-4B21Y2197FIDIQBEI9XJ/ke17ZwdGBToddI8pDm48kGIn9urCHmcgTVDtRAjelih7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0oNKJAk6OTLGFvFLgUocmTAq9IOUvGEq1wHRVhyNhh5k_DdET6iauij6vLDmm7hsBQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476719178953-4B21Y2197FIDIQBEI9XJ/ke17ZwdGBToddI8pDm48kGIn9urCHmcgTVDtRAjelih7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0oNKJAk6OTLGFvFLgUocmTAq9IOUvGEq1wHRVhyNhh5k_DdET6iauij6vLDmm7hsBQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476719178953-4B21Y2197FIDIQBEI9XJ/ke17ZwdGBToddI8pDm48kGIn9urCHmcgTVDtRAjelih7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0oNKJAk6OTLGFvFLgUocmTAq9IOUvGEq1wHRVhyNhh5k_DdET6iauij6vLDmm7hsBQ/image-asset.png" data-image-dimensions="2500x1210" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5804f24ae58c623f97a1500a" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Now lets think back to the stub_omniauth method that we created in our original feature test. We left the return hash blank and at this point we can try to fill it in. There are two ways to do this. First we can look at the omniauth <a href="https://github.com/zquestz/omniauth-google-oauth2#auth-hash">documentation</a>, which contains a sample hash output. We can also look in our own terminal for this info. Add a byebug into the create method in the app/controllers/sessions_controller.rb:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> SessionsController &lt; ApplicationController
+  <span style="color:#800000; font-weight:bold; ">def</span> create
+    byebug
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>When we run "rails s" from terminal, and go through the login process just like before, instead of getting the error screen our execution will pause at the byebug we've just inserted. Take a look at the info in terminal.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:14.280000686645508%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476719786925-LQHIZV2NTEAMF75A5KO4/ke17ZwdGBToddI8pDm48kDrYOW5FRzE-MUBydNCV3-gUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnFuwqm7-c0L4hbeTdWY9eWGgFtV2_frWUDH937RWNoJ2cDNGM6YUJxklsN7_8rQuWQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476719786925-LQHIZV2NTEAMF75A5KO4/ke17ZwdGBToddI8pDm48kDrYOW5FRzE-MUBydNCV3-gUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnFuwqm7-c0L4hbeTdWY9eWGgFtV2_frWUDH937RWNoJ2cDNGM6YUJxklsN7_8rQuWQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476719786925-LQHIZV2NTEAMF75A5KO4/ke17ZwdGBToddI8pDm48kDrYOW5FRzE-MUBydNCV3-gUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnFuwqm7-c0L4hbeTdWY9eWGgFtV2_frWUDH937RWNoJ2cDNGM6YUJxklsN7_8rQuWQ/image-asset.png" data-image-dimensions="2500x357" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5804f4aa59cc684e43624e26" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>We have access to all the variables in the create method in our terminal. Lets call the following:</p>
+<pre><code>env["omniauth.auth"]</code></pre>
+<p>Which should give us something like:</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:29.64000129699707%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476719960776-F36KH1KE1EDACZSE1E2P/ke17ZwdGBToddI8pDm48kLFaSafcjcgX2nMWjQB-j88UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnCoRPBaYf39YSMRN3CS5M_Il_8DGFosbOuDYajKLs-6kVg0CVK6irU4QexSGh9RWhg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476719960776-F36KH1KE1EDACZSE1E2P/ke17ZwdGBToddI8pDm48kLFaSafcjcgX2nMWjQB-j88UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnCoRPBaYf39YSMRN3CS5M_Il_8DGFosbOuDYajKLs-6kVg0CVK6irU4QexSGh9RWhg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476719960776-F36KH1KE1EDACZSE1E2P/ke17ZwdGBToddI8pDm48kLFaSafcjcgX2nMWjQB-j88UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnCoRPBaYf39YSMRN3CS5M_Il_8DGFosbOuDYajKLs-6kVg0CVK6irU4QexSGh9RWhg/image-asset.png" data-image-dimensions="2500x741" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5804f55815d5db7b4c79f435" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>I like to look at the keys here to try to more fully understand what I am working with:</p>
+<pre><code>env["omniauth.auth"].keys</code></pre>
+<p>Should give us:</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:10.079999923706055%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476720316046-JODPGTNEUVOQXPWD5EEP/ke17ZwdGBToddI8pDm48kLqIjzAg99H10LtT1FdwllUUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnO0Nj7q-qYeeVeROsBqf9gpnZP-1S0fdogVx6jB_PZg1zbYq-PcVcgbx5zYQz4Hkng/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476720316046-JODPGTNEUVOQXPWD5EEP/ke17ZwdGBToddI8pDm48kLqIjzAg99H10LtT1FdwllUUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnO0Nj7q-qYeeVeROsBqf9gpnZP-1S0fdogVx6jB_PZg1zbYq-PcVcgbx5zYQz4Hkng/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476720316046-JODPGTNEUVOQXPWD5EEP/ke17ZwdGBToddI8pDm48kLqIjzAg99H10LtT1FdwllUUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnO0Nj7q-qYeeVeROsBqf9gpnZP-1S0fdogVx6jB_PZg1zbYq-PcVcgbx5zYQz4Hkng/image-asset.png" data-image-dimensions="2500x252" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5804f6bb59cc684e43626bd7" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>From here, we can look at each key individually to get an idea of what we are working with. Calling each key will give use the final:</p>
+<p><code>env["omniauth.auth"].provider</code></p>
+
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:12.039999961853027%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476720392241-FXXKT9WW60UH2NSGNUYP/ke17ZwdGBToddI8pDm48kLzDLcvOIhFBLBUnwk4E3xEUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnKVw8mFzCBf_2sRawyLWduN9g8v37Xuepk38UuCSAOzda3nPAvFfUvSPzHbZo4CX_A/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476720392241-FXXKT9WW60UH2NSGNUYP/ke17ZwdGBToddI8pDm48kLzDLcvOIhFBLBUnwk4E3xEUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnKVw8mFzCBf_2sRawyLWduN9g8v37Xuepk38UuCSAOzda3nPAvFfUvSPzHbZo4CX_A/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476720392241-FXXKT9WW60UH2NSGNUYP/ke17ZwdGBToddI8pDm48kLzDLcvOIhFBLBUnwk4E3xEUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnKVw8mFzCBf_2sRawyLWduN9g8v37Xuepk38UuCSAOzda3nPAvFfUvSPzHbZo4CX_A/image-asset.png" data-image-dimensions="2500x301" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5804f7085016e18487155daf" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p><code>env["omniauth.auth"].info</code></p>
+
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:14.59999942779541%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476720484161-6T145PCDCUBCSP41K551/ke17ZwdGBToddI8pDm48kCqXGBxNuBRwU_veEAC1TI8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnGFlcl8gAQHmfp2CDUG4UUlTe48lsYCzSxx2aI8Vyk3OHNdVGk6nt7UfCzVwFAnCfw/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476720484161-6T145PCDCUBCSP41K551/ke17ZwdGBToddI8pDm48kCqXGBxNuBRwU_veEAC1TI8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnGFlcl8gAQHmfp2CDUG4UUlTe48lsYCzSxx2aI8Vyk3OHNdVGk6nt7UfCzVwFAnCfw/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476720484161-6T145PCDCUBCSP41K551/ke17ZwdGBToddI8pDm48kCqXGBxNuBRwU_veEAC1TI8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnGFlcl8gAQHmfp2CDUG4UUlTe48lsYCzSxx2aI8Vyk3OHNdVGk6nt7UfCzVwFAnCfw/image-asset.png" data-image-dimensions="2500x365" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5804f763f7e0ab3454f91b2a" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Calling uid, credentials, and extras works the same and should output their respective values, which I will not provide screenshots of because I'm not entirely clear on the security privacy repercussions of posting that data publicly so I'll err on the side of not posting that.</p>
+<p>To make a fake login we will return to the stub_omniauth method. By investigating the env["omniauth.auth"] hash we can create a fake one for our tests that includes the information that we will want to store in our database.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> stub_omniauth
+    <span style="color:#696969; "># first, set OmniAuth to run in test mode</span>
+    OmniAuth<span style="color:#808030; ">.</span>config<span style="color:#808030; ">.</span>test_mode <span style="color:#808030; ">=</span> <span style="color:#800000; font-weight:bold; ">true</span>
+    <span style="color:#696969; "># then, provide a set of fake oauth data that</span>
+    <span style="color:#696969; "># omniauth will use when a user tries to authenticate:</span>
+    OmniAuth<span style="color:#808030; ">.</span>config<span style="color:#808030; ">.</span>mock_auth<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">google</span><span style="color:#808030; ">]</span> <span style="color:#808030; ">=</span> OmniAuth<span style="color:#808030; ">::</span>AuthHash<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#800080; ">{</span>
+      <span style="color:#005fd2; ">provider</span>: <span style="color:#0000e6; ">"google"</span><span style="color:#808030; ">,</span>
+      <span style="color:#005fd2; ">uid</span>: <span style="color:#0000e6; ">"12345678910"</span><span style="color:#808030; ">,</span>
+      <span style="color:#005fd2; ">info</span>: <span style="color:#800080; ">{</span>
+        <span style="color:#005fd2; ">email</span>: <span style="color:#0000e6; ">"jesse@mountainmantechnologies.com"</span><span style="color:#808030; ">,</span>
+        <span style="color:#005fd2; ">first_name</span>: <span style="color:#0000e6; ">"Jesse"</span><span style="color:#808030; ">,</span>
+        <span style="color:#005fd2; ">last_name</span>: <span style="color:#0000e6; ">"Spevack"</span>
+      <span style="color:#800080; ">}</span><span style="color:#808030; ">,</span>
+      <span style="color:#005fd2; ">credentials</span>: <span style="color:#800080; ">{</span>
+        <span style="color:#005fd2; ">token</span>: <span style="color:#0000e6; ">"abcdefg12345"</span><span style="color:#808030; ">,</span>
+        <span style="color:#005fd2; ">refresh_token</span>: <span style="color:#0000e6; ">"12345abcdefg"</span><span style="color:#808030; ">,</span>
+        <span style="color:#005fd2; ">expires_at</span>: DateTime<span style="color:#808030; ">.</span><span style="color:#400000; ">now</span><span style="color:#808030; ">,</span>
+      <span style="color:#800080; ">}</span>
+    <span style="color:#800080; ">}</span><span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Let's remove byebug from our controller and run rspec to see that we are getting the same failure:</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:36.31999969482422%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476729447520-KT2VGG7AQ2DEJ1JODUQR/ke17ZwdGBToddI8pDm48kIdRTo5j-SEJfcUk_t4JN8wUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnJcM82Zo7Z7epIyAjUJ_F1JIceJN0blTH0oyYGi0kR5OigkrSiYStqCMbJuwREVqqg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476729447520-KT2VGG7AQ2DEJ1JODUQR/ke17ZwdGBToddI8pDm48kIdRTo5j-SEJfcUk_t4JN8wUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnJcM82Zo7Z7epIyAjUJ_F1JIceJN0blTH0oyYGi0kR5OigkrSiYStqCMbJuwREVqqg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476729447520-KT2VGG7AQ2DEJ1JODUQR/ke17ZwdGBToddI8pDm48kIdRTo5j-SEJfcUk_t4JN8wUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnJcM82Zo7Z7epIyAjUJ_F1JIceJN0blTH0oyYGi0kR5OigkrSiYStqCMbJuwREVqqg/image-asset.png" data-image-dimensions="2500x908" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="58051a66579fb32edb0d2006" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>Step 13: Create a User Model</h3>
+<p dir="ltr">At this point in our code, a user should be able to click through the entire Google authentication process, but we get a Rails error because we have not yet written any instructions in our create method. Thinking a few steps ahead, when a user signs in with their Google account we are going to want to either save the data Google sends as a new user in our own database or update that information if the user already exists. To do all this we are going to need a user model, s let's create one by typing the following command into terminal:</p>
+<p><code>rails g model user provider uid first_name last_name email token refresh_token oauth_expires_at:datetime</code></p>
+<p>In the above command we are creating a user model with text attributes for storing uid (user id from Google), first name, last name, email, token, refresh token, and the expiration time for the token. While out of the scope of this guide, eventually we would need the expiration time for the token so we know if / when we need to get a new token from Google.</p>
+<p>Run the database migration from the command line.</p>
+<p><code>rake db:migrate</code></p>
+<h3>Step 14: Write a User Model Test</h3>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2340px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:14.017094612121582%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476815802879-79PF2KT5QYR3JXMBDU26/ke17ZwdGBToddI8pDm48kKRHVyMmgmMcFH0S2_pNksIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dgTvmQ_19QHwRXmdPKv6X036XPeLW2xpEKDn7szoVdETCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476815802879-79PF2KT5QYR3JXMBDU26/ke17ZwdGBToddI8pDm48kKRHVyMmgmMcFH0S2_pNksIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dgTvmQ_19QHwRXmdPKv6X036XPeLW2xpEKDn7szoVdETCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476815802879-79PF2KT5QYR3JXMBDU26/ke17ZwdGBToddI8pDm48kKRHVyMmgmMcFH0S2_pNksIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dgTvmQ_19QHwRXmdPKv6X036XPeLW2xpEKDn7szoVdETCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="2340x328" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="58066bba6b8f5b8eb579df32" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Next we'll jump into the spec/models/user_spec.rb to write our user unit test. We need to create a test that will describe how our app will update a user object with a given OAuth hash.</p>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'rails_helper'</span>
+
+RSpec<span style="color:#808030; ">.</span>describe User<span style="color:#808030; ">,</span> <span style="color:#005fd2; ">type</span>: :<span style="color:#005fd2; ">model</span><span style="color:#800000; font-weight:bold; "> do</span>
+  it <span style="color:#0000e6; ">"creates or updates itself from an oauth hash"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    auth <span style="color:#808030; ">=</span> <span style="color:#800080; ">{</span>
+      <span style="color:#005fd2; ">provider</span>: <span style="color:#0000e6; ">"google"</span><span style="color:#808030; ">,</span>
+      <span style="color:#005fd2; ">uid</span>: <span style="color:#0000e6; ">"12345678910"</span><span style="color:#808030; ">,</span>
+      <span style="color:#005fd2; ">info</span>: <span style="color:#800080; ">{</span>
+        <span style="color:#005fd2; ">email</span>: <span style="color:#0000e6; ">"jesse@mountainmantechnologies.com"</span><span style="color:#808030; ">,</span>
+        <span style="color:#005fd2; ">first_name</span>: <span style="color:#0000e6; ">"Jesse"</span><span style="color:#808030; ">,</span>
+        <span style="color:#005fd2; ">last_name</span>: <span style="color:#0000e6; ">"Spevack"</span>
+      <span style="color:#800080; ">}</span><span style="color:#808030; ">,</span>
+      <span style="color:#005fd2; ">credentials</span>: <span style="color:#800080; ">{</span>
+        <span style="color:#005fd2; ">token</span>: <span style="color:#0000e6; ">"abcdefg12345"</span><span style="color:#808030; ">,</span>
+        <span style="color:#005fd2; ">refresh_token</span>: <span style="color:#0000e6; ">"12345abcdefg"</span><span style="color:#808030; ">,</span>
+        <span style="color:#005fd2; ">expires_at</span>: DateTime<span style="color:#808030; ">.</span><span style="color:#400000; ">now</span>
+      <span style="color:#800080; ">}</span>
+    <span style="color:#800080; ">}</span>
+    User<span style="color:#808030; ">.</span>update_or_create<span style="color:#808030; ">(</span>auth<span style="color:#808030; ">)</span>
+    new_user <span style="color:#808030; ">=</span> User<span style="color:#808030; ">.</span><span style="color:#400000; ">first</span>
+
+    expect<span style="color:#808030; ">(</span>new_user<span style="color:#808030; ">.</span>provider<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"google"</span><span style="color:#808030; ">)</span>
+    expect<span style="color:#808030; ">(</span>new_user<span style="color:#808030; ">.</span><span style="color:#400000; ">uid</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"12345678910"</span><span style="color:#808030; ">)</span>
+    expect<span style="color:#808030; ">(</span>new_user<span style="color:#808030; ">.</span>email<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"jesse@mountainmantechnologies.com"</span><span style="color:#808030; ">)</span>
+    expect<span style="color:#808030; ">(</span>new_user<span style="color:#808030; ">.</span>first_name<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"Jesse"</span><span style="color:#808030; ">)</span>
+    expect<span style="color:#808030; ">(</span>new_user<span style="color:#808030; ">.</span>last_name<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"Spevack"</span><span style="color:#808030; ">)</span>
+    expect<span style="color:#808030; ">(</span>new_user<span style="color:#808030; ">.</span>token<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"abcdefg12345"</span><span style="color:#808030; ">)</span>
+    expect<span style="color:#808030; ">(</span>new_user<span style="color:#808030; ">.</span>refresh_token<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"12345abcdefg"</span><span style="color:#808030; ">)</span>
+    expect<span style="color:#808030; ">(</span>new_user<span style="color:#808030; ">.</span>oauth_expires_at<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span>auth<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">credentials</span><span style="color:#808030; ">]</span><span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">expires_at</span><span style="color:#808030; ">]</span><span style="color:#808030; ">)</span>
+
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>To begin the test, we'll first define an auth token that contains the values we expect to see from our Google Omniauth callback. Next we will call the class method "update_or_create", which has not been defined yet. We imagine that when we pass the "update_or_create" method our auth hash, it will return a newly created user with attributes that match those provided in the auth hash.  When we run this test we should get a no method failure because we have not yet defined "update_or_create" in the user model.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2442px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:22.113021850585938%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476816186030-MBGMXLG89H9HIEF6Q09J/ke17ZwdGBToddI8pDm48kAk96Zdw86rqlnmoX5nbfOYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dlqdSRKmzVng3UIDFJ7J2Lo_XoVal7kgace1FFlTjy8uCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476816186030-MBGMXLG89H9HIEF6Q09J/ke17ZwdGBToddI8pDm48kAk96Zdw86rqlnmoX5nbfOYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dlqdSRKmzVng3UIDFJ7J2Lo_XoVal7kgace1FFlTjy8uCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476816186030-MBGMXLG89H9HIEF6Q09J/ke17ZwdGBToddI8pDm48kAk96Zdw86rqlnmoX5nbfOYUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dlqdSRKmzVng3UIDFJ7J2Lo_XoVal7kgace1FFlTjy8uCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="2442x540" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="58066d39e3df28f4c6ff9df5" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>Step 15: Add an Update_or_create method</h3>
+<p>Update_or_create will be a class method because it is not a method that will be called on individual user. Rather we will use the method to find or create a user from the entire User class. Think about how we would typically create a user:</p>
+<pre style="color:#000000;background:#ffffff;">User<span style="color:#808030; ">.</span>create<span style="color:#808030; ">(</span><span style="color:#005fd2; ">username</span>: <span style="color:#0000e6; ">"PlanetEfficacy"</span><span style="color:#808030; ">)</span>
+</pre>
+<p>Since the User model inherits from ActiveRecord::Base, it includes the method create. Just like the ActiveRecord create method is called on a class (User in the above example), our update_or_create method will also be called on the User class. We need to first decide whether or not the auth hash is referring to a pre-existing user in our database.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> self.update_or_create(auth)
+  user <span style="color:#808030; ">=</span> User<span style="color:#808030; ">.</span>find_by<span style="color:#808030; ">(</span><span style="color:#005fd2; ">uid</span>: auth<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">uid</span><span style="color:#808030; ">]</span><span style="color:#808030; ">)</span> || User<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+</pre>
+<p>If the User.find_by call returns a user, then we'll use that as our user moving forward. Otherwise, create a new user.</p>
+<p>Next we will set or reset all of the attributes of our newly found or instantiated user. We set or reset every attribute because we want to save updates on to the Google account in our database. For example, if a person changes their last name on their Google account (I'm guessing this is possible) we would want to pull in that updated information into our app's database as well.</p>
+<pre style="color:#000000;background:#ffffff;">user<span style="color:#808030; ">.</span>attributes <span style="color:#808030; ">=</span> <span style="color:#800080; ">{</span>
+    <span style="color:#005fd2; ">provider</span>: auth<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">provider</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span>
+    <span style="color:#005fd2; ">uid</span>: auth<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">uid</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span>
+    <span style="color:#005fd2; ">email</span>: auth<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">info</span><span style="color:#808030; ">]</span><span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">email</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span>
+    <span style="color:#005fd2; ">first_name</span>: auth<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">info</span><span style="color:#808030; ">]</span><span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">first_name</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span>
+    <span style="color:#005fd2; ">last_name</span>: auth<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">info</span><span style="color:#808030; ">]</span><span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">last_name</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span>
+    <span style="color:#005fd2; ">token</span>: auth<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">credentials</span><span style="color:#808030; ">]</span><span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">token</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span>
+    <span style="color:#005fd2; ">refresh_token</span>: auth<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">credentials</span><span style="color:#808030; ">]</span><span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">refresh_token</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span>
+    <span style="color:#005fd2; ">oauth_expires_at</span>: auth<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">credentials</span><span style="color:#808030; ">]</span><span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">expires_at</span><span style="color:#808030; ">]</span>
+  <span style="color:#800080; ">}</span>
+</pre>
+<p>Lastly we'll call the ActiveRecord method save to save the changes to the user to our database and then we return the user.</p>
+<pre style="color:#000000;background:#ffffff;">user<span style="color:#808030; ">.</span>save!
+user
+</pre>
+<p>All together we get:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># app/model/user.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> User &lt; ApplicationRecord
+  <span style="color:#800000; font-weight:bold; ">def</span> self.update_or_create(auth)
+    user <span style="color:#808030; ">=</span> User<span style="color:#808030; ">.</span>find_by<span style="color:#808030; ">(</span><span style="color:#005fd2; ">uid</span>: auth<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">uid</span><span style="color:#808030; ">]</span><span style="color:#808030; ">)</span> || User<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+    user<span style="color:#808030; ">.</span>attributes <span style="color:#808030; ">=</span> <span style="color:#800080; ">{</span>
+      <span style="color:#005fd2; ">provider</span>: auth<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">provider</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span>
+      <span style="color:#005fd2; ">uid</span>: auth<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">uid</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span>
+      <span style="color:#005fd2; ">email</span>: auth<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">info</span><span style="color:#808030; ">]</span><span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">email</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span>
+      <span style="color:#005fd2; ">first_name</span>: auth<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">info</span><span style="color:#808030; ">]</span><span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">first_name</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span>
+      <span style="color:#005fd2; ">last_name</span>: auth<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">info</span><span style="color:#808030; ">]</span><span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">last_name</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span>
+      <span style="color:#005fd2; ">token</span>: auth<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">credentials</span><span style="color:#808030; ">]</span><span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">token</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span>
+      <span style="color:#005fd2; ">refresh_token</span>: auth<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">credentials</span><span style="color:#808030; ">]</span><span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">refresh_token</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span>
+      <span style="color:#005fd2; ">oauth_expires_at</span>: auth<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">credentials</span><span style="color:#808030; ">]</span><span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">expires_at</span><span style="color:#808030; ">]</span>
+    <span style="color:#800080; ">}</span>
+    user<span style="color:#808030; ">.</span>save!
+    user
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>And when we run our test, we are back down to one failure - our feature test that we started with.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:31.84000015258789%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476886122977-1QSSC179DSYIMAFUWYM0/ke17ZwdGBToddI8pDm48kEm5oXKU-AR8q2NbzqxtjYMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnGLpOErQ1mXpwuqt-243G-JkAFd_cxRtfXUKqb1-3jGaDrQait-W7EICiDYZKXCwxw/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476886122977-1QSSC179DSYIMAFUWYM0/ke17ZwdGBToddI8pDm48kEm5oXKU-AR8q2NbzqxtjYMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnGLpOErQ1mXpwuqt-243G-JkAFd_cxRtfXUKqb1-3jGaDrQait-W7EICiDYZKXCwxw/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476886122977-1QSSC179DSYIMAFUWYM0/ke17ZwdGBToddI8pDm48kEm5oXKU-AR8q2NbzqxtjYMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnGLpOErQ1mXpwuqt-243G-JkAFd_cxRtfXUKqb1-3jGaDrQait-W7EICiDYZKXCwxw/image-asset.png" data-image-dimensions="2500x796" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="58077e6a1b631bfe16546073" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>Step 16: add Update_or_create method to Sessions Controller</h3>
+<p>Next, we'll go back to our SessionsController. The above test says that there is a missing template, which makes sense because currently our SessionsController's create method is blank. Now we will use our new update_or_create method to take the auhentication hash passed into the SessionController's create method to find or create the user and store that user in the session, which as I understand it is an encrypted cookie.</p>
+<p>First we update or create a user. Next, we store that user's id in our session. Finally we will redirect back to the root_path, our home page.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> SessionsController &lt; ApplicationController
+  <span style="color:#800000; font-weight:bold; ">def</span> create
+    user <span style="color:#808030; ">=</span> User<span style="color:#808030; ">.</span>update_or_create<span style="color:#808030; ">(</span>env<span style="color:#808030; ">[</span><span style="color:#0000e6; ">"omniauth.auth"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">)</span>
+    session<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">id</span><span style="color:#808030; ">]</span> <span style="color:#808030; ">=</span> user<span style="color:#808030; ">.</span>id
+    redirect_to root_path
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>And when we run the test... we are still failing. But it is a new kind of failure, which is the best kind of failure. Our failure says that we are missing the content "Jesse Spevack" we were expecting to see in our view.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:31.079998016357422%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476887091768-AR8BPZ9HQEG3SY1I6TPF/ke17ZwdGBToddI8pDm48kMw-bCsIafJ2g50_CZBiY5MUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnGGqXxuKEfc-vvOIX7U9HhQhD23VHaGtODoWrFec__65ULCZVNnnsemhQxifqc9uiw/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476887091768-AR8BPZ9HQEG3SY1I6TPF/ke17ZwdGBToddI8pDm48kMw-bCsIafJ2g50_CZBiY5MUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnGGqXxuKEfc-vvOIX7U9HhQhD23VHaGtODoWrFec__65ULCZVNnnsemhQxifqc9uiw/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476887091768-AR8BPZ9HQEG3SY1I6TPF/ke17ZwdGBToddI8pDm48kMw-bCsIafJ2g50_CZBiY5MUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnGGqXxuKEfc-vvOIX7U9HhQhD23VHaGtODoWrFec__65ULCZVNnnsemhQxifqc9uiw/image-asset.png" data-image-dimensions="2500x777" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="580782339de4bb19436a0f28" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>Step 17: CREATE A CURRENT_USER</h3>
+<p dir="ltr">Before we jump into our view and correct this problem, it's best practice to create a current user helper method. To do so, we'll jump into our app/controller/application_controller.rb file and quickly add:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> ApplicationController &lt; ActionController<span style="color:#808030; ">::</span>Base
+  protect_from_forgery <span style="color:#005fd2; ">with</span>: :<span style="color:#005fd2; ">exception</span>
+
+  helper_method :<span style="color:#005fd2; ">current_user</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> current_user
+    @current_user ||<span style="color:#808030; ">=</span> User<span style="color:#808030; ">.</span><span style="color:#400000; ">find</span><span style="color:#808030; ">(</span>session<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">id</span><span style="color:#808030; ">]</span><span style="color:#808030; ">)</span> <span style="color:#800000; font-weight:bold; ">if</span> session<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">id</span><span style="color:#808030; ">]</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The above code creates an instance variable called current_user if the session[:id] exists. The instance variable @current_user will be accessible in our views because we say that it is a helper method.</p>
+<h3>Step 18: Update our View</h3>
+<p>Let's now open our app/views/home/index.html.erb file. We'll need to display the link to "Sign in with Google" if there isn't a logged in user. If there is a logged in user we will want to display the user's name and a link to logout.</p>
+<pre style="color:#000000;background:#ffffff;">&lt;% <span style="color:#800000; font-weight:bold; ">if</span> current_user  %&gt;
+  &lt;h3&gt;Welcome<span style="color:#808030; ">,</span> &lt;<span style="color:#3f5fbf; ">%= "#{current_user.first_name} #{current_user.last_name}" %&gt;&lt;/h3&gt;</span>
+<span style="color:#3f5fbf; ">&lt;% else %&gt;</span>
+<span style="color:#3f5fbf; ">  &lt;%=</span> link_to <span style="color:#0000e6; ">"Sign in with Google"</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">"/auth/google"</span> %&gt;
+&lt;% <span style="color:#800000; font-weight:bold; ">end</span> %&gt;
+</pre>
+<p>Now let's run our test:</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:25.600000381469727%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888012176-AEDNIPI1BH36CPHXN5NN/ke17ZwdGBToddI8pDm48kLC8V1icaaSw9ITz6IXjY9MUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnNS0CvLHU_lE3Dk77BH4P7fe6rtJH8XT3iSDtz4SA2ryhCQg0TgLQigwmNsdbKIFuQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888012176-AEDNIPI1BH36CPHXN5NN/ke17ZwdGBToddI8pDm48kLC8V1icaaSw9ITz6IXjY9MUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnNS0CvLHU_lE3Dk77BH4P7fe6rtJH8XT3iSDtz4SA2ryhCQg0TgLQigwmNsdbKIFuQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888012176-AEDNIPI1BH36CPHXN5NN/ke17ZwdGBToddI8pDm48kLC8V1icaaSw9ITz6IXjY9MUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnNS0CvLHU_lE3Dk77BH4P7fe6rtJH8XT3iSDtz4SA2ryhCQg0TgLQigwmNsdbKIFuQ/image-asset.png" data-image-dimensions="2500x640" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="580785cb20099e39557b8563" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>We are so close! Let's add a logout button to our view:</p>
+<pre style="color:#000000;background:#ffffff;">&lt;% <span style="color:#800000; font-weight:bold; ">if</span> current_user  %&gt;
+  &lt;h3&gt;Welcome<span style="color:#808030; ">,</span> &lt;<span style="color:#3f5fbf; ">%= "#{current_user.first_name} #{current_user.last_name}" %&gt;&lt;/h3&gt;</span>
+<span style="color:#3f5fbf; ">  &lt;%=</span> link_to <span style="color:#0000e6; ">"Logout"</span><span style="color:#808030; ">,</span> logout_path %&gt;
+&lt;% <span style="color:#800000; font-weight:bold; ">else</span> %&gt;
+  &lt;<span style="color:#3f5fbf; ">%= link_to "Sign in with Google", "/auth/google" %&gt;</span>
+<span style="color:#3f5fbf; ">&lt;% end %&gt;</span>
+</pre>
+<p>And run our test again. Now we get a failure that the logout_path does not exist.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:21.96000099182129%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888112741-XXDRIZ1CO0PVRXZUVC1K/ke17ZwdGBToddI8pDm48kJIE-pyRfbr5bXYH7jJCpvIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnN94l-6Um52bgVIwKpiQ7pDX5j02W_jnVzQcv1ef4Tk1alxhCSSJfUFmt8PhBSlc4Q/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888112741-XXDRIZ1CO0PVRXZUVC1K/ke17ZwdGBToddI8pDm48kJIE-pyRfbr5bXYH7jJCpvIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnN94l-6Um52bgVIwKpiQ7pDX5j02W_jnVzQcv1ef4Tk1alxhCSSJfUFmt8PhBSlc4Q/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888112741-XXDRIZ1CO0PVRXZUVC1K/ke17ZwdGBToddI8pDm48kJIE-pyRfbr5bXYH7jJCpvIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnN94l-6Um52bgVIwKpiQ7pDX5j02W_jnVzQcv1ef4Tk1alxhCSSJfUFmt8PhBSlc4Q/image-asset.png" data-image-dimensions="2500x549" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5807863029687f2f9402ab95" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>Step 19: Add A Logout Route</h3>
+<p>Let's go into our routes.rb file and add:</p>
+<pre style="color:#000000;background:#ffffff;">Rails<span style="color:#808030; ">.</span>application<span style="color:#808030; ">.</span>routes<span style="color:#808030; ">.</span>draw<span style="color:#800000; font-weight:bold; "> do</span>
+  root                            <span style="color:#005fd2; ">to</span>: <span style="color:#0000e6; ">'home#index'</span>
+  get <span style="color:#0000e6; ">'auth/:provider/callback'</span><span style="color:#808030; ">,</span>  <span style="color:#005fd2; ">to</span>: <span style="color:#0000e6; ">'sessions#create'</span>
+  get <span style="color:#0000e6; ">'logout'</span><span style="color:#808030; ">,</span>                   <span style="color:#005fd2; ">to</span>: <span style="color:#0000e6; ">'sessions#destroy'</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Next, lets jump into the sessions controller and add a destroy method so users can logout.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> SessionsController &lt; ApplicationController
+  <span style="color:#800000; font-weight:bold; ">def</span> create
+    user <span style="color:#808030; ">=</span> User<span style="color:#808030; ">.</span>update_or_create<span style="color:#808030; ">(</span>env<span style="color:#808030; ">[</span><span style="color:#0000e6; ">"omniauth.auth"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">)</span>
+    session<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">id</span><span style="color:#808030; ">]</span> <span style="color:#808030; ">=</span> user<span style="color:#808030; ">.</span>id
+    redirect_to root_path
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> destroy
+    session<span style="color:#808030; ">.</span><span style="color:#400000; ">clear</span>
+    redirect_to root_path
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>And when we re-run our test, it will pass!</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:14.079999923706055%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888371973-FWBIHUI7FGRYHNI2NC97/ke17ZwdGBToddI8pDm48kCiMFTcZBGji0W88cIICJysUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnBQ3wFkNBVy7lZy9hvHlJuMyXjX7fiW1znkD-CsoKCeUK1nzmHInNPsAcKIA5dmCwA/Screen+Shot+2016-10-19+at+8.46.03+AM.png" alt="Screen Shot 2016-10-19 at 8.46.03 AM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888371973-FWBIHUI7FGRYHNI2NC97/ke17ZwdGBToddI8pDm48kCiMFTcZBGji0W88cIICJysUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnBQ3wFkNBVy7lZy9hvHlJuMyXjX7fiW1znkD-CsoKCeUK1nzmHInNPsAcKIA5dmCwA/Screen+Shot+2016-10-19+at+8.46.03+AM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888371973-FWBIHUI7FGRYHNI2NC97/ke17ZwdGBToddI8pDm48kCiMFTcZBGji0W88cIICJysUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnBQ3wFkNBVy7lZy9hvHlJuMyXjX7fiW1znkD-CsoKCeUK1nzmHInNPsAcKIA5dmCwA/Screen+Shot+2016-10-19+at+8.46.03+AM.png" data-image-dimensions="2500x352" data-image-focal-point="0.5,0.5" alt="Screen Shot 2016-10-19 at 8.46.03 AM.png" data-load="false" data-image-id="58078733bebafb5a238bdb26" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>When we spin up our rails server and visit localhost:3000, we should get something like:</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1432px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:85.19552612304688%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888582210-UFPQFQAGYVDRPWG475PP/ke17ZwdGBToddI8pDm48kHVsosEYqfpso0crJ6Y8bJ57gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTm-RHR-hJdtmDHlZFgMA9WHc8fINcFQd0O1z9B58oR7JkODq8R8Wm856XbgHQ3kZY8/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888582210-UFPQFQAGYVDRPWG475PP/ke17ZwdGBToddI8pDm48kHVsosEYqfpso0crJ6Y8bJ57gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTm-RHR-hJdtmDHlZFgMA9WHc8fINcFQd0O1z9B58oR7JkODq8R8Wm856XbgHQ3kZY8/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888582210-UFPQFQAGYVDRPWG475PP/ke17ZwdGBToddI8pDm48kHVsosEYqfpso0crJ6Y8bJ57gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTm-RHR-hJdtmDHlZFgMA9WHc8fINcFQd0O1z9B58oR7JkODq8R8Wm856XbgHQ3kZY8/image-asset.png" data-image-dimensions="1432x1220" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="58078805ff7c503a54d55f23" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>Step 20: Sanity Check</h3>
+<p>I like to go through the user story once my test is passing as a sanity check. So let's see if our app can actually complete the login process through Google.</p>
+<p>I'll start by clicking the "Sign in with Google" link, which will take me to:</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:43.79999923706055%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888676522-CKTA1H16I8HR4SY52YCR/ke17ZwdGBToddI8pDm48kODw0kujOaB97GHxcDsRm3d7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0nMxxnbs9sHKULYaWHZOcWhaHzT-GbQpe2gqOhvi5gUxbDiO6wPme4Mygh_8-3-Ptw/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888676522-CKTA1H16I8HR4SY52YCR/ke17ZwdGBToddI8pDm48kODw0kujOaB97GHxcDsRm3d7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0nMxxnbs9sHKULYaWHZOcWhaHzT-GbQpe2gqOhvi5gUxbDiO6wPme4Mygh_8-3-Ptw/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888676522-CKTA1H16I8HR4SY52YCR/ke17ZwdGBToddI8pDm48kODw0kujOaB97GHxcDsRm3d7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0nMxxnbs9sHKULYaWHZOcWhaHzT-GbQpe2gqOhvi5gUxbDiO6wPme4Mygh_8-3-Ptw/image-asset.png" data-image-dimensions="2500x1095" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="580788633e00be597472904d" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Things are looking good. Next I'll go through the login process with my Google account.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:44.20000076293945%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888739862-OJK7MWAJP88O1MFM2GQF/ke17ZwdGBToddI8pDm48kC68kOpRKJJmPVnKbiUp9MZ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0veWvmnKYzIkQ2ZOhN0t4FU3L0EX6s1EpBLKb3f6SQbtyM62Qt_WqxtMkrqhlu3w5Q/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888739862-OJK7MWAJP88O1MFM2GQF/ke17ZwdGBToddI8pDm48kC68kOpRKJJmPVnKbiUp9MZ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0veWvmnKYzIkQ2ZOhN0t4FU3L0EX6s1EpBLKb3f6SQbtyM62Qt_WqxtMkrqhlu3w5Q/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888739862-OJK7MWAJP88O1MFM2GQF/ke17ZwdGBToddI8pDm48kC68kOpRKJJmPVnKbiUp9MZ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0veWvmnKYzIkQ2ZOhN0t4FU3L0EX6s1EpBLKb3f6SQbtyM62Qt_WqxtMkrqhlu3w5Q/image-asset.png" data-image-dimensions="2500x1105" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="580788a3ebbd1a0533c458fd" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>I will have to authorize the app.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:41.84000015258789%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888765181-SKO44KBUZN531A6KN9JB/ke17ZwdGBToddI8pDm48kBxFiCijaY_P39INDNMR6Rh7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0gu497mDT_llCmz5IRNDPK7yWT0w4wjy4tDGWvBTeuwRMUdW1sQUJKdrzh_OZttaIw/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888765181-SKO44KBUZN531A6KN9JB/ke17ZwdGBToddI8pDm48kBxFiCijaY_P39INDNMR6Rh7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0gu497mDT_llCmz5IRNDPK7yWT0w4wjy4tDGWvBTeuwRMUdW1sQUJKdrzh_OZttaIw/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888765181-SKO44KBUZN531A6KN9JB/ke17ZwdGBToddI8pDm48kBxFiCijaY_P39INDNMR6Rh7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0gu497mDT_llCmz5IRNDPK7yWT0w4wjy4tDGWvBTeuwRMUdW1sQUJKdrzh_OZttaIw/image-asset.png" data-image-dimensions="2500x1046" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="580788bc3e00be59747294e6" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>After clicking allow, I will be returned to our app and be greeted with a warm welcome.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:35.91999816894531%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888827613-6SGQZ71C1JE8SFD76Q41/ke17ZwdGBToddI8pDm48kJCvy4-CttXrdtF-VxTlSioUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnCbwyivNqOW4i4glWExWYWLtKrvqhZhc-W3Tfp8KVL2N6i4ViYinGY3z9my-lW8HNQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888827613-6SGQZ71C1JE8SFD76Q41/ke17ZwdGBToddI8pDm48kJCvy4-CttXrdtF-VxTlSioUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnCbwyivNqOW4i4glWExWYWLtKrvqhZhc-W3Tfp8KVL2N6i4ViYinGY3z9my-lW8HNQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888827613-6SGQZ71C1JE8SFD76Q41/ke17ZwdGBToddI8pDm48kJCvy4-CttXrdtF-VxTlSioUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnCbwyivNqOW4i4glWExWYWLtKrvqhZhc-W3Tfp8KVL2N6i4ViYinGY3z9my-lW8HNQ/image-asset.png" data-image-dimensions="2500x898" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="580788fb2994ca4c49e3a4fd" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>And when I click "Logout", I get:</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:34.720001220703125%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888861934-30KCGB05BC98OSEFM9SB/ke17ZwdGBToddI8pDm48kGJ7M0H9QvdBtfU2OTaPq54UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnNZ5heo7NHuy5CZkMmwvr5NALnIylchbaSYmzC60qUtF1SdFYbvoxoP6b--Bf9uMZQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888861934-30KCGB05BC98OSEFM9SB/ke17ZwdGBToddI8pDm48kGJ7M0H9QvdBtfU2OTaPq54UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnNZ5heo7NHuy5CZkMmwvr5NALnIylchbaSYmzC60qUtF1SdFYbvoxoP6b--Bf9uMZQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1476888861934-30KCGB05BC98OSEFM9SB/ke17ZwdGBToddI8pDm48kGJ7M0H9QvdBtfU2OTaPq54UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYwL8IeDg6_3B-BRuF4nNrNcQkVuAT7tdErd0wQFEGFSnNZ5heo7NHuy5CZkMmwvr5NALnIylchbaSYmzC60qUtF1SdFYbvoxoP6b--Bf9uMZQ/image-asset.png" data-image-dimensions="2500x868" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5807891d4402436d10812a3c" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>Concluding Thoughts</h3>
+<p>My intention with this post is to lay out a test driven path to implement Google authentication in your Rails app. I confess I did not expect to write out a 20 step tutorial, but that's where we ended up. I know that two weeks ago if I had come across this post, I would have found it helpful. You can find the entire app on my <a href="https://github.com/PlanetEfficacy/google-omniauth-demo">GitHub Repository</a>.</p>
+</body></html>

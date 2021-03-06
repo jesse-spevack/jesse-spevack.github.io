@@ -1,0 +1,163 @@
+---
+layout: post
+title: How to Summarize SQL Records by Day
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '90'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p>Some readers of this blog have been asking about useful SQL queries that have come up in my current job. So I wanted to share a query that is not super complicated, but very useful. </p>
+<p>The use case for this query is when you are looking to view a summary of records by day. For example, maybe you have many invoices everyday, but would like to track total invoice revenue by day. </p>
+<p>First, let's figure out how to get the total revenue for a specific day. To do so we can use something like:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">SELECT</span> <span style="color:#bb7977; font-weight:bold; ">SUM</span><span style="color:#808030; ">(</span>total<span style="color:#808030; ">)</span> <span style="color:#800000; font-weight:bold; ">FROM</span> invoices
+  <span style="color:#800000; font-weight:bold; ">WHERE</span> created_at <span style="color:#800000; font-weight:bold; ">BETWEEN</span> <span style="color:#0000e6; ">'2017-08-24 00:00:00'</span> <span style="color:#800000; font-weight:bold; ">AND</span> <span style="color:#0000e6; ">'2017-08-24 23:59:59'</span><span style="color:#808030; ">;</span>
+</pre>
+<p>The above query will add up the total attribute on each invoice created on August 8, 2017. So now we know how much revenue we generated on this date, but what if I want to find revenue for every day this month?</p>
+<p>One option would be to just run this query thirty times and increment the date manually each time. Obviously there is a better way.</p>
+<p>First, lets expand the scope of our query to include the entire month of August. We also need to select the created_at attribute, which we will call 'date', so that our query will return two columns - date and total. Finally we will use the CAST function to convert our created_at DateTime attribute to Date.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">SELECT</span> <span style="color:#800000; font-weight:bold; ">CAST</span><span style="color:#808030; ">(</span>created_at <span style="color:#800000; font-weight:bold; ">AS</span> <span style="color:#800000; font-weight:bold; ">DATE</span><span style="color:#808030; ">)</span><span style="color:#808030; ">,</span> <span style="color:#bb7977; font-weight:bold; ">SUM</span><span style="color:#808030; ">(</span>total<span style="color:#808030; ">)</span> <span style="color:#800000; font-weight:bold; ">AS</span> total_sales <span style="color:#800000; font-weight:bold; ">FROM</span> invoices
+  <span style="color:#800000; font-weight:bold; ">WHERE</span> created_at <span style="color:#800000; font-weight:bold; ">BETWEEN</span> <span style="color:#0000e6; ">'2017-08-01 00:00:00'</span> <span style="color:#800000; font-weight:bold; ">AND</span> <span style="color:#0000e6; ">'2017-09-01 00:00:00'</span>
+</pre>
+<p>Next we are going to group our results by date. If we had not casted our created_at attribute to date in the last step, grouping by date would group by DateTime down to the second, which is not what we want in this case.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">SELECT</span> <span style="color:#800000; font-weight:bold; ">CAST</span><span style="color:#808030; ">(</span>created_at <span style="color:#800000; font-weight:bold; ">AS</span> <span style="color:#800000; font-weight:bold; ">DATE</span><span style="color:#808030; ">)</span><span style="color:#808030; ">,</span> <span style="color:#bb7977; font-weight:bold; ">SUM</span><span style="color:#808030; ">(</span>total<span style="color:#808030; ">)</span> <span style="color:#800000; font-weight:bold; ">AS</span> total_sales <span style="color:#800000; font-weight:bold; ">FROM</span> invoices
+  <span style="color:#800000; font-weight:bold; ">WHERE</span> created_at <span style="color:#800000; font-weight:bold; ">BETWEEN</span> <span style="color:#0000e6; ">'2017-08-01 00:00:00'</span> <span style="color:#800000; font-weight:bold; ">AND</span> <span style="color:#0000e6; ">'2017-09-01 00:00:00'</span>
+  <span style="color:#800000; font-weight:bold; ">GROUP</span> <span style="color:#800000; font-weight:bold; ">BY</span> <span style="color:#800000; font-weight:bold; ">CAST</span><span style="color:#808030; ">(</span>created_at AD <span style="color:#800000; font-weight:bold; ">DATE</span><span style="color:#808030; ">)</span>
+</pre>
+<p>This will return the summary we want, something like:</p>
+
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:514px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:56.8093376159668%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1504978337838-B6WJ0GJI0ILWT3S1KX68/ke17ZwdGBToddI8pDm48kBGDFxfZOLaMOiuRfh_h6x5Zw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpwgK0l8puZ4r3D5aJT_YapngYgym9SiOcy9XYsQ0pns1xS32QUXY25EymDv1cOvtHo/Screen+Shot+2017-09-09+at+11.32.08+AM.png" alt="Screen Shot 2017-09-09 at 11.32.08 AM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1504978337838-B6WJ0GJI0ILWT3S1KX68/ke17ZwdGBToddI8pDm48kBGDFxfZOLaMOiuRfh_h6x5Zw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpwgK0l8puZ4r3D5aJT_YapngYgym9SiOcy9XYsQ0pns1xS32QUXY25EymDv1cOvtHo/Screen+Shot+2017-09-09+at+11.32.08+AM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1504978337838-B6WJ0GJI0ILWT3S1KX68/ke17ZwdGBToddI8pDm48kBGDFxfZOLaMOiuRfh_h6x5Zw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpwgK0l8puZ4r3D5aJT_YapngYgym9SiOcy9XYsQ0pns1xS32QUXY25EymDv1cOvtHo/Screen+Shot+2017-09-09+at+11.32.08+AM.png" data-image-dimensions="514x292" data-image-focal-point="0.5,0.5" alt="Screen Shot 2017-09-09 at 11.32.08 AM.png" data-load="false" data-image-id="59b425a137c581fbf8782fdc" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>If we want to order the query results by date (or sales, to see our best day) we can add an order clause to the query:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">SELECT</span> <span style="color:#800000; font-weight:bold; ">CAST</span><span style="color:#808030; ">(</span>created_at <span style="color:#800000; font-weight:bold; ">AS</span> <span style="color:#800000; font-weight:bold; ">DATE</span><span style="color:#808030; ">)</span><span style="color:#808030; ">,</span> <span style="color:#bb7977; font-weight:bold; ">SUM</span><span style="color:#808030; ">(</span>total<span style="color:#808030; ">)</span> <span style="color:#800000; font-weight:bold; ">AS</span> total_sales <span style="color:#800000; font-weight:bold; ">FROM</span> invoices
+  <span style="color:#800000; font-weight:bold; ">WHERE</span> created_at <span style="color:#800000; font-weight:bold; ">BETWEEN</span> <span style="color:#0000e6; ">'2017-08-01 00:00:00'</span> <span style="color:#800000; font-weight:bold; ">AND</span> <span style="color:#0000e6; ">'2017-09-01 00:00:00'</span>
+  <span style="color:#800000; font-weight:bold; ">GROUP</span> <span style="color:#800000; font-weight:bold; ">BY</span> <span style="color:#800000; font-weight:bold; ">CAST</span><span style="color:#808030; ">(</span>created_At <span style="color:#800000; font-weight:bold; ">AS</span> <span style="color:#800000; font-weight:bold; ">DATE</span><span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">ORDER</span> <span style="color:#800000; font-weight:bold; ">BY</span> <span style="color:#008c00; ">1</span><span style="color:#808030; ">;</span>
+</pre>
+<p>The 1 in the order clause refers to the first column. This will give us something like:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:494px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:65.18218231201172%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1504978696631-6US17KVSTXP4W6IA8975/ke17ZwdGBToddI8pDm48kJXiJcBrKw_UnbgJ1n78IKZZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVG8D8ckqVlN2lz4HCJ5nGODOUQPRBnWSie_h2Rq1rcoFltO8nJtk629tZGIWiyY3XQ/Screen+Shot+2017-09-09+at+11.38.11+AM.png" alt="Screen Shot 2017-09-09 at 11.38.11 AM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1504978696631-6US17KVSTXP4W6IA8975/ke17ZwdGBToddI8pDm48kJXiJcBrKw_UnbgJ1n78IKZZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVG8D8ckqVlN2lz4HCJ5nGODOUQPRBnWSie_h2Rq1rcoFltO8nJtk629tZGIWiyY3XQ/Screen+Shot+2017-09-09+at+11.38.11+AM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1504978696631-6US17KVSTXP4W6IA8975/ke17ZwdGBToddI8pDm48kJXiJcBrKw_UnbgJ1n78IKZZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVG8D8ckqVlN2lz4HCJ5nGODOUQPRBnWSie_h2Rq1rcoFltO8nJtk629tZGIWiyY3XQ/Screen+Shot+2017-09-09+at+11.38.11+AM.png" data-image-dimensions="494x322" data-image-focal-point="0.5,0.5" alt="Screen Shot 2017-09-09 at 11.38.11 AM.png" data-load="false" data-image-id="59b42708f9a61eed0e9be414" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Thanks for checking out this tutorial! And thanks for all the great feedback and continued tutorial request topics. Keep them coming.</p>
+</body></html>

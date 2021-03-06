@@ -1,0 +1,345 @@
+---
+layout: post
+title: All Your Battleship Are Belong To Us
+categories:
+- Turing
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '34'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1>Turing School of Software Design: Module 1, Week 4</h1>
+<p>Week 3 of module 1 of the Turing School of Software Design is in the books and the <a target="_blank" href="https://github.com/turingschool/curriculum/blob/master/source/projects/battleship.markdown#player-ship-placement">challenge</a> was to code a playable version of Milton Bradley's Battleship that runs in a <a href="https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop">Read Evaluate Print Loop</a> (REPL). The learning goals were to:</p>
+<ul>
+<li>Proficiently use TDD to drive development</li>
+<li>Practice breaking a program into logical components</li>
+<li>Practice implementing a useable REPL interface</li>
+<li>Apply previously learned Enumerable techniques in a real context</li>
+</ul>
+<h3>What I did differently</h3>
+<p><a target="_blank" href="https://twitter.com/joshuamejia">Josh Mejia</a>, an instructor at Turing, made a comparison this week between marathon running and coding. Just as starting a marathon at too fast a pace is a terrible idea, jumping right to the code on a big project without planning or testing will lead to failure. In a clear example of <a href="https://en.wikipedia.org/wiki/Compensation_(psychology)">Freudian compensation</a> over my <a href="http://www.jessespevack.com/systems-leadership/2016/7/14/what-i-learned-failing-my-paramorse-project">ParaMorse</a> failure, I decided to come up with a careful organizational plan for my Battleship program. I asked myself, 'what are the nouns of Battleship?' and these became my classes. Battleship has players, boards, and ships. I knew from the start that these would be the lego blocks I would need to snap together to get my game to work. Battleship also has rules and my version of Battleship has a special kind of player - the computer player.</p>
+<p>After deciding on my list of classes, I asked myself another set of questions. First, 'what state does this thing hold?' In other words, what are this thing's base characteristics. For example, a board has a length. A ship also has a length. A ship holds damage. A player has a state of being victorious or not. Players also can be the guesser of spots (it can be one player's turn or not). The second question I asked myself was, 'what behaviors does this thing perform?' A board can reveal the contents of a space. A ship can sink if it's damage is equal to its length. A player can place a ship and attack a space on the board. This thought exercise was tremendously helpful and resulted in a pretty significant Google Draw powered planning document.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2065px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:61.64649200439453%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1469201641576-JKAK1GMZ29OGRW98GMKF/ke17ZwdGBToddI8pDm48kDJaZCCp4J1tAEQwz13td217gQa3H78H3Y0txjaiv_0foACs49-HBkG_F4C3fTziO-wh7WAJ8x5TfmquXBnDIxLo8HbKjlB3UeKJEwFtT03xOqpeNLcJ80NK65_fV7S1Uf7ftboWEZlOLi7wY8Mei1uIOxB0TYvpPorCFsjcWDIlyRwD6FMdcsVWHzXhG3Xy6Q/image-asset.jpeg" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1469201641576-JKAK1GMZ29OGRW98GMKF/ke17ZwdGBToddI8pDm48kDJaZCCp4J1tAEQwz13td217gQa3H78H3Y0txjaiv_0foACs49-HBkG_F4C3fTziO-wh7WAJ8x5TfmquXBnDIxLo8HbKjlB3UeKJEwFtT03xOqpeNLcJ80NK65_fV7S1Uf7ftboWEZlOLi7wY8Mei1uIOxB0TYvpPorCFsjcWDIlyRwD6FMdcsVWHzXhG3Xy6Q/image-asset.jpeg" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1469201641576-JKAK1GMZ29OGRW98GMKF/ke17ZwdGBToddI8pDm48kDJaZCCp4J1tAEQwz13td217gQa3H78H3Y0txjaiv_0foACs49-HBkG_F4C3fTziO-wh7WAJ8x5TfmquXBnDIxLo8HbKjlB3UeKJEwFtT03xOqpeNLcJ80NK65_fV7S1Uf7ftboWEZlOLi7wY8Mei1uIOxB0TYvpPorCFsjcWDIlyRwD6FMdcsVWHzXhG3Xy6Q/image-asset.jpeg" data-image-dimensions="2065x1273" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="57923ce915d5db2a3befd224" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p> My planning document became my to do list as I started to code. I went class by class and wrote the code that stored state and the methods that implemented behaviors. I started with the simplest classes that had the most clarity of purpose. Fundamentally, the board is comprised of individual spaces that preserve various states, such as being occupied and being attacked. Spaces also have names, like "A1" or "D4." When a space is created, it has a name corresponding to its coordinates and it is neither occupied (ships have not been placed yet) nor attacked (players have not started guessing spots).</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> Space
+  attr_reader :<span style="color:#005fd2; ">coordinates</span>
+
+  attr_accessor :<span style="color:#005fd2; ">occupied</span><span style="color:#808030; ">,</span>
+                :<span style="color:#005fd2; ">attacked</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> initialize(coordinates)
+    @coordinates <span style="color:#808030; ">=</span> coordinates
+    @occupied <span style="color:#808030; ">=</span> <span style="color:#800000; font-weight:bold; ">false</span>
+    @attacked <span style="color:#808030; ">=</span> <span style="color:#800000; font-weight:bold; ">false</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<h3>What I Learned</h3>
+<p>I have two big takeaways from this project. First, classes are containers of data and behaviors. A ship contains data like its length, damage. It also knows where its bow and stern (see what I did there?) are located. Ships have start and end coordinates like "A1" and "A3". </p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> Ship
+
+  attr_reader :<span style="color:#005fd2; ">length</span><span style="color:#808030; ">,</span>
+              :<span style="color:#005fd2; ">damage</span><span style="color:#808030; ">,</span>
+              :<span style="color:#005fd2; ">start_space</span><span style="color:#808030; ">,</span>
+              :<span style="color:#005fd2; ">end_space</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> initialize(length)
+    @<span style="color:#400000; ">length</span> <span style="color:#808030; ">=</span> <span style="color:#400000; ">length</span>
+    @damage <span style="color:#808030; ">=</span> <span style="color:#008c00; ">0</span>
+    @start_space <span style="color:#808030; ">=</span> <span style="color:#800000; font-weight:bold; ">nil</span>
+    @end_space <span style="color:#808030; ">=</span> <span style="color:#800000; font-weight:bold; ">nil</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#696969; "># More methods here...</span>
+  
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Ships also have behaviors, which are called methods. Ships can get hit. Ships can get placed. And, when you ask a ship nicely, it will tell you if it is sunk or not.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> place(start_space, end_space)
+  @start_space <span style="color:#808030; ">=</span> start_space
+  @end_space <span style="color:#808030; ">=</span> end_space
+<span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">def</span> hit
+  @damage <span style="color:#808030; ">+</span><span style="color:#808030; ">=</span> <span style="color:#008c00; ">1</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">def</span> is_sunk?
+  @damage <span style="color:#808030; ">=</span><span style="color:#808030; ">=</span> @<span style="color:#400000; ">length</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The second big learning from Battleship is that style not just for style's sake. Rather, writing idiomatic Ruby makes the code easier to debug and build out. For example I can create an array of hashes, where the key of each hash is a coordinate, like "A1", and the value is the instance of the Space class.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> create_spaces
+  spaces <span style="color:#808030; ">=</span> <span style="color:#800080; ">{</span><span style="color:#800080; ">}</span>
+  create_space_names<span style="color:#808030; ">.</span><span style="color:#400000; ">map</span><span style="color:#800000; font-weight:bold; "> do</span> |<span style="color:#400000; ">name</span>|
+    spaces<span style="color:#808030; ">[</span><span style="color:#0000e6; ">"</span><span style="color:#000000; background:#ffffe8; ">#{</span><span style="color:#400000; background:#ffffe8; ">name</span><span style="color:#000000; background:#ffffe8; ">}</span><span style="color:#0000e6; ">"</span><span style="color:#808030; ">]</span> <span style="color:#808030; ">=</span> Space<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#400000; ">name</span><span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+  spaces
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The result of the above method <em>create_spaces</em> is the following two dimensional array.</p>
+<pre style="color:#000000;background:#ffffff;">@board<span style="color:#808030; ">=</span>
+  <span style="color:#808030; ">[</span><span style="color:#808030; ">[</span><span style="color:#800080; ">{</span><span style="color:#0000e6; ">"A1"</span><span style="color:#808030; ">=</span>&gt;<span style="color:#696969; ">#&lt;Space:0x007fef42b3f0e0 @attacked=false, @coordinates="A1", @occupied=false&gt;},</span>
+    <span style="color:#800080; ">{</span><span style="color:#0000e6; ">"A2"</span><span style="color:#808030; ">=</span>&gt;<span style="color:#696969; ">#&lt;Space:0x007fef42b3f068 @attacked=false, @coordinates="A2", @occupied=false&gt;},</span>
+    <span style="color:#800080; ">{</span><span style="color:#0000e6; ">"A3"</span><span style="color:#808030; ">=</span>&gt;<span style="color:#696969; ">#&lt;Space:0x007fef42b3eff0 @attacked=false, @coordinates="A3", @occupied=false&gt;},</span>
+    <span style="color:#800080; ">{</span><span style="color:#0000e6; ">"A4"</span><span style="color:#808030; ">=</span>&gt;<span style="color:#696969; ">#&lt;Space:0x007fef42b3ef78 @attacked=false, @coordinates="A4", @occupied=false&gt;}],</span>
+   <span style="color:#808030; ">[</span><span style="color:#800080; ">{</span><span style="color:#0000e6; ">"B1"</span><span style="color:#808030; ">=</span>&gt;<span style="color:#696969; ">#&lt;Space:0x007fef42b3ef00 @attacked=false, @coordinates="B1", @occupied=false&gt;},</span>
+    <span style="color:#800080; ">{</span><span style="color:#0000e6; ">"B2"</span><span style="color:#808030; ">=</span>&gt;<span style="color:#696969; ">#&lt;Space:0x007fef42b3ee88 @attacked=false, @coordinates="B2", @occupied=false&gt;},</span>
+    <span style="color:#800080; ">{</span><span style="color:#0000e6; ">"B3"</span><span style="color:#808030; ">=</span>&gt;<span style="color:#696969; ">#&lt;Space:0x007fef42b3ede8 @attacked=false, @coordinates="B3", @occupied=false&gt;},</span>
+    <span style="color:#800080; ">{</span><span style="color:#0000e6; ">"B4"</span><span style="color:#808030; ">=</span>&gt;<span style="color:#696969; ">#&lt;Space:0x007fef42b3ed70 @attacked=false, @coordinates="B4", @occupied=false&gt;}],
+    ...</span>
+</pre>
+<p>The same method can be rewritten more concisely and clearly and still have the exact same result:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> create_spaces
+  create_space_names<span style="color:#808030; ">.</span><span style="color:#400000; ">map</span><span style="color:#800000; font-weight:bold; "> do</span> |<span style="color:#400000; ">name</span>|
+    <span style="color:#808030; ">[</span><span style="color:#400000; ">name</span><span style="color:#808030; ">,</span> Space<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#400000; ">name</span><span style="color:#808030; ">)</span><span style="color:#808030; ">]</span>
+  <span style="color:#800000; font-weight:bold; ">end</span><span style="color:#808030; ">.</span>to_h
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The functionality of both of these methods is the same and the latter is only two lines fewer than the original version. However, little changes like this compound as projects get longer. And Battleship is a long project.</p>
+<p>The issue of smelly code really hit me when I was implementing my game's REPL. I had lots of nested conditionals and I definitely did not honor the programmer's concept of DRY (don't repeat yourself). The result was that when I thought I had working code and tried to show it to my wife and mother in law, I just embarrassed myself as the plethora of bugs that I overlooked manifested themselves in non-workable gameplay. If I had written easier to maintain code from the start, I would have quickly realize that the reason my game wasn't playing is that I had forgotten to have my game remember that shots were fired by a player, spaces were attacked, and ships were either damaged or not. </p>
+<h3>a difficult challenge</h3>
+<p>One difficult challenge that I came across towards the end of the project was how to get the computer to place its ships on the board. The specification called for a computer player to place ships randomly. Randomly picking spots on a board is very easy.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> pick_random_space(array_of_all_the_spaces)
+  array_of_all_the_spaces<span style="color:#808030; ">.</span><span style="color:#400000; ">sample</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Picking acceptable spaces for legal ship placement on a board is much more interesting. Below is an illustration of the legal (green) and illegal (red) types of ship placement in the game. Legal ship placement meets the following criteria:</p>
+<ol dir="ltr">
+<li>All of the coordinates occupied by the ship are in the same row or column.</li>
+<li>The ship occupies the same number of coordinates as the length of the ship. A three unit ship takes up three spaces on the board.</li>
+<li>The ship occupies only contiguous coordinates.</li>
+<li>Two ships can not occupy the same space.</li>
+</ol>
+<p>Illegal ship placement breaks one or more of the above rules.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2452px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:61.09298324584961%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1469216596146-7FSA4FESQ8Q5IM2P2YYN/ke17ZwdGBToddI8pDm48kK1qu0YUUi_uXvNlWoUrmgZ7gQa3H78H3Y0txjaiv_0fbtzP5PeX6kTH7ZxcLi-aMIXLuOwUzW-dLRjPZqWOBylBP4j2ZMngv5acyYAR_NT0OqpeNLcJ80NK65_fV7S1UeBQb_VcH7IQomKAp-F9cb4Omn3tLaz-rBiRTPdhUGCHm7cT0R_dexc_UL_zbpz6JQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1469216596146-7FSA4FESQ8Q5IM2P2YYN/ke17ZwdGBToddI8pDm48kK1qu0YUUi_uXvNlWoUrmgZ7gQa3H78H3Y0txjaiv_0fbtzP5PeX6kTH7ZxcLi-aMIXLuOwUzW-dLRjPZqWOBylBP4j2ZMngv5acyYAR_NT0OqpeNLcJ80NK65_fV7S1UeBQb_VcH7IQomKAp-F9cb4Omn3tLaz-rBiRTPdhUGCHm7cT0R_dexc_UL_zbpz6JQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1469216596146-7FSA4FESQ8Q5IM2P2YYN/ke17ZwdGBToddI8pDm48kK1qu0YUUi_uXvNlWoUrmgZ7gQa3H78H3Y0txjaiv_0fbtzP5PeX6kTH7ZxcLi-aMIXLuOwUzW-dLRjPZqWOBylBP4j2ZMngv5acyYAR_NT0OqpeNLcJ80NK65_fV7S1UeBQb_VcH7IQomKAp-F9cb4Omn3tLaz-rBiRTPdhUGCHm7cT0R_dexc_UL_zbpz6JQ/image-asset.png" data-image-dimensions="2452x1498" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5792775346c3c4f236534569" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>To solve the placement puzzle in my program meant extracting judgement from the board class into a separate rules module. The way that I set it up, the board can tell the rest of the program facts about itself such as:</p>
+<ul>
+<li>Is this space on the board?</li>
+<li>Are these coordinates in the same row or column?</li>
+<li>How far apart are these two spaces?</li>
+</ul>
+<p>The rules class takes the information contained in the board and passes judgement on whether or not such a placement or attack is allowable according to the game of Battleship. </p>
+<p>To pick a spot, the AI, which is a subclass of Player, takes all of the spaces on the board and shuffles them into a random order with the <em>pick_exhaustive</em> method. Next it searches for the first (find method) unoccupied space. If this is the first ship being placed, the first element of the array returned by the <em>pick_exhaustive</em> method will be the space returned by <em>pick_unoccupied</em> space.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> pick_unoccupied(board)
+   pick_exhaustive<span style="color:#808030; ">(</span>board<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span><span style="color:#400000; ">find</span> <span style="color:#800080; ">{</span> |coordinate| !board<span style="color:#808030; ">.</span>space_occupied?<span style="color:#808030; ">(</span>coordinate<span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Next, the AI finds out how long the ship is that needs to be placed (distance) and then re-shuffles the entire list of spaces on the board (board) into a new random order. The AI randomly selects to attempt to place the ship horizontally or vertically. If this attempt fails, e.g there are not legal spaces, it attempts to place the ship with the opposite alignment.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> pick_x_units(board, coordinate1, distance)
+<span style="color:#800000; font-weight:bold; ">  if</span> <span style="color:#808030; ">[</span><span style="color:#800000; font-weight:bold; ">true</span><span style="color:#808030; ">,</span> <span style="color:#800000; font-weight:bold; ">false</span><span style="color:#808030; ">]</span><span style="color:#808030; ">.</span><span style="color:#400000; ">sample</span>
+    pick_x_units_horizontally<span style="color:#808030; ">(</span>board<span style="color:#808030; ">,</span> coordinate1<span style="color:#808030; ">,</span> distance<span style="color:#808030; ">)</span> || pick_x_units_vertically<span style="color:#808030; ">(</span>board<span style="color:#808030; ">,</span> coordinate1<span style="color:#808030; ">,</span> distance<span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">else</span>
+    pick_x_units_vertically<span style="color:#808030; ">(</span>board<span style="color:#808030; ">,</span> coordinate1<span style="color:#808030; ">,</span> distance<span style="color:#808030; ">)</span> || pick_x_units_horizontally<span style="color:#808030; ">(</span>board<span style="color:#808030; ">,</span> coordinate1<span style="color:#808030; ">,</span> distance<span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>It then looks for the first space that is the correct distance away from the originally selected space (coordinate1). </p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> pick_x_units_vertically(board, coordinate1, distance)
+  pick_exhaustive<span style="color:#808030; ">(</span>board<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span><span style="color:#400000; ">find</span><span style="color:#800000; font-weight:bold; "> do</span> |coordinate2|
+    !board<span style="color:#808030; ">.</span>space_occupied?<span style="color:#808030; ">(</span>coordinate2<span style="color:#808030; ">)</span> &amp;&amp; board<span style="color:#808030; ">.</span>get_vertical_length<span style="color:#808030; ">(</span>coordinate1<span style="color:#808030; ">,</span> coordinate2<span style="color:#808030; ">)</span> <span style="color:#808030; ">=</span><span style="color:#808030; ">=</span> distance
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> pick_x_units_horizontally(board, coordinate1, distance)
+  pick_exhaustive<span style="color:#808030; ">(</span>board<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span><span style="color:#400000; ">find</span><span style="color:#800000; font-weight:bold; "> do</span> |coordinate2|
+    !board<span style="color:#808030; ">.</span>space_occupied?<span style="color:#808030; ">(</span>coordinate2<span style="color:#808030; ">)</span> &amp;&amp; board<span style="color:#808030; ">.</span>get_horizontal_length<span style="color:#808030; ">(</span>coordinate1<span style="color:#808030; ">,</span> coordinate2<span style="color:#808030; ">)</span> <span style="color:#808030; ">=</span><span style="color:#808030; ">=</span> distance
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Once the AI finds two coordinates that are the correct distance apart to hold the ship and that do not already contain a ship, the AI places the ship by telling the board, "I want to place this ship at this start space and this end space." The ship's state is changed so that it saves the start and end space. The board changes the state of all of the spaces occupied by the newly placed ship to now show that they are occupied.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> place_ship(board, ship, start_space, end_space)
+  ship<span style="color:#808030; ">.</span>place<span style="color:#808030; ">(</span>start_space<span style="color:#808030; ">,</span> end_space<span style="color:#808030; ">)</span>
+  board<span style="color:#808030; ">.</span>set_spaces_occupied<span style="color:#808030; ">(</span>start_space<span style="color:#808030; ">,</span> end_space<span style="color:#808030; ">)</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>This process repeats until the AI has placed all of its ships.</p>
+<h3>Helpful feedback </h3>
+<p>At Turing, every project is evaluated individually by at least one instructor in a 1 on 1 feedback session. This is an amazingly helpful part of the Turing experience because it is a chance to get a professional set of eyes on your code. My session lasted nearly an hour and included a lot of positive feedback. Positive feedback that is genuine and proportional to the difficulty of a task and the amount of work invested is a rare thing. I will definitely cherish this feedback session for a long time. Some of the specific points in my code that could use a little more polish include:</p>
+<ul>
+<li>In Minitest, a TDD framework we use, Assert_equal false or true is more robust than assert or refute because assert anything passes unless you assert nil or false.</li>
+<li>Stylistically, it's appropriate to use loops to setup tests and make them more readable.</li>
+<li>If a test contains multiple assertion and refutation statements, it is stylistiacally nice to separate these into two separate refutation and assertion tests for readability.</li>
+<li>With testing, do the bare minimum to prove a thing works exactly as required. It's not a good to test every single possible thing.</li>
+<li>In Ruby, it is conventional to separate words and numbers in variable names with underscores e.g assertion_1.</li>
+<li>When iterating in a test, use a helper method for readability.</li>
+<li>Use a setup method when tests require a lot of the same object instantiation.</li>
+<li>For tests with multiple value possibilities do array.include?(test value)</li>
+<li>Instead of using <em>!include</em> use <em>exclude?</em>
+</li>
+<li>Regarding variable names, it is okay to go long, just be clear and descriptive.</li>
+</ul>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:3838px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:61.69879913330078%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1469156148095-X43WVBPXFDA3WS9RMP30/ke17ZwdGBToddI8pDm48kH3wg1HNbJj4PvY9rzmqsxZ7gQa3H78H3Y0txjaiv_0fypf6lmgoLGWA2VfxjamN-pQQqCM9w82lPHqXEyFQjFaXgeHCFdeoz64T3if0EP9-rCLSIWAQvdC7iWmC9HNtRTb712qmpKP8gojkB44RgKROPveiN5xOWcXdX8_2tPwBj7mq0heM9M4k4RvmqrBqnw/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1469156148095-X43WVBPXFDA3WS9RMP30/ke17ZwdGBToddI8pDm48kH3wg1HNbJj4PvY9rzmqsxZ7gQa3H78H3Y0txjaiv_0fypf6lmgoLGWA2VfxjamN-pQQqCM9w82lPHqXEyFQjFaXgeHCFdeoz64T3if0EP9-rCLSIWAQvdC7iWmC9HNtRTb712qmpKP8gojkB44RgKROPveiN5xOWcXdX8_2tPwBj7mq0heM9M4k4RvmqrBqnw/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1469156148095-X43WVBPXFDA3WS9RMP30/ke17ZwdGBToddI8pDm48kH3wg1HNbJj4PvY9rzmqsxZ7gQa3H78H3Y0txjaiv_0fypf6lmgoLGWA2VfxjamN-pQQqCM9w82lPHqXEyFQjFaXgeHCFdeoz64T3if0EP9-rCLSIWAQvdC7iWmC9HNtRTb712qmpKP8gojkB44RgKROPveiN5xOWcXdX8_2tPwBj7mq0heM9M4k4RvmqrBqnw/image-asset.png" data-image-dimensions="3838x2368" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="57918b2dbe65948c9a6c0c43" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+</body></html>

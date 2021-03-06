@@ -1,0 +1,265 @@
+---
+layout: post
+title: Black Thursday
+categories:
+- Turing
+tags:
+- Turing
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '36'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1>Turing School of Software Design: Module 1, Weeks 5 &amp; 6</h1>
+<p><a target="_blank" href="https://github.com/turingschool/curriculum/blob/master/source/projects/black_thursday.markdown">Black Thursday</a> is the final project of Module 1 at the <a href="http://Turing.io">Turing School of Software Design</a> is to build a system able to load, parse, search and execute business intelligence queries against data from a typical e-commerce business. This was a paired project and my partner and my code can be found on her <a href="https://github.com/j-sm-n/black_thursday">GitHub repository</a>. The project learning goals are to:</p>
+<ul>
+<li>Use tests to drive both the design and implementation of code</li>
+<li>Decompose a large application into components</li>
+<li>Use test fixtures instead of actual data when testing</li>
+<li>Connect related objects together through references</li>
+<li>Learn an agile approach to building software</li>
+</ul>
+<h2>Technical Approaches and Solutions</h2>
+<h3>pushing responsibility down</h3>
+<p>The early iterations of this project require five classes that have hierarchical relationships with each other. At the top of the pyramid is a SalesEngine that is instantiated with a hash of CSV file paths. The SalesEngine in turn instantiates child repositories. For iteration 0 we worked with a MerchantRepository and an ItemRepository. Each repository class has children of their own; in this case Merchant and Item children. A SalesEngine has two repositories. Repositories can have hundreds or thousands of their own respective Merchant and Item children. Each row of the CSV is converted into a single Merchant or Item and stored in its respective parent repository.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:4000px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:74.80000305175781%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1470334955967-EFTIFXM680NI3JZUG4HZ/ke17ZwdGBToddI8pDm48kObjJMRwxVv7Vc2tahuFfcJ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0pmy3nA_zcH46jcY3zQ1h8iN3rISLg5sYDI6M0yJRNwQP2hAmPfDpeL78BcBPx5NnA/image-asset.jpeg" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1470334955967-EFTIFXM680NI3JZUG4HZ/ke17ZwdGBToddI8pDm48kObjJMRwxVv7Vc2tahuFfcJ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0pmy3nA_zcH46jcY3zQ1h8iN3rISLg5sYDI6M0yJRNwQP2hAmPfDpeL78BcBPx5NnA/image-asset.jpeg" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1470334955967-EFTIFXM680NI3JZUG4HZ/ke17ZwdGBToddI8pDm48kObjJMRwxVv7Vc2tahuFfcJ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0pmy3nA_zcH46jcY3zQ1h8iN3rISLg5sYDI6M0yJRNwQP2hAmPfDpeL78BcBPx5NnA/image-asset.jpeg" data-image-dimensions="4000x2992" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="57a387e959cc68cdfbfaba70" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>The lesson from this early stage is that it is often beneficial to push responsibility down to the most fundamental building blocks of one's code. To illustrate this idea, let us examine the Item object:</p>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'bigdecimal'</span>
+
+<span style="color:#800000; font-weight:bold; ">class</span> Item
+  attr_reader :<span style="color:#005fd2; ">id</span><span style="color:#808030; ">,</span>
+              :<span style="color:#005fd2; ">name</span><span style="color:#808030; ">,</span>
+              :<span style="color:#005fd2; ">description</span><span style="color:#808030; ">,</span>
+              :<span style="color:#005fd2; ">case_insensitive_description</span><span style="color:#808030; ">,</span>
+              :<span style="color:#005fd2; ">unit_price</span><span style="color:#808030; ">,</span>
+              :<span style="color:#005fd2; ">created_at</span><span style="color:#808030; ">,</span>
+              :<span style="color:#005fd2; ">updated_at</span><span style="color:#808030; ">,</span>
+              :<span style="color:#005fd2; ">merchant_id</span><span style="color:#808030; ">,</span>
+              :<span style="color:#005fd2; ">parent</span><span style="color:#808030; ">,</span>
+              :<span style="color:#005fd2; ">unit_price_to_dollars</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> initialize(data, parent)
+    @id <span style="color:#808030; ">=</span> data<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">id</span><span style="color:#808030; ">]</span><span style="color:#808030; ">.</span><span style="color:#400000; ">to_i</span>
+    @<span style="color:#400000; ">name</span> <span style="color:#808030; ">=</span> data<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">name</span><span style="color:#808030; ">]</span>
+    @description <span style="color:#808030; ">=</span> data<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">description</span><span style="color:#808030; ">]</span>
+    @downcase_description <span style="color:#808030; ">=</span> description<span style="color:#808030; ">.</span><span style="color:#400000; ">downcase</span>
+    @unit_price <span style="color:#808030; ">=</span> BigDecimal<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span>data<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">unit_price</span><span style="color:#808030; ">]</span><span style="color:#808030; ">)</span><span style="color:#808030; ">/</span><span style="color:#008c00; ">100</span>
+    @created_at <span style="color:#808030; ">=</span> <span style="color:#bb7977; font-weight:bold; ">Time</span><span style="color:#808030; ">.</span>parse<span style="color:#808030; ">(</span>data<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">created_at</span><span style="color:#808030; ">]</span><span style="color:#808030; ">)</span>
+    @updated_at <span style="color:#808030; ">=</span> <span style="color:#bb7977; font-weight:bold; ">Time</span><span style="color:#808030; ">.</span>parse<span style="color:#808030; ">(</span>data<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">updated_at</span><span style="color:#808030; ">]</span><span style="color:#808030; ">)</span>
+    @merchant_id <span style="color:#808030; ">=</span> data<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">merchant_id</span><span style="color:#808030; ">]</span><span style="color:#808030; ">.</span><span style="color:#400000; ">to_i</span>
+    @parent <span style="color:#808030; ">=</span> parent
+    @unit_price_to_dollars <span style="color:#808030; ">=</span> unit_price<span style="color:#808030; ">.</span><span style="color:#400000; ">to_f</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>To create an item we pass in some data and a parent repository (which we'll get to in the next section). CSV data comes into the program as a string. Strings are fine for item attributes like descriptions or names, but unhelpful for unit price. When we get into business intelligence later in the project we will want to use mathematics, which requires numbers, not strings. By performing data validation and sanitization at the point in which the Item itself is created, we write clearer methods later on. </p>
+<p>Imagine that we need to find the average price of all items in the ItemRepository. If the price of each Item is stored as a string, our averaging method would have to loop through each item and first convert it to a number and then perform the appropriate arithmetic. By creating Items that contain the types of data that will be most useful to us, our actual averaging method does not have to concern itself with data conversion. Its sole responsibility is averaging numbers.</p>
+<p>Incidentally, this was my first experience with <a href="http://www.mit.edu/afs.new/sipb/service/restore/ruby-lang/src/ruby-1.8.4/ext/bigdecimal/bigdecimal_en.html">BigDecimal</a>, which is an extension library for Ruby that allows code to work reliably with numbers that have any number of significant digits. I found <a href="http://blog.bigbinary.com/2013/01/14/handling-money-in-ruby.html">this tutorial</a> really useful when I first started working with BigDecimal.</p>
+<h3>items have parents</h3>
+<p>To start answering useful business intelligence questions, like how many items does a given merchant sell, we have to have a way for child Merchants and Items to talk to each other. One approach would be to have Merchants talk directly to Items, but a far superior solution is to employ the concept of <em>Hide Delegate</em>, from Jay Fields' book <a href="http://www.amazon.com/Refactoring-Edition-Addison-Wesley-Professional-Series/dp/0321984137">Refactoring: Ruby Edition</a>. Preventing Items from talking directly to Merchants in our program is beneficial because we should strive for object encapsulation - the idea that an object has access to data on a need to know basis. The benefit of encapsulating objects is that if something changes in the code, fewer objects will be impacted. If we decide that an Item suddenly has a new attribute, like a lowercase version of the description, I may also need to additionally make changes in the Merchant class if the Merchant is expecting the Item to respond to a certain call to its description. However, if I force my Merchants and Items to communicate with each other indirectly through their parent repositories and the SalesEngine, I am free to make changes in either class without impacting the other.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:684px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:131.14035034179688%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1470339101690-O6T0WC201VLYRJ56XT0F/ke17ZwdGBToddI8pDm48kJYZV_fdN10Vg-027-2oI-hZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpwuA2V1j71CE_f6mtfhB7euRBWmFv_xPZA0koZfrGevLkiirxLtNsu19KalhXFssto/image-asset.jpeg" alt="The vertical lines represent encapsulated responsibilities."></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1470339101690-O6T0WC201VLYRJ56XT0F/ke17ZwdGBToddI8pDm48kJYZV_fdN10Vg-027-2oI-hZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpwuA2V1j71CE_f6mtfhB7euRBWmFv_xPZA0koZfrGevLkiirxLtNsu19KalhXFssto/image-asset.jpeg" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1470339101690-O6T0WC201VLYRJ56XT0F/ke17ZwdGBToddI8pDm48kJYZV_fdN10Vg-027-2oI-hZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpwuA2V1j71CE_f6mtfhB7euRBWmFv_xPZA0koZfrGevLkiirxLtNsu19KalhXFssto/image-asset.jpeg" data-image-dimensions="684x897" data-image-focal-point="0.5,0.5" alt="The vertical lines represent encapsulated responsibilities." data-load="false" data-image-id="57a397d42994ca3853260bd2" data-type="image">
+          </div>
+        
+          
+        
+
+        
+          
+          <figcaption class="image-caption-wrapper">
+            <div class="image-caption"><p>The vertical lines represent encapsulated responsibilities.</p></div>
+          </figcaption>
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Encapsulating responsibility in the code means that every child Merchant and Item must be instantiated with access to its parent. Item Repositories create and store Items. How can an Item Repository create and store Items that are aware of the Item Repository itself? The answer is the Class method <a href="http://ruby-doc.org/docs/keywords/1.9/Object.html#method-i-self">self</a>.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> ItemRepository
+  include Repository
+
+  attr_reader :<span style="color:#005fd2; ">items</span><span style="color:#808030; ">,</span>
+              :<span style="color:#005fd2; ">contents</span><span style="color:#808030; ">,</span>
+              :<span style="color:#005fd2; ">parent</span><span style="color:#808030; ">,</span>
+              :<span style="color:#005fd2; ">repository</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> initialize(contents, parent)
+    @repository <span style="color:#808030; ">=</span> contents<span style="color:#808030; ">.</span><span style="color:#400000; ">map</span> <span style="color:#800080; ">{</span> |row| Item<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span>row<span style="color:#808030; ">,</span> <span style="color:#800000; font-weight:bold; ">self</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span>
+    @parent <span style="color:#808030; ">=</span> parent
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>When an ItemRepository is created, it takes the contents of a CSV and loops through each row. The data from each row is used to instantiate a new Item object. The Item object additionally takes in a parent as its second initialize argument. The parent of an Item is an ItemRepository. To pass itself to its child Item, the ItemRepository passes <em>self</em> to the new Item. Self is actually a pointer back to the ItemRepository. Self is something I wish I had understood when writing <a href="http://www.jessespevack.com/systems-leadership/2016/7/5/turing-school-of-software-design-module-1-week-2">CompleteMe</a>. </p>
+<h3>Refactoring Patterns</h3>
+<p>Thanks to a lot of hard work and a great partner, <a href="https://twitter.com/j_sm_n">Jasmin</a>, we were able to finish all of the required functionality for the project with a about a day to refactor the code. One of the refactoring opportunities that we found was in our MerchantAnalyst class, which is responsible for a variety of business intelligence operations. MerchantAnalyst was a beast of a method that we created to encapsulate all of the methods that had one or more merchants as their return value. The responsibilities of MerchantAnalyst grew to include any method that was designed to tell us interesting information about a Merchant. Needless to say, the method needed some help.</p>
+<p>One of the business intelligence operations contained within MerchantAnalyst was the ability to query all merchants and find their best item(s) in terms of quantity sold as well as total revenue generated. We built about eight different methods to tackle a small portion of these larger problems. We noticed that each of these methods took in the Merchant's merchant_id did a piece of the required process and then handed the merchant_id to the next method. Our Object Oriented Programming alarms went off and we realized that we could collect all of these methods into a new class, or extracting a class to use the terminology from <a href="http://www.amazon.com/Refactoring-Edition-Addison-Wesley-Professional-Series/dp/0321984137">Refactoring: Ruby Edition</a>.</p>
+<p>The new class, which we called the MerchantItemAnalyst, not only contained the methods we had already tested and written, but also preserved state - the merchant_id. By storing the merchant_id as an instance variable in MerchantItem Analyst, we were able to eliminate all of the ugly method calls that moved merchant_id from operation to operation. The result of this right-out-of-the-book refactoring opportunity I've included below.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> MerchantItemAnalyst
+  attr_reader :<span style="color:#005fd2; ">merchant_id</span><span style="color:#808030; ">,</span>
+              :<span style="color:#005fd2; ">analyst</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> initialize(merchant_id, analyst)
+    @merchant_id <span style="color:#808030; ">=</span> merchant_id
+    @analyst <span style="color:#808030; ">=</span> analyst
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> merchant_paid_in_full_invoices
+    analyst<span style="color:#808030; ">.</span>merchants<span style="color:#808030; ">.</span>find_by_id<span style="color:#808030; ">(</span>merchant_id<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>invoices<span style="color:#808030; ">.</span><span style="color:#400000; ">find_all</span><span style="color:#800000; font-weight:bold; "> do</span> |invoice|
+      invoice<span style="color:#808030; ">.</span>is_paid_in_full?
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> merchant_paid_in_full_invoice_items
+    merchant_paid_in_full_invoices<span style="color:#808030; ">.</span><span style="color:#400000; ">map</span><span style="color:#800000; font-weight:bold; "> do</span> |invoice|
+      analyst<span style="color:#808030; ">.</span>invoice_items<span style="color:#808030; ">.</span>find_all_by_invoice_id<span style="color:#808030; ">(</span>invoice<span style="color:#808030; ">.</span>id<span style="color:#808030; ">)</span>
+    <span style="color:#800000; font-weight:bold; ">end</span><span style="color:#808030; ">.</span><span style="color:#400000; ">flatten</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> group_invoice_items_by_quantity
+    merchant_paid_in_full_invoice_items<span style="color:#808030; ">.</span><span style="color:#400000; ">group_by</span><span style="color:#800000; font-weight:bold; "> do</span> |invoice_item|
+      invoice_item<span style="color:#808030; ">.</span>quantity
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> group_invoice_items_by_revenue
+    merchant_paid_in_full_invoice_items<span style="color:#808030; ">.</span><span style="color:#400000; ">group_by</span><span style="color:#800000; font-weight:bold; "> do</span> |invoice_item|
+      invoice_item<span style="color:#808030; ">.</span>price
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> max_quantity_invoice_items
+    invoice_items <span style="color:#808030; ">=</span> group_invoice_items_by_quantity
+    invoice_items<span style="color:#808030; ">[</span>invoice_items<span style="color:#808030; ">.</span><span style="color:#400000; ">keys</span><span style="color:#808030; ">.</span><span style="color:#400000; ">max</span><span style="color:#808030; ">]</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> max_revenue_invoice_items
+    invoice_items <span style="color:#808030; ">=</span> group_invoice_items_by_revenue
+    invoice_items<span style="color:#808030; ">[</span>invoice_items<span style="color:#808030; ">.</span><span style="color:#400000; ">keys</span><span style="color:#808030; ">.</span><span style="color:#400000; ">max</span><span style="color:#808030; ">]</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> most_sold_item_for_merchant
+    max_quantity_invoice_items<span style="color:#808030; ">.</span><span style="color:#400000; ">map</span><span style="color:#800000; font-weight:bold; "> do</span> |invoice_item|
+      analyst<span style="color:#808030; ">.</span>items<span style="color:#808030; ">.</span>find_by_id<span style="color:#808030; ">(</span>invoice_item<span style="color:#808030; ">.</span>item_id<span style="color:#808030; ">)</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> best_item_for_merchant
+    max_revenue_invoice_items<span style="color:#808030; ">.</span><span style="color:#400000; ">map</span><span style="color:#800000; font-weight:bold; "> do</span> |invoice_item|
+      analyst<span style="color:#808030; ">.</span>items<span style="color:#808030; ">.</span>find_by_id<span style="color:#808030; ">(</span>invoice_item<span style="color:#808030; ">.</span>item_id<span style="color:#808030; ">)</span>
+    <span style="color:#800000; font-weight:bold; ">end</span><span style="color:#808030; ">.</span><span style="color:#400000; ">first</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<h3>The VAGARIES of Specifications</h3>
+<p dir="ltr">The most challenging part of this project was the intentional vagueness of the specifications. This was meant to mimic the reality of most projects in the real world. As an example, the specification requires that we have a method that calculates total revenue. When should an invoice be counted as revenue, though? Does revenue mean that the transaction was successful? What if the item was returned later on, should it still count as revenue? What if the invoice is still pending? </p>
+<p dir="ltr">The project came with its own spec harness test suite that the instructors used to judge whether or not our project met the basic requirements. The only way to get clarity on the specifications was to actually look at the instructor-created test files and make guesses as to how they were getting to the answers they were requiring. This was a huge frustration, but definitely illustrated a valuable point.</p>
+<h2>ConcluSion</h2>
+<p dir="ltr">Black Thursday felt like a rite of passage. It is a project that predates Turing and serves as the gateway between Module 1 and Module 2. For future Turing students and Black Thursday attempters, the technical approaches and solutions that I discussed above are what I consider to be the keys to successfully completing this behemoth. </p>
+</body></html>

@@ -1,0 +1,521 @@
+---
+layout: post
+title: RailsConf 2018 Retrospective
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '100'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1>What I Learned at RailsConf 2018 about being a Good Software Developer</h1>
+<p>This year at RailsConf I learned about being a good software developer, but not in the way you might think. The conference, held on a snowy April weekend in Pittsburgh, PA, offered a plethora of technical workshops, talks, and the opportunity to network with talented software developers from across the world. While I did leave with a few new tools, techniques and a larger professional network, that’s not what I mean when I say that RailsConf taught me about being a good software developer. RailsConf showed me that being a good software developer is much more than being able to implement cutting edge features.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:75%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524231311125-AMKOVODPX5K0V4754TA0/ke17ZwdGBToddI8pDm48kDHPSfPanjkWqhH6pl6g5ph7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mwONMR1ELp49Lyc52iWr5dNb1QJw9casjKdtTg1_-y4jz4ptJBmI9gQmbjSQnNGng/jesse.jpg" alt="jesse.jpg"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524231311125-AMKOVODPX5K0V4754TA0/ke17ZwdGBToddI8pDm48kDHPSfPanjkWqhH6pl6g5ph7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mwONMR1ELp49Lyc52iWr5dNb1QJw9casjKdtTg1_-y4jz4ptJBmI9gQmbjSQnNGng/jesse.jpg" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524231311125-AMKOVODPX5K0V4754TA0/ke17ZwdGBToddI8pDm48kDHPSfPanjkWqhH6pl6g5ph7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mwONMR1ELp49Lyc52iWr5dNb1QJw9casjKdtTg1_-y4jz4ptJBmI9gQmbjSQnNGng/jesse.jpg" data-image-dimensions="2500x1875" data-image-focal-point="0.5,0.5" alt="jesse.jpg" data-load="false" data-image-id="5ad9ec88758d463802501d48" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>The conference began with a keynote (which I summarize more fully <a target="_blank" href="http://www.jessespevack.com/blog/2018/4/17/rails-conf-2018-day-1">here</a>) from the creator of the Rails framework, David Heinemeier Hansson (<a target="_blank" href="https://twitter.com/dhh">DHH</a>), which challenged participants to think of progress in software development in terms of conceptual compression. This means taking difficult concepts and abstracting them in such a way as to make their implementation much more effortless thereby making space for new advances in what is possible. Conceptual compression is deeply embedded in software, computation, and technology in and of itself.</p>
+<p>DHH was not arguing for conceptual compression for its own sake. Rather, its purpose is to lower the barriers to entry into the field of software development. He pointed to the rise of code schools, of which I am a product, that can train people to be productive contributors in a matter of months. He also described how increasingly specialized tools breed alienation from labor because they tend to separate the worker from the final product. So from the start RailsConf was framed by the inventor of Rails in terms of getting more people into software development in a manner that fosters a deeper connection with their work and better solutions for the world.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:133.3199920654297%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524231526515-H3CHN1VVIE0SNCIYP17L/ke17ZwdGBToddI8pDm48kK60W-ob1oA2Fm-j4E_9NQB7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0kD6Ec8Uq9YczfrzwR7e2Mh5VMMOxnTbph8FXiclivDQnof69TlCeE0rAhj6HUpXkw/image-asset.jpeg" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524231526515-H3CHN1VVIE0SNCIYP17L/ke17ZwdGBToddI8pDm48kK60W-ob1oA2Fm-j4E_9NQB7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0kD6Ec8Uq9YczfrzwR7e2Mh5VMMOxnTbph8FXiclivDQnof69TlCeE0rAhj6HUpXkw/image-asset.jpeg" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524231526515-H3CHN1VVIE0SNCIYP17L/ke17ZwdGBToddI8pDm48kK60W-ob1oA2Fm-j4E_9NQB7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0kD6Ec8Uq9YczfrzwR7e2Mh5VMMOxnTbph8FXiclivDQnof69TlCeE0rAhj6HUpXkw/image-asset.jpeg" data-image-dimensions="2500x3333" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5ad9ed5a2b6a28518820e662" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Incidentally, I found myself sitting directly behind DHH in a session later that day. After the talk I introduced myself and I was impressed by how approachable he was and how he seemed genuinely interested in my journey into the Rails community.</p>
+<p>The theme of looking beyond the immediate needs of feature implementation and seeing the bigger picture of the role of software and its creators in society was ever-present in the talks that I enjoyed throughout the week. For example, <a href="https://twitter.com/LCrawfish">Loren Crawford’s</a> talk “Down the Rabbit Hole: An Adventure in Legacy Code,” offered a humble and honest take on working on inherited code. Rather than bashing technical debt, Crawford focused on improving a codebase through rigorous test driven development and a ‘leave it better than you found it’ ethos. She outlined a framework that starts with writing tests to capture current behavior. Next refactor existing code while preserving functionality. Next add a new tests for new functionality. And lastly implement the new desired behavior.</p>
+<p>Day two’s keynote by Rails core team member <a href="https://twitter.com/eileencodes">Eileen M. Uchitelle</a> was “The Future of Rails 6: Scalable by Default”. While she went into staggering technical detail on how she and the core team are working on making Rails scalable by building out test parallelization and out of the box multi-database support, that was not her point. Rather her talk was a call to action about how the entire community has a responsibility to compress concepts and push them upstream. The community’s cutting edge innovations should be features in the next version of Rails so that no one has to reinvent the wheel.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:75%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524232001034-FGFDVTC1B7CY2VOMCVV4/ke17ZwdGBToddI8pDm48kDHPSfPanjkWqhH6pl6g5ph7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mwONMR1ELp49Lyc52iWr5dNb1QJw9casjKdtTg1_-y4jz4ptJBmI9gQmbjSQnNGng/eileen.jpg" alt="eileen.jpg"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524232001034-FGFDVTC1B7CY2VOMCVV4/ke17ZwdGBToddI8pDm48kDHPSfPanjkWqhH6pl6g5ph7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mwONMR1ELp49Lyc52iWr5dNb1QJw9casjKdtTg1_-y4jz4ptJBmI9gQmbjSQnNGng/eileen.jpg" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524232001034-FGFDVTC1B7CY2VOMCVV4/ke17ZwdGBToddI8pDm48kDHPSfPanjkWqhH6pl6g5ph7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mwONMR1ELp49Lyc52iWr5dNb1QJw9casjKdtTg1_-y4jz4ptJBmI9gQmbjSQnNGng/eileen.jpg" data-image-dimensions="2500x1875" data-image-focal-point="0.5,0.5" alt="eileen.jpg" data-load="false" data-image-id="5ad9ef38f950b7e1b6294acc" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>The next three talks I went to were on the theme of running a software company. The founders of <a href="https://t.co/73eQJHbpzI">Test Double</a>, <a target="_blank" href="https://twitter.com/toddkaufman">Todd Kaufman</a> and <a href="https://twitter.com/searls">Justin Searls</a>, shared the insights they have learned over the last half dozen years running a remote software studio. There talk took a question and answer format where they covered everything from how they got started to their biggest mistakes.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:75%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524231959546-M2NLJMB6SUU6H4F354RO/ke17ZwdGBToddI8pDm48kDHPSfPanjkWqhH6pl6g5ph7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mwONMR1ELp49Lyc52iWr5dNb1QJw9casjKdtTg1_-y4jz4ptJBmI9gQmbjSQnNGng/searls.jpg" alt="searls.jpg"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524231959546-M2NLJMB6SUU6H4F354RO/ke17ZwdGBToddI8pDm48kDHPSfPanjkWqhH6pl6g5ph7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mwONMR1ELp49Lyc52iWr5dNb1QJw9casjKdtTg1_-y4jz4ptJBmI9gQmbjSQnNGng/searls.jpg" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524231959546-M2NLJMB6SUU6H4F354RO/ke17ZwdGBToddI8pDm48kDHPSfPanjkWqhH6pl6g5ph7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mwONMR1ELp49Lyc52iWr5dNb1QJw9casjKdtTg1_-y4jz4ptJBmI9gQmbjSQnNGng/searls.jpg" data-image-dimensions="2500x1875" data-image-focal-point="0.5,0.5" alt="searls.jpg" data-load="false" data-image-id="5ad9ef0c88251be3404de09f" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Next, <a href="https://twitter.com/mherold">Michael Herold</a> gave a talk called “What’s in a price? How to price your products and services.” Herold took tough economic concepts and made them feel approachable with great visuals, organization, and delivery. He described a system for collecting data from potential customers about perceived value and then using economic models to hone in on a non adversarial pricing scheme.</p>
+<p>The third talk in the series was given by <a href="https://twitter.com/thijsc">Thijs Cadier</a> from <a href="https://t.co/27q8T2rTcu">AppSignal</a> titled “<a href="https://speakerdeck.com/thijsc/reporting-live-from-the-ramp-of-death">Reporting Live from the Ramp of Death</a>” Cadier used accounting principles written out in Ruby code to show why running a SaaS business can be so challenging. In the end the prescription was to weather the storm and ultimately focus your energy on making your customers really, really happy. In all of these cases, the speakers’ goals were not to sell product or hawk services. Rather their interest was to share the lessons they’ve learned in their own business ventures.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:75%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524232271358-BE20WA9G17EQU666OKN0/ke17ZwdGBToddI8pDm48kDHPSfPanjkWqhH6pl6g5ph7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mwONMR1ELp49Lyc52iWr5dNb1QJw9casjKdtTg1_-y4jz4ptJBmI9gQmbjSQnNGng/deathram.jpg" alt="deathram.jpg"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524232271358-BE20WA9G17EQU666OKN0/ke17ZwdGBToddI8pDm48kDHPSfPanjkWqhH6pl6g5ph7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mwONMR1ELp49Lyc52iWr5dNb1QJw9casjKdtTg1_-y4jz4ptJBmI9gQmbjSQnNGng/deathram.jpg" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524232271358-BE20WA9G17EQU666OKN0/ke17ZwdGBToddI8pDm48kDHPSfPanjkWqhH6pl6g5ph7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mwONMR1ELp49Lyc52iWr5dNb1QJw9casjKdtTg1_-y4jz4ptJBmI9gQmbjSQnNGng/deathram.jpg" data-image-dimensions="2500x1875" data-image-focal-point="0.5,0.5" alt="deathram.jpg" data-load="false" data-image-id="5ad9f04b70a6ad66148886b0" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p><a href="https://twitter.com/sarahmei">Sara Mei’s</a> impromptu keynote on day three of the conference further cemented the theme of what it means to be a good software developer. She said our code base is where we live as developers, so our goal must be to make it livable. She used physical buildings and architecture as a powerful metaphor for software. Our fellow developers are our roommates in our shared living space and we should all take turns doing the dishes and cleaning up after ourselves. While it is easy to just pile one more book on the stack of books and magazines on the coffee table, strive for improvement over conformity and find a better place for all that clutter.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:75%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524232335231-H4WH050LT8JFA6JG5FJC/ke17ZwdGBToddI8pDm48kDHPSfPanjkWqhH6pl6g5ph7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mwONMR1ELp49Lyc52iWr5dNb1QJw9casjKdtTg1_-y4jz4ptJBmI9gQmbjSQnNGng/mei.jpg" alt="mei.jpg"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524232335231-H4WH050LT8JFA6JG5FJC/ke17ZwdGBToddI8pDm48kDHPSfPanjkWqhH6pl6g5ph7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mwONMR1ELp49Lyc52iWr5dNb1QJw9casjKdtTg1_-y4jz4ptJBmI9gQmbjSQnNGng/mei.jpg" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524232335231-H4WH050LT8JFA6JG5FJC/ke17ZwdGBToddI8pDm48kDHPSfPanjkWqhH6pl6g5ph7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mwONMR1ELp49Lyc52iWr5dNb1QJw9casjKdtTg1_-y4jz4ptJBmI9gQmbjSQnNGng/mei.jpg" data-image-dimensions="2500x1875" data-image-focal-point="0.5,0.5" alt="mei.jpg" data-load="false" data-image-id="5ad9f08370a6ad6614888edb" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>The last talk I went to was given by Claudio Baccigalupo, titled “Inside Active Storage: a code review of Rails’ new framework.” He expertly dove into the new cloud storage solution built into Rails. He showed how to use Active Storage, then he described the main classes that make up the framework, and lastly he explained how each of these classes works by diving into the source code. His point, however, was only partly about teaching Active Storage. The bigger message was Rails source code is approachable, understandable, and we should all try to improve it when we can. This was underscored when he asked Rails contributors in the room to raise their hands and asked for a round of applause from the audience.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:75%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524232516709-BNAE799I16QMF3L9XB5K/ke17ZwdGBToddI8pDm48kDHPSfPanjkWqhH6pl6g5ph7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mwONMR1ELp49Lyc52iWr5dNb1QJw9casjKdtTg1_-y4jz4ptJBmI9gQmbjSQnNGng/claudio.jpg" alt="claudio.jpg"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524232516709-BNAE799I16QMF3L9XB5K/ke17ZwdGBToddI8pDm48kDHPSfPanjkWqhH6pl6g5ph7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mwONMR1ELp49Lyc52iWr5dNb1QJw9casjKdtTg1_-y4jz4ptJBmI9gQmbjSQnNGng/claudio.jpg" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524232516709-BNAE799I16QMF3L9XB5K/ke17ZwdGBToddI8pDm48kDHPSfPanjkWqhH6pl6g5ph7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mwONMR1ELp49Lyc52iWr5dNb1QJw9casjKdtTg1_-y4jz4ptJBmI9gQmbjSQnNGng/claudio.jpg" data-image-dimensions="2500x1875" data-image-focal-point="0.5,0.5" alt="claudio.jpg" data-load="false" data-image-id="5ad9f13a758d46380250d82b" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>I also left with a feeling of deep pride in the contribution and reputation the <a href="https://www.turing.io/">Turing School</a> has in the Rails community. There were a total of four different talks given by Turing alum, not to mention <a href="https://twitter.com/j3">Jeff Casimir's </a>planning contributions to the conference.</p>
+<ol>
+<li>Let's Get SASSy - <a href="https://twitter.com/icorson3">Ilana Corson</a>
+</li>
+<li>The Intelligence of Instinct - <a href="https://twitter.com/editingemily">Emily Freeman</a>
+</li>
+<li>The War is Over: Rails, JavaScript &amp; webpacker - <a href="https://twitter.com/joshuajhun">Jhun de Andres</a>
+</li>
+<li>Stop Testing, Start Storytelling - <a href="https://twitter.com/tmikeschu">Mike Schutte</a>
+</li>
+</ol>
+<p>All of these developers (except Jeff) entered the field within the last few years. But, already they are sharing their knowledge and experience with the community at large and making an impact.</p>
+<p>Being a good software developer is about more than the ability to implement features. It is about sharing knowledge and making that knowledge easier for other developers to use. It is about assuming the best, as in the case of working with legacy code, and looking for areas where we can improve through open source contributions. It is about being open, honest, and humble. It is about treating clients and customers with respect. Software development is about building liveable spaces. And being a good software developer today matters more than ever because as they say, software is eating the world.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1224px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:43.13725662231445%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524232996744-LZRVMW1OD1O3H2XOBTMD/ke17ZwdGBToddI8pDm48kNdR7KPaaQU5OZ5CHcriBiAUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcvjFBXsf1aezocVPqTsxPDQ1gSqmhrp38q8pV6-ZiffDvuSVs5LRN_YZRmp-fkKJw/Screen+Shot+2018-04-20+at+8.02.26+AM.png" alt="Screen Shot 2018-04-20 at 8.02.26 AM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524232996744-LZRVMW1OD1O3H2XOBTMD/ke17ZwdGBToddI8pDm48kNdR7KPaaQU5OZ5CHcriBiAUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcvjFBXsf1aezocVPqTsxPDQ1gSqmhrp38q8pV6-ZiffDvuSVs5LRN_YZRmp-fkKJw/Screen+Shot+2018-04-20+at+8.02.26+AM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1524232996744-LZRVMW1OD1O3H2XOBTMD/ke17ZwdGBToddI8pDm48kNdR7KPaaQU5OZ5CHcriBiAUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcvjFBXsf1aezocVPqTsxPDQ1gSqmhrp38q8pV6-ZiffDvuSVs5LRN_YZRmp-fkKJw/Screen+Shot+2018-04-20+at+8.02.26+AM.png" data-image-dimensions="1224x528" data-image-focal-point="0.5,0.5" alt="Screen Shot 2018-04-20 at 8.02.26 AM.png" data-load="false" data-image-id="5ad9f324562fa7f10eeb0c0f" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+</body></html>

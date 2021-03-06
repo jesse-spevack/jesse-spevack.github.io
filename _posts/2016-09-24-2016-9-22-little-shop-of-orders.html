@@ -1,0 +1,639 @@
+---
+layout: post
+title: 'Turing School of Software Design: Module 2, Weeks 5 & 6'
+categories:
+- Turing
+tags:
+- Rails
+- Ruby
+- Turing
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '46'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a target="_blank" href="https://github.com/turingschool/curriculum/blob/master/source/projects/little_shop.markdown">Little Shop of Orders</a> is a Ruby on Rails project that requires small, 3-4 person teams of <a target="_blank" href="https://www.turing.io/">Turing</a> students to build an online commerce platform to facilitate online ordering. My team's code can be found on our <a href="https://github.com/PlanetEfficacy/little_shop">GitHub repository</a>, and our application can be viewed <a href="https://secure-stream-76661.herokuapp.com/">here</a> live. The project learning goals are to:</p>
+<ul>
+<li>Use test driven development (TDD) to drive all layers of Rails development including unit and integration tests</li>
+<li>Design a system of models which use one-to-one, one-to-many, and many-to-many relationships</li>
+<li>Practice mixing HTML, CSS, and templates to create an inviting and usable User Interface</li>
+<li>Differentiate responsibilities between components of the Rails stack</li>
+<li>Build a logical user-flow that moves across multiple controllers and models</li>
+<li>Practice an agile workflow and improve communication skills working within a team</li>
+</ul>
+<p>To mimic an agile design shop, our instructors gave us batches of user stories through a project management collaboration tool called <a href="https://waffle.io/">Waffle</a>. We use Waffle because of its tight integration with <a href="https://github.com/">GitHub</a>, our source control platform. GitHub is kind of like Google Docs for coders because it allows multiple developers to work on a single project at the same time.</p>
+<p>A user story for this project might read like:</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1210px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:51.735538482666016%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1474580001376-TXVLKA8AD12D55PB62V0/ke17ZwdGBToddI8pDm48kBWW8dxCZOT8Qmotl7GKGXMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcW113ix480HdjUyKigx1t3VeZ0OxVJImbV2RtR2CwI5MNsQuYK0lUj6UtzhbYKUgR/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1474580001376-TXVLKA8AD12D55PB62V0/ke17ZwdGBToddI8pDm48kBWW8dxCZOT8Qmotl7GKGXMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcW113ix480HdjUyKigx1t3VeZ0OxVJImbV2RtR2CwI5MNsQuYK0lUj6UtzhbYKUgR/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1474580001376-TXVLKA8AD12D55PB62V0/ke17ZwdGBToddI8pDm48kBWW8dxCZOT8Qmotl7GKGXMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcW113ix480HdjUyKigx1t3VeZ0OxVJImbV2RtR2CwI5MNsQuYK0lUj6UtzhbYKUgR/image-asset.png" data-image-dimensions="1210x626" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="57e44e21b8a79b1b1ac7770b" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>The team got three rounds of user stories from our instructors, who played the role of the client in this project. Each round of user stories began with a team stand-up to review progress and decide next steps. A stand-up is an <a href="https://en.wikipedia.org/wiki/Agile_software_development">Agile</a> practice which involves meeting participants actually standing up to meet. Standing up ensures that the meeting is quick and allows participants to get to work quickly. While we always had stand-ups after getting new batches of user stories, we found the practice so useful that we ended up running stand-ups at least once a day.</p>
+<p>I like the concept so much, in fact, that I wish I had experienced this kind of meeting in the education world, but that might be one of the reasons I'm a recovering educator now. </p>
+<h3>Test Driven Development</h3>
+<p>Once we agreed on the division of work related to a set of user stories, we got to work. Work always begins with writing a feature test, which is a translation of a user story into code. Using RSpec, a popular testing framework for Rails, we turned the above user story into the following feature test. </p>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'rails_helper'</span>
+
+RSpec<span style="color:#808030; ">.</span>feature <span style="color:#0000e6; ">"admin can create items"</span><span style="color:#800000; font-weight:bold; "> do</span>
+  before<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">each</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+    admin <span style="color:#808030; ">=</span> Fabricate<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">user</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">role</span>: <span style="color:#008c00; ">1</span><span style="color:#808030; ">)</span>
+    @category <span style="color:#808030; ">=</span> Fabricate<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">category</span><span style="color:#808030; ">)</span>
+    login_as<span style="color:#808030; ">(</span>admin<span style="color:#808030; ">)</span>
+    click_link <span style="color:#0000e6; ">"Create an Item"</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  scenario <span style="color:#0000e6; ">"admin can create item with photo attachment"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    fill_in_title
+    fill_in_description
+    fill_in_price
+    check_category
+    attach_file<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"Image"</span><span style="color:#808030; ">,</span> Rails<span style="color:#808030; ">.</span>root <span style="color:#808030; ">+</span> <span style="color:#0000e6; ">"spec/fixtures/dummy.png"</span><span style="color:#808030; ">)</span>
+
+    click_button <span style="color:#0000e6; ">"Create New Item"</span>
+    expect<span style="color:#808030; ">(</span>current_path<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span>item_path<span style="color:#808030; ">(</span>Item<span style="color:#808030; ">.</span><span style="color:#400000; ">last</span><span style="color:#808030; ">)</span><span style="color:#808030; ">)</span>
+
+    expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_css<span style="color:#808030; ">(</span><span style="color:#0000e6; ">".product-image"</span><span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>It is easy to see why RSpec is so popular - the test reads almost the same as the user story. Lets take a look at what this code does one chunk at a time.</p>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'rails_helper'</span>
+
+RSpec<span style="color:#808030; ">.</span>feature <span style="color:#0000e6; ">"admin can create items"</span><span style="color:#800000; font-weight:bold; "> do</span>
+  before<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">each</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+    admin <span style="color:#808030; ">=</span> Fabricate<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">user</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">role</span>: <span style="color:#008c00; ">1</span><span style="color:#808030; ">)</span>
+    @category <span style="color:#808030; ">=</span> Fabricate<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">category</span><span style="color:#808030; ">)</span>
+    login_as<span style="color:#808030; ">(</span>admin<span style="color:#808030; ">)</span>
+    click_link <span style="color:#0000e6; ">"Create an Item"</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The above line tells RSpec that our code should have a feature that allows an administrator to create an item. The string "admin can create items" is a label for the developers so that the when the test runs (and it is one of over a hundred tests in our project's test suite) it's easy to see which features are failing or passing.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:690px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:41.73912811279297%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1474580309688-DC3P4Q6VCWUZL9381FF4/ke17ZwdGBToddI8pDm48kFBELq6zrixhX8Ks2JnCiUBZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpxTqQrDbNSoxPCwU50UAys5RLQF03-mFudVR3VMaHyckpxKBoSCYmdCOajG1zzq6vk/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1474580309688-DC3P4Q6VCWUZL9381FF4/ke17ZwdGBToddI8pDm48kFBELq6zrixhX8Ks2JnCiUBZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpxTqQrDbNSoxPCwU50UAys5RLQF03-mFudVR3VMaHyckpxKBoSCYmdCOajG1zzq6vk/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1474580309688-DC3P4Q6VCWUZL9381FF4/ke17ZwdGBToddI8pDm48kFBELq6zrixhX8Ks2JnCiUBZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpxTqQrDbNSoxPCwU50UAys5RLQF03-mFudVR3VMaHyckpxKBoSCYmdCOajG1zzq6vk/image-asset.png" data-image-dimensions="690x288" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="57e44f559de4bb76513ce7c5" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Our project has a testing, development, and production environment. This best practice is used because as a developer I want to be able to run my application locally (development) on my own computer without it impacting my users, who use the production version of the application. In this way I can create new features and even break my application without losing business that comes with application crashes. The testing environment is important so that my testing suite does not affect the version of my application that I run locally.</p>
+<p>We deliberately clear the entire test environment database before each individual test to make a more controlled environment for each test. Unexpected data can easily break or invalidate a test. From there, it's clear why it makes sense to run tests in a separate environment. Imagine if every time Amazon wanted to test a new button on their website, they had to delete every single user and product in their database. That is not a workable approach to testing. </p>
+<p>All that is to say that with RSpec, our feature tests often begin with some sort of database setup because every test begins with a blank slate.</p>
+<pre style="color:#000000;background:#ffffff;">admin <span style="color:#808030; ">=</span> Fabricate<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">user</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">role</span>: <span style="color:#008c00; ">1</span><span style="color:#808030; ">)</span>
+</pre>
+<p>In the above code we add a user with administrative privileges to our database, so at this point of our test, our entire store has one admin user without any items. <a href="https://www.fabricationgem.org/#">Fabricate</a> is a method from the Fabrication gem we have included in our project, which generate schematics for Ruby objects, and can be created as needed. When we say 'fabricate a user' in the above code, the Fabricate gem runs the following fabricator file:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/fabricators/user_fabricator.rb</span>
+Fabricator<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">user</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+  username <span style="color:#800080; ">{</span> Faker<span style="color:#808030; ">::</span>Name<span style="color:#808030; ">.</span><span style="color:#400000; ">name</span> <span style="color:#808030; ">+</span> <span style="color:#808030; ">(</span>Faker<span style="color:#808030; ">::</span>Number<span style="color:#808030; ">.</span>between<span style="color:#808030; ">(</span><span style="color:#008c00; ">1</span><span style="color:#808030; ">,</span> <span style="color:#008c00; ">9</span><span style="color:#808030; ">)</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span><span style="color:#400000; ">to_s</span> <span style="color:#800080; ">}</span>
+  password <span style="color:#0000e6; ">"password"</span>
+  user_profile
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The documentation on the Fabricate website is pretty excellent. The above method is our schematic for a user, which has a username, password, and a user_profile. Users also have a role of 1 or 0, which we specified to be 1 for admin, but otherwise just defaults to 0 for default user. The <a href="https://github.com/stympy/faker">Faker</a> call in there is another gem that creates random text from various libraries of pre-created fake data. So Faker has a library of fake names and numbers, and in our item Fabricator, we ask Faker to supply a fake name and number that we use to create a username. The username is not important for the sake of our test because at the end of test the user is deleted anyway. What is important is that the user has a username.</p>
+<pre style="color:#000000;background:#ffffff;">@category <span style="color:#808030; ">=</span> Fabricate<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">category</span><span style="color:#808030; ">)</span>
+</pre>
+<p>Moving back to the actual test file, we have to fabricate a category because our project specifications require that items have many categories. So the way we have our database and Item model defined means that in order to test how an admin creates an item, our database first must have a category. We use the following fabricator file to fabricate our category:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/fabricators/category_fabricator.rb</span>
+Fabricator<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">category</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+  <span style="color:#400000; ">name</span> <span style="color:#800080; ">{</span> Faker<span style="color:#808030; ">::</span>Commerce<span style="color:#808030; ">.</span>product_name <span style="color:#800080; ">}</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Again, we use the Faker gem to create a random category name.</p>
+<pre style="color:#000000;background:#ffffff;">login_as<span style="color:#808030; ">(</span>admin<span style="color:#808030; ">)</span>
+click_link <span style="color:#0000e6; ">"Create an Item"</span>
+</pre>
+<p>Along with RSpec, we use a testing framework called <a href="https://github.com/jnicklas/capybara">Capybara</a>, helps developers test web applications by simulating how a real user would interact with an application. So the above lines tell Capybara to simulate an admin loggin into the website and clicking a link called "Create an Item." That is the end of our before(:each) action, which runs at the start of every scenario in this test file. In other words, this is setting up our database before each test.</p>
+<pre style="color:#000000;background:#ffffff;">scenario <span style="color:#0000e6; ">"admin can create item with photo attachment"</span><span style="color:#800000; font-weight:bold; "> do</span>
+  fill_in_title
+  fill_in_description
+  fill_in_price
+  check_category
+</pre>
+<p>In our scenario testing the photo upload and item creation feature, we continue to use Capybara to simulate the completion of a form that includes the title, description, price and category. These are all helper methods that we extracted into a /spec/helpers folder because they were actions we found ourselves using over and over. Here is an example of the fill_in_title method. It's nothing fancy, just some code extraction to keep things as readable and DRY (Don't Repeat Yourself) as possible.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/helpers/helper_methods.rb</span>
+<span style="color:#800000; font-weight:bold; ">def</span> fill_in_title
+  fill_in <span style="color:#0000e6; ">"Title"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">with</span>: <span style="color:#0000e6; ">"ItemTitle"</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The next step in testing this feature is simulating the process of attaching a file in the form. Capybara comes loaded with exactly this type of functionality. </p>
+<pre style="color:#000000;background:#ffffff;">attach_file<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"Image"</span><span style="color:#808030; ">,</span> Rails<span style="color:#808030; ">.</span>root <span style="color:#808030; ">+</span> <span style="color:#0000e6; ">"spec/fixtures/dummy.png"</span><span style="color:#808030; ">)</span>
+</pre>
+<p>To finish we tell Capybara to click "Create New Item."</p>
+<pre style="color:#000000;background:#ffffff;">click_button <span style="color:#0000e6; ">"Create New Item"</span>
+</pre>
+<p>At this point in our test, we have had Capybara walk through the process of creating an item through an item creation form including the uploading of a photo. </p>
+<pre style="color:#000000;background:#ffffff;">expect<span style="color:#808030; ">(</span>current_path<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq<span style="color:#808030; ">(</span>item_path<span style="color:#808030; ">(</span>Item<span style="color:#808030; ">.</span><span style="color:#400000; ">last</span><span style="color:#808030; ">)</span><span style="color:#808030; ">)</span>
+expect<span style="color:#808030; ">(</span>page<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to have_css<span style="color:#808030; ">(</span><span style="color:#0000e6; ">".product-image"</span><span style="color:#808030; ">)</span>
+</pre>
+<p>Then we use RSpec to say that we expect the current_path, which is the page that the test admin ends up at once it clicks "Create New Item", to be the item path. The item path is the individual show page for a single item. We add a final expectation that the item show page include a product image. If the test code runs through this point, we know that an admin user can create an item with a picture. All that, and we still have zero functionality built. But, what we do have is a very clear road map of exactly what needs to get built.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:551px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:158.439208984375%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1474569886343-67P3O2UXUIJG2TRZJB4Q/ke17ZwdGBToddI8pDm48kLVfaOkao9EqjowzLNau8UpZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpwnXv1i6n_9sAiJHKvUKhw5DtFNFFme_OMQSMEmu_GNYLRzDKReU_KH01DHgSwhZDc/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1474569886343-67P3O2UXUIJG2TRZJB4Q/ke17ZwdGBToddI8pDm48kLVfaOkao9EqjowzLNau8UpZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpwnXv1i6n_9sAiJHKvUKhw5DtFNFFme_OMQSMEmu_GNYLRzDKReU_KH01DHgSwhZDc/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1474569886343-67P3O2UXUIJG2TRZJB4Q/ke17ZwdGBToddI8pDm48kLVfaOkao9EqjowzLNau8UpZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpwnXv1i6n_9sAiJHKvUKhw5DtFNFFme_OMQSMEmu_GNYLRzDKReU_KH01DHgSwhZDc/image-asset.png" data-image-dimensions="551x873" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="57e4269ed1758e426f3c2a1e" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>At submission, our project ended up including 23 separate feature test files which test their own user stories.</p>
+<h3>one-to-one, one-to-many, and many-to-many relationships</h3>
+<p>For the above feature to be implemented, we need to consider the relationship the objects discussed in the user story have with one another. We know that we need to have an item object. We also need a user object. While not explicitly stated in the test, for the purposes of writing about how different objects relate to one another I'll also reference a few other objects, such as the order object and the user profile object that were described in other user stories. </p>
+<p>When we discuss database models we talk about how objects relate to each other. The most straightforward type of relationship is a one to one relationship. For example, each single user object has a user profile containing information like name and address. While our entire application may have multiple user and user profile objects, each user has one user profile that is unique. In Rails, to model this relationship we create a database migration that creates the following schema in our database. Notice that the user_profiles has an "add_index" pointing to the users table. That is adding a user id to every row of the user profiles table. This is called adding a foreign key because an id from one table is added to another table. The user id is added to the user profile table from the users table.</p>
+<pre style="color:#000000;background:#ffffff;">create_table <span style="color:#0000e6; ">"user_profiles"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">force</span>: :<span style="color:#005fd2; ">cascade</span><span style="color:#800000; font-weight:bold; "> do</span> |t|
+  t<span style="color:#808030; ">.</span>integer <span style="color:#0000e6; ">"user_id"</span>
+  t<span style="color:#808030; ">.</span><span style="color:#400000; ">string</span>  <span style="color:#0000e6; ">"first_name"</span>
+  t<span style="color:#808030; ">.</span><span style="color:#400000; ">string</span>  <span style="color:#0000e6; ">"last_name"</span>
+  t<span style="color:#808030; ">.</span><span style="color:#400000; ">string</span>  <span style="color:#0000e6; ">"street_address"</span>
+  t<span style="color:#808030; ">.</span><span style="color:#400000; ">string</span>  <span style="color:#0000e6; ">"city"</span>
+  t<span style="color:#808030; ">.</span><span style="color:#400000; ">string</span>  <span style="color:#0000e6; ">"state"</span>
+  t<span style="color:#808030; ">.</span><span style="color:#400000; ">string</span>  <span style="color:#0000e6; ">"zipcode"</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+
+add_index <span style="color:#0000e6; ">"user_profiles"</span><span style="color:#808030; ">,</span> <span style="color:#808030; ">[</span><span style="color:#0000e6; ">"user_id"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">name</span>: <span style="color:#0000e6; ">"index_user_profiles_on_user_id"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">using</span>: :<span style="color:#005fd2; ">btree</span>
+
+create_table <span style="color:#0000e6; ">"users"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">force</span>: :<span style="color:#005fd2; ">cascade</span><span style="color:#800000; font-weight:bold; "> do</span> |t|
+  t<span style="color:#808030; ">.</span><span style="color:#400000; ">string</span>   <span style="color:#0000e6; ">"username"</span>
+  t<span style="color:#808030; ">.</span><span style="color:#400000; ">string</span>   <span style="color:#0000e6; ">"password_digest"</span>
+  t<span style="color:#808030; ">.</span>datetime <span style="color:#0000e6; ">"created_at"</span><span style="color:#808030; ">,</span>                  <span style="color:#005fd2; ">null</span>: <span style="color:#800000; font-weight:bold; ">false</span>
+  t<span style="color:#808030; ">.</span>datetime <span style="color:#0000e6; ">"updated_at"</span><span style="color:#808030; ">,</span>                  <span style="color:#005fd2; ">null</span>: <span style="color:#800000; font-weight:bold; ">false</span>
+  t<span style="color:#808030; ">.</span>integer  <span style="color:#0000e6; ">"role"</span><span style="color:#808030; ">,</span>            <span style="color:#005fd2; ">default</span>: <span style="color:#008c00; ">0</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>We further elaborate the relationship with ActiveRecord in our app/models/user.rb file with the following. </p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># user.rb</span>
+has_one :<span style="color:#005fd2; ">user_profile</span>
+
+<span style="color:#696969; "># user_profile.rb</span>
+has_one :<span style="color:#005fd2; ">user</span>
+</pre>
+<p>This gives us the ability to use ActiveRecord method calls, like user.user_profile and user_profile.user automatically just by having our models for user and user profile inherit from ActiveRecord::Base. This is the kind of functionality that I spent two weeks building manually over the course of the final project in Module 1, <a href="http://www.jessespevack.com/systems-leadership/2016/7/23/black-thursday">Black Thursday</a>. Now I get it for free.</p>
+<p>The next type of relationship our database will model is the one to many relationship. An example of this is that a user can place many orders (that's the whole point), but an order originates from a single user. </p>
+<pre style="color:#000000;background:#ffffff;">create_table <span style="color:#0000e6; ">"orders"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">force</span>: :<span style="color:#005fd2; ">cascade</span><span style="color:#800000; font-weight:bold; "> do</span> |t|
+  t<span style="color:#808030; ">.</span>integer  <span style="color:#0000e6; ">"status"</span><span style="color:#808030; ">,</span>                              <span style="color:#005fd2; ">default</span>: <span style="color:#008c00; ">0</span>
+  t<span style="color:#808030; ">.</span>decimal  <span style="color:#0000e6; ">"total"</span><span style="color:#808030; ">,</span>      <span style="color:#005fd2; ">precision</span>: <span style="color:#008c00; ">15</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">scale</span>: <span style="color:#008c00; ">2</span>
+  t<span style="color:#808030; ">.</span>integer  <span style="color:#0000e6; ">"user_id"</span>
+  t<span style="color:#808030; ">.</span>datetime <span style="color:#0000e6; ">"created_at"</span><span style="color:#808030; ">,</span>                                      <span style="color:#005fd2; ">null</span>: <span style="color:#800000; font-weight:bold; ">false</span>
+  t<span style="color:#808030; ">.</span>datetime <span style="color:#0000e6; ">"updated_at"</span><span style="color:#808030; ">,</span>                                      <span style="color:#005fd2; ">null</span>: <span style="color:#800000; font-weight:bold; ">false</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+
+add_index <span style="color:#0000e6; ">"orders"</span><span style="color:#808030; ">,</span> <span style="color:#808030; ">[</span><span style="color:#0000e6; ">"user_id"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">name</span>: <span style="color:#0000e6; ">"index_orders_on_user_id"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">using</span>: :<span style="color:#005fd2; ">btree</span>
+</pre>
+<p>In this code, notice again we are adding a foreign key from users to the orders table. Our models must also include the following methods to inherit the ActiveRecord functionality that allows us to call app/models/user.orders and app/models/order.users.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># user.rb</span>
+has_many :<span style="color:#005fd2; ">orders</span>
+
+<span style="color:#696969; "># order.rb</span>
+belongs_to :<span style="color:#005fd2; ">user</span>
+</pre>
+<p>Finally we have many to many relationships, which are slightly more tricky to model than the previous two because they typically require the creation of a join table. For example, an order can have many items, but items can also have many different orders. More plainly, as a user I should be able to order a stapler and some staples. But, the application also needs to allow a second user to order a stapler and a pen, or just some staples.</p>
+<pre style="color:#000000;background:#ffffff;">create_table <span style="color:#0000e6; ">"item_orders"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">force</span>: :<span style="color:#005fd2; ">cascade</span><span style="color:#800000; font-weight:bold; "> do</span> |t|
+  t<span style="color:#808030; ">.</span>integer <span style="color:#0000e6; ">"quantity"</span>
+  t<span style="color:#808030; ">.</span>integer <span style="color:#0000e6; ">"order_id"</span>
+  t<span style="color:#808030; ">.</span>integer <span style="color:#0000e6; ">"item_id"</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+
+add_index <span style="color:#0000e6; ">"item_orders"</span><span style="color:#808030; ">,</span> <span style="color:#808030; ">[</span><span style="color:#0000e6; ">"item_id"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">name</span>: <span style="color:#0000e6; ">"index_item_orders_on_item_id"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">using</span>: :<span style="color:#005fd2; ">btree</span>
+add_index <span style="color:#0000e6; ">"item_orders"</span><span style="color:#808030; ">,</span> <span style="color:#808030; ">[</span><span style="color:#0000e6; ">"order_id"</span><span style="color:#808030; ">]</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">name</span>: <span style="color:#0000e6; ">"index_item_orders_on_order_id"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">using</span>: :<span style="color:#005fd2; ">btree</span>
+
+create_table <span style="color:#0000e6; ">"items"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">force</span>: :<span style="color:#005fd2; ">cascade</span><span style="color:#800000; font-weight:bold; "> do</span> |t|
+  t<span style="color:#808030; ">.</span><span style="color:#400000; ">string</span>   <span style="color:#0000e6; ">"title"</span>
+  t<span style="color:#808030; ">.</span><span style="color:#400000; ">string</span>   <span style="color:#0000e6; ">"description"</span>
+  t<span style="color:#808030; ">.</span><span style="color:#400000; ">string</span>   <span style="color:#0000e6; ">"image_url"</span>
+  t<span style="color:#808030; ">.</span>decimal  <span style="color:#0000e6; ">"price"</span><span style="color:#808030; ">,</span>              <span style="color:#005fd2; ">precision</span>: <span style="color:#008c00; ">15</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">scale</span>: <span style="color:#008c00; ">2</span>
+  t<span style="color:#808030; ">.</span>datetime <span style="color:#0000e6; ">"created_at"</span><span style="color:#808030; ">,</span>                                                  <span style="color:#005fd2; ">null</span>: <span style="color:#800000; font-weight:bold; ">false</span>
+  t<span style="color:#808030; ">.</span>datetime <span style="color:#0000e6; ">"updated_at"</span><span style="color:#808030; ">,</span>                                                  <span style="color:#005fd2; ">null</span>: <span style="color:#800000; font-weight:bold; ">false</span>
+  t<span style="color:#808030; ">.</span>boolean  <span style="color:#0000e6; ">"retired"</span><span style="color:#808030; ">,</span>                                     <span style="color:#005fd2; ">default</span>: <span style="color:#800000; font-weight:bold; ">false</span>
+  t<span style="color:#808030; ">.</span><span style="color:#400000; ">string</span>   <span style="color:#0000e6; ">"image_file_name"</span>
+  t<span style="color:#808030; ">.</span><span style="color:#400000; ">string</span>   <span style="color:#0000e6; ">"image_content_type"</span>
+  t<span style="color:#808030; ">.</span>integer  <span style="color:#0000e6; ">"image_file_size"</span>
+  t<span style="color:#808030; ">.</span>datetime <span style="color:#0000e6; ">"image_updated_at"</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>In this code, notice we have a third table, item_orders, which represents an item and quantity on a single order. We are adding a foreign key from items and orders to the item_orders table. By doing so and adding the following ActiveRecord methods in our models, we can call items from particular orders and orders that include particular items - order.items and item.orders. Thanks ActiveRecord.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># order.rb</span>
+has_many :<span style="color:#005fd2; ">item_orders</span>
+has_many :<span style="color:#005fd2; ">items</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">through</span>: :<span style="color:#005fd2; ">item_orders</span>
+
+<span style="color:#696969; "># item.rb</span>
+has_many :<span style="color:#005fd2; ">item_orders</span>
+has_many :<span style="color:#005fd2; ">orders</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">through</span>: :<span style="color:#005fd2; ">item_orders</span>
+
+<span style="color:#696969; "># item_order.rb</span>
+belongs_to :<span style="color:#005fd2; ">item</span>
+belongs_to :<span style="color:#005fd2; ">order</span>
+</pre>
+<h3>HTML, CSS, and templates</h3>
+<p>Going back to our original example of an administrator adding an item to the database with a photo attachment, the test should fail on the very first line which asks simulated administrator to fill in a title for the item in the item creation form. Before we can do that, we need to create an app/views/item/new.html.erb file with the following code.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">div</span><span style="color:#274796; "> </span><span style="color:#074726; ">class</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"col-md-6 col-md-offset-3 text-center"</span><span style="color:#a65700; ">&gt;</span>
+  <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">h1</span><span style="color:#a65700; ">&gt;</span>Create Item<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">h1</span><span style="color:#a65700; ">&gt;</span>
+  &lt;%= form_for(@item, multipart: true) do |f| %<span style="color:#a65700; ">&gt;</span>
+    <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">div</span><span style="color:#274796; "> </span><span style="color:#074726; ">class</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"form-group text-left"</span><span style="color:#a65700; ">&gt;</span>
+      &lt;%= f<span style="color:#008c00; ">.</span>label :title %<span style="color:#a65700; ">&gt;</span>
+      &lt;%= f<span style="color:#008c00; ">.</span>text_field :title, :class =<span style="color:#a65700; ">&gt;</span> "form-control" %<span style="color:#a65700; ">&gt;</span>
+    <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">div</span><span style="color:#a65700; ">&gt;</span>
+
+    <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">div</span><span style="color:#274796; "> </span><span style="color:#074726; ">class</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"form-group text-left"</span><span style="color:#a65700; ">&gt;</span>
+      &lt;%= f<span style="color:#008c00; ">.</span>label :description %<span style="color:#a65700; ">&gt;</span>
+      &lt;%= f<span style="color:#008c00; ">.</span>text_area :description, :class =<span style="color:#a65700; ">&gt;</span> "form-control" %<span style="color:#a65700; ">&gt;</span>
+    <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">div</span><span style="color:#a65700; ">&gt;</span>
+
+    <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">div</span><span style="color:#274796; "> </span><span style="color:#074726; ">class</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"form-group text-left"</span><span style="color:#a65700; ">&gt;</span>
+      &lt;%= f<span style="color:#008c00; ">.</span>label :price %<span style="color:#a65700; ">&gt;</span>
+      &lt;%= f<span style="color:#008c00; ">.</span>number_field :price, :class =<span style="color:#a65700; ">&gt;</span> "form-control", step: 'any' %<span style="color:#a65700; ">&gt;</span>
+    <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">div</span><span style="color:#a65700; ">&gt;</span>
+
+    &lt;%= f<span style="color:#008c00; ">.</span>collection_check_boxes :category_ids, @categories, :id, :name do |cb| %<span style="color:#a65700; ">&gt;</span>
+      &lt;% cb<span style="color:#008c00; ">.</span>label {cb<span style="color:#008c00; ">.</span>check_box + cb<span style="color:#008c00; ">.</span>text} %<span style="color:#a65700; ">&gt;</span>
+    &lt;% end %<span style="color:#a65700; ">&gt;</span>
+
+    <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">div</span><span style="color:#274796; "> </span><span style="color:#074726; ">class</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"form-group text-left"</span><span style="color:#a65700; ">&gt;</span>
+      &lt;%= f<span style="color:#008c00; ">.</span>label :image %<span style="color:#a65700; ">&gt;</span>
+      &lt;%= f<span style="color:#008c00; ">.</span>file_field :image, :class =<span style="color:#a65700; ">&gt;</span> "form-control" %<span style="color:#a65700; ">&gt;</span>
+    <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">div</span><span style="color:#a65700; ">&gt;</span>
+
+    <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">div</span><span style="color:#274796; "> </span><span style="color:#074726; ">class</span><span style="color:#808030; ">=</span><span style="color:#274796; ">btn-group</span><span style="color:#a65700; ">&gt;</span>
+      &lt;%= f<span style="color:#008c00; ">.</span>submit "Create New Item", :class =<span style="color:#a65700; ">&gt;</span> "btn btn-primary" %<span style="color:#a65700; ">&gt;</span>
+    <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">div</span><span style="color:#a65700; ">&gt;</span>
+  &lt;% end %<span style="color:#a65700; ">&gt;</span>
+<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">div</span><span style="color:#a65700; ">&gt;</span>
+</pre>
+<p>A nice part of Rails are the various helpers it comes built with. So rather than coding an entire form in straight HTML, we can use the form_for helper method, which is less onerous. By applying a few simple Bootstrap classes and including the Bootstrap gem in our project, we get a professionally styled item creation form, with very little actual work. </p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1194px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:79.56449127197266%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1474681132499-S9M13E7QYMXQP1WVKUF7/ke17ZwdGBToddI8pDm48kMjSa2GyCVS2xAfo0kxP-j4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcZKUc8rTkiuv07bOZuEnA4bShzEXoNW-wfj01iyyJ5hW2vn6errOEqdycWI_IzcPb/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1474681132499-S9M13E7QYMXQP1WVKUF7/ke17ZwdGBToddI8pDm48kMjSa2GyCVS2xAfo0kxP-j4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcZKUc8rTkiuv07bOZuEnA4bShzEXoNW-wfj01iyyJ5hW2vn6errOEqdycWI_IzcPb/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1474681132499-S9M13E7QYMXQP1WVKUF7/ke17ZwdGBToddI8pDm48kMjSa2GyCVS2xAfo0kxP-j4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcZKUc8rTkiuv07bOZuEnA4bShzEXoNW-wfj01iyyJ5hW2vn6errOEqdycWI_IzcPb/image-asset.png" data-image-dimensions="1194x950" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="57e5d92be3df28942b80e5c7" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>Models, Controllers and the Rails Stack</h3>
+<p>Next our test expects that when the "Create New Item" button is clicked, we will find ourselves on the newly created item's show page. To get there we'll use our item controller. This is a good moment to pause and just discuss the general idea of the model, view, controller (MVC). MVC is a software architectural pattern in which the view, controller, and model are all segregated into different files. The goal is to make it possible for a developer to make changes to one section without affecting the other two. The model is the portion of the code that interacts with the database. It is called the model because it is responsible for modeling objects in code. The view is the code that displays data to the user. The controller is the part of the code that takes a request from the user and responds with the appropriate view and data. So, maybe I want to change the style of the above new item form. I should be able to make that change without having to change the model or the controller.</p>
+<p>The controller that handles requests created by the above form is as follows:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> ItemsController &lt; ApplicationController
+
+  <span style="color:#800000; font-weight:bold; ">def</span> index
+    @items <span style="color:#808030; ">=</span> Item<span style="color:#808030; ">.</span>all
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> show
+    @item <span style="color:#808030; ">=</span> Item<span style="color:#808030; ">.</span><span style="color:#400000; ">find</span><span style="color:#808030; ">(</span>params<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">id</span><span style="color:#808030; ">]</span><span style="color:#808030; ">)</span>
+    @review <span style="color:#808030; ">=</span> Review<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> new
+    check_user_authorization
+    @item <span style="color:#808030; ">=</span> Item<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+    @categories <span style="color:#808030; ">=</span> Category<span style="color:#808030; ">.</span>all
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> create
+    redirect_to login_path <span style="color:#800000; font-weight:bold; ">if</span> current_default_user? || !logged_in?
+    @item <span style="color:#808030; ">=</span> Item<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span>item_params<span style="color:#808030; ">)</span>
+    assign_valid_category_ids<span style="color:#808030; ">(</span>item_params<span style="color:#808030; ">,</span> @item<span style="color:#808030; ">)</span>
+    check_if_item_can_be_saved<span style="color:#808030; ">(</span>@item<span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  private
+
+  <span style="color:#800000; font-weight:bold; ">def</span> item_params
+    params<span style="color:#808030; ">.</span>require<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">item</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>permit<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">title</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">description</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">price</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">image</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">category_ids</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#808030; ">[</span><span style="color:#808030; ">]</span> <span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> check_user_authorization
+<span style="color:#800000; font-weight:bold; ">    if</span> !logged_in?
+      redirect_to login_path
+    <span style="color:#800000; font-weight:bold; ">elsif</span> current_default_user?
+      render :<span style="color:#005fd2; ">file</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"public/404.html"</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">status</span>: :<span style="color:#005fd2; ">not_found</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> assign_valid_category_ids(item_params, item)
+    item_params<span style="color:#808030; ">[</span><span style="color:#0000e6; ">'category_ids'</span><span style="color:#808030; ">]</span><span style="color:#808030; ">.</span><span style="color:#400000; ">reject</span><span style="color:#800080; ">{</span> |id| id<span style="color:#808030; ">=</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">''</span><span style="color:#800080; ">}</span><span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">each</span><span style="color:#800000; font-weight:bold; "> do</span> |id|
+      @item<span style="color:#808030; ">.</span>categories &lt;&lt; Category<span style="color:#808030; ">.</span><span style="color:#400000; ">find</span><span style="color:#808030; ">(</span>id<span style="color:#808030; ">)</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> check_if_item_can_be_saved(item)
+<span style="color:#800000; font-weight:bold; ">    if</span> @item<span style="color:#808030; ">.</span>save
+      flash<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">success</span><span style="color:#808030; ">]</span> <span style="color:#808030; ">=</span> <span style="color:#0000e6; ">"Item was successfully saved."</span>
+      redirect_to item_path<span style="color:#808030; ">(</span>@item<span style="color:#808030; ">)</span>
+    <span style="color:#800000; font-weight:bold; ">else</span>
+      flash<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">danger</span><span style="color:#808030; ">]</span> <span style="color:#808030; ">=</span> <span style="color:#0000e6; ">"Item could not be saved."</span>
+      redirect_to new_item_path
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The specific part of the controller that handles the creation of items via form submission is the create method:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> create
+  redirect_to login_path <span style="color:#800000; font-weight:bold; ">if</span> current_default_user? || !logged_in?
+  @item <span style="color:#808030; ">=</span> Item<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span>item_params<span style="color:#808030; ">)</span>
+  assign_valid_category_ids<span style="color:#808030; ">(</span>item_params<span style="color:#808030; ">,</span> @item<span style="color:#808030; ">)</span>
+  check_if_item_can_be_saved<span style="color:#808030; ">(</span>@item<span style="color:#808030; ">)</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>In this method we first do some authorization by checking to make sure that the user is logged in and is also an administrator. If either of those conditions are not met, we ignore the request to make a new item and redirect the user to the login screen.</p>
+<p>If the request comes from an administrator, we create a new item and pass in the item_params hash.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> item_params
+  params<span style="color:#808030; ">.</span>require<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">item</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>permit<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">title</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">description</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">price</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">image</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">category_ids</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#808030; ">[</span><span style="color:#808030; ">]</span> <span style="color:#808030; ">)</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The item_params hash is a feature built into Rails that allows developers to whitelist certain form submission parameters. What the code above is saying is basically when someone submits a form to create a new item, accept data from fields called "title", "description", "price", "image" and "category_ids". This is a security measure because we don't want to just take any arbitrary value that a malicious user might try to submit into our application.</p>
+<p>We next add the newly created item to the selected categories.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> assign_valid_category_ids(item_params, item)
+  item_params<span style="color:#808030; ">[</span><span style="color:#0000e6; ">'category_ids'</span><span style="color:#808030; ">]</span><span style="color:#808030; ">.</span><span style="color:#400000; ">reject</span><span style="color:#800080; ">{</span> |id| id<span style="color:#808030; ">=</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">''</span><span style="color:#800080; ">}</span><span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">each</span><span style="color:#800000; font-weight:bold; "> do</span> |id|
+    @item<span style="color:#808030; ">.</span>categories &lt;&lt; Category<span style="color:#808030; ">.</span><span style="color:#400000; ">find</span><span style="color:#808030; ">(</span>id<span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>We do one more check and test if the item can be saved. This shoots us down into the model of the item, where we validate what exactly constitutes an item. For example, an item must have a title, so any form submission that comes in without a title would be automatically invalid.</p>
+<pre style="color:#000000;background:#ffffff;">validates_presence_of :<span style="color:#005fd2; ">title</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">description</span>
+validates_uniqueness_of :<span style="color:#005fd2; ">title</span>
+validates_numericality_of :<span style="color:#005fd2; ">price</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">greater_than</span>: <span style="color:#008c00; ">0</span>
+validates_presence_of :<span style="color:#005fd2; ">categories</span>
+
+has_attached_file :<span style="color:#005fd2; ">image</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">styles</span>: <span style="color:#800080; ">{</span>
+ <span style="color:#005fd2; ">thumb</span>: <span style="color:#0000e6; ">'100x100&gt;'</span><span style="color:#808030; ">,</span>
+ <span style="color:#005fd2; ">square</span>: <span style="color:#0000e6; ">'200x200#'</span><span style="color:#808030; ">,</span>
+ <span style="color:#005fd2; ">medium</span>: <span style="color:#0000e6; ">'300x300&gt;'</span>
+<span style="color:#800080; ">}</span>
+validates_attachment_content_type :<span style="color:#005fd2; ">image</span><span style="color:#808030; ">,</span> :<span style="color:#005fd2; ">content_type</span> <span style="color:#808030; ">=</span><span style="color:#808030; ">&gt;</span><span style="color:#0000e6; "> /</span><span style="color:#0f69ff; ">\A</span><span style="color:#0000e6; ">image</span><span style="color:#0f69ff; ">\/</span><span style="color:#808030; ">.</span><span style="color:#808030; ">*</span><span style="color:#0f69ff; ">\Z</span><span style="color:#800000; ">/</span>
+</pre>
+<p>The above validations live in the app/models/item.rb file and check to make sure that an item has a title and description. The item must also have a unique title. It also must have a price greater than 0 and belong to a category.</p>
+<p>The final two validations come from the <a href="https://github.com/thoughtbot/paperclip">Paperclip</a> gem, which handles the photo upload. Paperclip takes a file attachment and allows us to interact with it the same way we would any other attribute of an object in the database. The validations test to make sure that the item has a file attachment and that the attachment must be an image.</p>
+<p>Once an item is created, Paperclip will store the files in an Amazon Web Service (AWS) cloud storage bucket. This took a little finagling to get in order, but Heroku's <a href="https://devcenter.heroku.com/articles/paperclip-s3">documentation</a> on how to set this up was quite helpful. A few key points that tripped us up along the way were:</p>
+<ol>
+<li>Setting the AWS cloud storage region is important. From the documentation we thought picking US-Standard would be fine, but we needed a more specific region.</li>
+<li>Getting an API key and Secret Key from AWS and storing that securely in the app was a little tricky. If anyone has access to your API key they can access your AWS account which contains credit card information. You don't want that information freely available on the internet. To prevent this from happening we used the <a href="https://github.com/laserlemon/figaro">Figaro</a> gem, which helps store sensitive information privately in a Rails project.</li>
+<li>Finally, Paperclip cannot post data into an AWS cloud storage bucket until the user whose API credentials are being used by Paperclip has administrative rights to the storage bucket. Those privileges are not the default setting, so we had to add an administrative policy to the AWS user we created for this application.</li>
+</ol>
+<p>Those were the three points that had us really stumped, so hopefully that helps other folks who are new to Paperclip. In general, Paperclip is remarkably straight forward and I want to give a shout out to <a href="https://thoughtbot.com/">ThoughtBot</a>, which created the gem.</p>
+<p>Once we got Paperclip working with AWS our original feature test passed and we saw that it was good.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2476px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:54.68497848510742%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1474683522589-SAS4EW9KM2X0GYXFT3QP/ke17ZwdGBToddI8pDm48kFhQDRcvC4SIHJpqhj5iZ1l7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UbrXSoKnxxpXMHpwMGw0m8E_4EfxE2jiqcSamdk8rVD_3WUfc_ZsVm9Mi1E6FasEnQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1474683522589-SAS4EW9KM2X0GYXFT3QP/ke17ZwdGBToddI8pDm48kFhQDRcvC4SIHJpqhj5iZ1l7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UbrXSoKnxxpXMHpwMGw0m8E_4EfxE2jiqcSamdk8rVD_3WUfc_ZsVm9Mi1E6FasEnQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1474683522589-SAS4EW9KM2X0GYXFT3QP/ke17ZwdGBToddI8pDm48kFhQDRcvC4SIHJpqhj5iZ1l7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UbrXSoKnxxpXMHpwMGw0m8E_4EfxE2jiqcSamdk8rVD_3WUfc_ZsVm9Mi1E6FasEnQ/image-asset.png" data-image-dimensions="2476x1354" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="57e5e281440243519762cfc8" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>Concluding Thoughts</h3>
+<p dir="ltr">Overall, this project was a great learning experience. This was a real exercise in synthesizing the ideas and techniques we had learned in various tutorials and lessons throughout Module 2. While there were definitely some challenges, the project never felt daunting in the sense that I doubted my ability to implement the required features - it really was in my proximal zone of development. </p>
+<p dir="ltr">I also had an amazing team that I hope I get to collaborate with in the future. So thank you <a href="https://twitter.com/soniagupta504">Sonia</a>, <a href="https://github.com/susiirwin">Susi</a>, and <a href="https://github.com/kctrlv">David</a> - you three were the best partners I could have asked for on this project. Folks who are looking to hire software developers this January, you could do a lot worse than these three coders, and I don't think you could do much better.</p>
+</body></html>

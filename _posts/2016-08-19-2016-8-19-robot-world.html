@@ -1,0 +1,283 @@
+---
+layout: post
+title: Robot World
+categories:
+- Turing
+tags:
+- Ruby
+- Turing
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '40'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h2>Turing School of Software Design: Module 2, Weeks 1</h2>
+<h3>Build a Robot World</h3>
+<p>I have started Module 2 at the Turing School of Software Design where we expand upon our fundamental Ruby skills by building database-backed web applications in Sinatra and Rails. The first week covered topics including Sinatra, Bootstrap, Create Read Update Delete (CRUD) with Sinatra, model testing, feature testing, and SQL. To apply these learnings we were tasked with creating our own Sinatra app from scratch called Robot World.</p>
+<h3>Robot World</h3>
+<p>Robot World is a directory of robots. A robot has a name, city, state, avatar, birthdate, date hired, and a department. We needed to program the CRUD functionality for the robots so that a user can see all robots, see one specific robot, edit a robot, create a robot and delete a robot. We also had to add a dashboard with some basic statistical data about the directory such as average robot age and how many robots are in each department.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:40.52000045776367%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1471623095808-NL03Q670IZW7UQNVHDCV/ke17ZwdGBToddI8pDm48kAHGSqoUq_Y5ab4Ygu32yCR7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0qfxF21UrbQmOm6MFhX0j_tUDa_DBVdCmmIE8go44LREvgr5jbxDuu-KcnvdRfvsag/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1471623095808-NL03Q670IZW7UQNVHDCV/ke17ZwdGBToddI8pDm48kAHGSqoUq_Y5ab4Ygu32yCR7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0qfxF21UrbQmOm6MFhX0j_tUDa_DBVdCmmIE8go44LREvgr5jbxDuu-KcnvdRfvsag/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1471623095808-NL03Q670IZW7UQNVHDCV/ke17ZwdGBToddI8pDm48kAHGSqoUq_Y5ab4Ygu32yCR7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0qfxF21UrbQmOm6MFhX0j_tUDa_DBVdCmmIE8go44LREvgr5jbxDuu-KcnvdRfvsag/image-asset.png" data-image-dimensions="2500x1013" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="57b72fb6e4fcb5e4aef3ac94" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>Within Robot World, we use an architectural pattern known as the model, view controller (MVC). The MVC structure is about splitting out functionality into three non-overlapping sections of a project. First there is the model, or the data that undergirds the application. In Robot World our model is how we connect to our database and the methods we use to manipulate the data.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> raw_robots
+  database<span style="color:#808030; ">.</span>execute<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"SELECT * FROM robots;"</span><span style="color:#808030; ">)</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">def</span> all
+  raw_robots<span style="color:#808030; ">.</span><span style="color:#400000; ">map</span> <span style="color:#800080; ">{</span> |data| Robot<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span>data<span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The above two methods are examples of functions that belong in the model. The method <em>raw_robots</em> method executes a database SQL query that returns all of the raw robot data contained in the database. The <em>all</em> method iterates over the raw data and creates Robot Ruby Objects with their own behaviors and attributes.</p>
+<p>The view, as the name suggests, is how the user sees the data. In Robot World, we use <a href="http://getbootstrap.com/getting-started/">Bootstrap</a>,  to quickly add a professional sheen to our applications. Bootstrap is a popular HTML, CSS, and JS framework for developing responsive, mobile first projects on the web. Below, I have the HTML and CSS rendered in my browser to show the view for how a user might go about editing a single robot. All of the styling is done by applying classes to basic HTML elements. For example I use the class "control-label" to stylize the field labels "Name," "City," etc. The Bootstrap theme I use knows how HTML elements with the class "control-label" need to be styled and then applies that style.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1962px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:49.33740997314453%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1471635981988-AI2EQ1FIP9CLOL2CGEC8/ke17ZwdGBToddI8pDm48kHISVjyOGdnNk26PwWIb-y0UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dtxhk03A19poVaBswbsjxxVlZe_QwpX8JYoQR-EihuWOCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1471635981988-AI2EQ1FIP9CLOL2CGEC8/ke17ZwdGBToddI8pDm48kHISVjyOGdnNk26PwWIb-y0UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dtxhk03A19poVaBswbsjxxVlZe_QwpX8JYoQR-EihuWOCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1471635981988-AI2EQ1FIP9CLOL2CGEC8/ke17ZwdGBToddI8pDm48kHISVjyOGdnNk26PwWIb-y0UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dtxhk03A19poVaBswbsjxxVlZe_QwpX8JYoQR-EihuWOCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1962x968" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="57b7620d3e00be38aeba78ec" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<p>And here is the code for the name field of the form. Take note of the non-html "&lt;%= %&gt;" tag, which denotes a Ruby interpolation. In other words the text contained within these tags is actual Ruby that gets evaluated and then rendered as HTML. In this way we can populate static HTML documents with dynamic content.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">div</span><span style="color:#274796; "> </span><span style="color:#074726; ">class</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"form-group"</span><span style="color:#a65700; ">&gt;</span>
+  <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">label</span><span style="color:#274796; "> </span><span style="color:#074726; ">for</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"inputName"</span><span style="color:#274796; "> </span><span style="color:#074726; ">class</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"col-md-2 control-label"</span><span style="color:#a65700; ">&gt;</span>Name<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">label</span><span style="color:#a65700; ">&gt;</span>
+  <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">div</span><span style="color:#274796; "> </span><span style="color:#074726; ">class</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"col-md-10"</span><span style="color:#a65700; ">&gt;</span>
+    <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">input</span><span style="color:#274796; "> </span><span style="color:#074726; ">type</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"text"</span><span style="color:#274796; "> </span><span style="color:#074726; ">class</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"form-control"</span><span style="color:#274796; "> </span><span style="color:#074726; ">id</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"inputName"</span><span style="color:#274796; "> </span><span style="color:#074726; ">name</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">'robot[name]'</span><span style="color:#274796; "> </span><span style="color:#074726; ">value</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"&lt;%= @robot.name %&gt;"</span><span style="color:#a65700; ">&gt;</span>
+  <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">div</span><span style="color:#a65700; ">&gt;</span>
+<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">div</span><span style="color:#a65700; ">&gt;</span>
+</pre>
+<p>The controller is like the conductor of the web application and connects the view to the model. When the user clicks on a robot (which happens in the view), the controller asks the model for the data needed to properly render a view of that robot. Below is the code in the controller file that is called when a user clicks the edit icon when looking at a particular robot. The code says that when a user goes to the /robots/:id/edit route, where :id is the id of the robot, get the data for that robot and then render the edit view using that data.</p>
+<pre style="color:#000000;background:#ffffff;">get <span style="color:#0000e6; ">'/robots/:id/edit'</span><span style="color:#800000; font-weight:bold; "> do</span>
+  @robot <span style="color:#808030; ">=</span> robot_world<span style="color:#808030; ">.</span><span style="color:#400000; ">find</span><span style="color:#808030; ">(</span>params<span style="color:#808030; ">[</span>:<span style="color:#005fd2; ">id</span><span style="color:#808030; ">]</span><span style="color:#808030; ">.</span><span style="color:#400000; ">to_i</span><span style="color:#808030; ">)</span>
+  erb :<span style="color:#005fd2; ">edit</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Keeping all of these methods separate from each other in their own directories means that I can change one without it affecting the others. For example, in the initial implementation of Robot World, we used a YAML file as the database containing our robot data. Mid week, we stripped out the YAML and replaced it with a SQL database. This required changes in the Model files, but did not require any changes in the view or controller files. Later on, I could decide to completely change the way the web app looks. I can do that without touching the database or the controller.</p>
+<h3>How the Internet Works</h3>
+<p>This small step from Ruby development to Web development also included a lesson by Turing School Founder, <a target="_blank" href="https://twitter.com/j3">Jeff Casimir</a>, called "How the Internet Works." As the title suggests, this class was amazing. Casimir posed and then answered the question, what happens when a user types "www.google.com" into their browser. </p>
+<p>My understanding is that first, the browser needs to convert the domain name "www.google.com" to an Internet Protocol (IP) address. IP addresses have rules that ensure that every device on a network has a unique address. To go from domain name to IP address, the web browser consults a Name Server which is a store of domain name and IP address pairs. Once the domain name is turned into an IP address, the browser initiates a Request Response Loop. A Request Response Loop is when the client browser makes an HTTP request to the computer server that the IP address is pointing to. That computer is likely in a server rack in a giant data center in some remote geography. Based on the request, the server next sends a response which contains data packets. In the case of the request to see www.google.com, the response packets are the html that make up the lovably minimalistic Google landing page. The request and response are basically sent over wires (or wifi), travel at the speed of light, and therefore take milliseconds to complete. We live in the future.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:133.67999267578125%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1471622277344-JAPIHSD69X5ZJYJGQKMF/ke17ZwdGBToddI8pDm48kIAG7bX8zUDdlNmIpbLXtrt7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mlM0or4nqX7jrn5yWu0hA1SHp5UmpystRufBox_HLX9kZ03zU8MgDc5KjOen2Tr_w/image-asset.jpeg" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1471622277344-JAPIHSD69X5ZJYJGQKMF/ke17ZwdGBToddI8pDm48kIAG7bX8zUDdlNmIpbLXtrt7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mlM0or4nqX7jrn5yWu0hA1SHp5UmpystRufBox_HLX9kZ03zU8MgDc5KjOen2Tr_w/image-asset.jpeg" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1471622277344-JAPIHSD69X5ZJYJGQKMF/ke17ZwdGBToddI8pDm48kIAG7bX8zUDdlNmIpbLXtrt7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mlM0or4nqX7jrn5yWu0hA1SHp5UmpystRufBox_HLX9kZ03zU8MgDc5KjOen2Tr_w/image-asset.jpeg" data-image-dimensions="2500x3342" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="57b72c826b8f5b7701bb7ba1" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+
+<h3>Meta-Turing</h3>
+<p>As a recovering educator, I appreciate the structure of the Turing Module 2 curriculum. It is incredibly well scaffolded, which means that complexity is introduced slowly and supports are removed gradually. Module 2 Lead Instructor <a href="https://twitter.com/case_eee">Casey</a> followed an "I do, We do, You do" structure at every step so that it always felt like we were making progress and learning new things, but I also never felt lost.</p>
+<p>Rather than building our first web application, Robot World in Rails, we started with Sinatra, which, as I understand it, is a simpler framework that requires some manual setup that Rails does automatically. Requiring that we manually set up our project structure is a lot like teaching multiplication facts before allowing students to use calculators. By learning on Sinatra we are apparently understanding what Rails will eventually do for us. The same is true in a number of different areas of study this Module such as using SQL right now in our model. Eventually we will use active record. I appreciate this pedagogical choice.</p>
+<p>Turing does a good job of gradual release - the idea of I do, we do, you do. As pre-work for this module we walked through a tutorial that had us build a "Task Manager" app. This is very similar to the Robot World app, but instead of robots our Task Manager stored tasks. Throughout the week the instructors demonstrated new concepts (I do) on their own Task Managers. Then together we worked on implementing the upgrade in our own Task Managers (We do). And then on our own (You do) we incorporated the features into Robot World. This thoughtful approach is indicative of the education pedigree a number of Turing staff have and reinforces for me that I am in a place that thinks seriously about pedagogy.</p>
+
+
+
+
+
+
+
+ 
+
+  
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:74.80000305175781%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1471640081615-AJ72TUPXLRFQRMHYT9QK/ke17ZwdGBToddI8pDm48kLP4r6hJ1KO8psxkJH8zhgd7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0nQwvinDXPV4EYh2MRzm-RQijQ9tRduBvyit2E9sQGOqn9DLLO1DH8n5p_yasH4qWA/image-asset.jpeg" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1471640081615-AJ72TUPXLRFQRMHYT9QK/ke17ZwdGBToddI8pDm48kLP4r6hJ1KO8psxkJH8zhgd7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0nQwvinDXPV4EYh2MRzm-RQijQ9tRduBvyit2E9sQGOqn9DLLO1DH8n5p_yasH4qWA/image-asset.jpeg" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1471640081615-AJ72TUPXLRFQRMHYT9QK/ke17ZwdGBToddI8pDm48kLP4r6hJ1KO8psxkJH8zhgd7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0nQwvinDXPV4EYh2MRzm-RQijQ9tRduBvyit2E9sQGOqn9DLLO1DH8n5p_yasH4qWA/image-asset.jpeg" data-image-dimensions="2500x1870" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="57b77210c534a554d7a6bec5" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+</body></html>

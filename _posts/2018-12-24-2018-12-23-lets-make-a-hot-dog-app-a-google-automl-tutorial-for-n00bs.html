@@ -1,0 +1,777 @@
+---
+layout: post
+title: 'Let''s make a Hot Dog App: A Google AutoML Tutorial for N00bs'
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '92'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1 style="white-space: pre-wrap;">A Google AutoML Tutorial for N00bs</h1>
+<p style="white-space: pre-wrap;">By the end of this tutorial you will be able to submit pictures to a trained machine learning algorithm and get the image's classification as a response. In other words, we are making Jian Yang's Not Hot Dog app. </p>
+<p style="white-space: pre-wrap;">With Google’s new AutoML beta, making a hot dog classifier app is actually possible even if you do not know anything about machine learning. </p>
+<p style="white-space: pre-wrap;">This tutorial is divided into two parts. First we will navigate Google’s Cloud Console and AutoML UI to create a model, upload training data, and train it. This requires no coding at all.</p>
+<p style="white-space: pre-wrap;">The second part of this tutorial is about using Ruby to create a POST request that sends a picture to our newly created AutoML model’s predict endpoint and returns our model’s prediction. If all goes well, we’ll be able to send a picture of a hot dog to our model and get a confident hot_dog classification. When we send other pictures, say of trucks or pizza, we should get a confident not_hot_dog classification. </p>
+<p style="white-space: pre-wrap;">During part two, I try to demonstrate how I use test driven development to build out api requests. I know a segment of this blogs readership may appreciate having some tests to go along with this code.</p>
+<p style="white-space: pre-wrap;">You can find all the code written for part 2 in this Github <a href="https://github.com/PlanetEfficacy/hot_dog_app" target="_blank">repository</a>.</p>
+
+
+ 
+   <iframe src="//www.youtube.com/embed/ACmydtFDTGs?wmode=opaque&amp;enablejsapi=1" height="480" width="854" scrolling="no" frameborder="0" allowfullscreen="">
+</iframe>
+ 
+
+<h3 style="white-space: pre-wrap;">Part 1: Creating an AutoML Model</h3>
+<p style="white-space: pre-wrap;">Step 1: Visit your <a href="https://console.cloud.google.com" target="_blank">Google Cloud Console</a> (gmail / Google Apps account required). If this is your first Google Cloud Console rodeo, you will likely have to agree to Google’s terms of service.</p>
+<p style="white-space: pre-wrap;">Step 2: Click the “Select Project” dropdown at the top left corner of the screen and select “New Project.”</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          combination-animation-none
+          individual-animation-none
+          individual-text-animation-none
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1568px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:79.20918273925781%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image">
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1545591278394-TBX1B2NSVCL00IYWP6VJ/ke17ZwdGBToddI8pDm48kKLGCbRb-1971j76LNP9wNZ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1Ucde5nunSoxYjC9igM0O6afG3-hV_ZAbukKiR1jcRZgn3WUfc_ZsVm9Mi1E6FasEnQ/Screen+Shot+2018-12-23+at+11.54.10+AM.png" alt="Screen Shot 2018-12-23 at 11.54.10 AM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1545591278394-TBX1B2NSVCL00IYWP6VJ/ke17ZwdGBToddI8pDm48kKLGCbRb-1971j76LNP9wNZ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1Ucde5nunSoxYjC9igM0O6afG3-hV_ZAbukKiR1jcRZgn3WUfc_ZsVm9Mi1E6FasEnQ/Screen+Shot+2018-12-23+at+11.54.10+AM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1545591278394-TBX1B2NSVCL00IYWP6VJ/ke17ZwdGBToddI8pDm48kKLGCbRb-1971j76LNP9wNZ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1Ucde5nunSoxYjC9igM0O6afG3-hV_ZAbukKiR1jcRZgn3WUfc_ZsVm9Mi1E6FasEnQ/Screen+Shot+2018-12-23+at+11.54.10+AM.png" data-image-dimensions="1568x1242" data-image-focal-point="0.5,0.5" alt="Screen Shot 2018-12-23 at 11.54.10 AM.png" data-load="false" data-image-id="5c1fd9ee6d2a734eed081a86" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p style="white-space: pre-wrap;">Step 3: Name your project whatever you want! I am naming mine “Hot Dog App.” Next click create and wait as Google creates your project.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          combination-animation-none
+          individual-animation-none
+          individual-text-animation-none
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:842px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:40.855106353759766%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image">
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1545591465838-DDV7SH773PABVKOX96MK/ke17ZwdGBToddI8pDm48kPEOzmEqwofSyjrZ93ih0LRZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIq_wRYngdnI4uebe1DX7jNOPT-Bv1nBcmja6fnqV5bQU/Screen+Shot+2018-12-23+at+11.57.36+AM.png" alt="Screen Shot 2018-12-23 at 11.57.36 AM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1545591465838-DDV7SH773PABVKOX96MK/ke17ZwdGBToddI8pDm48kPEOzmEqwofSyjrZ93ih0LRZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIq_wRYngdnI4uebe1DX7jNOPT-Bv1nBcmja6fnqV5bQU/Screen+Shot+2018-12-23+at+11.57.36+AM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1545591465838-DDV7SH773PABVKOX96MK/ke17ZwdGBToddI8pDm48kPEOzmEqwofSyjrZ93ih0LRZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIq_wRYngdnI4uebe1DX7jNOPT-Bv1nBcmja6fnqV5bQU/Screen+Shot+2018-12-23+at+11.57.36+AM.png" data-image-dimensions="842x344" data-image-focal-point="0.5,0.5" alt="Screen Shot 2018-12-23 at 11.57.36 AM.png" data-load="false" data-image-id="5c1fdaa9898583352e2c529d" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p style="white-space: pre-wrap;">Step 4: Select your app from the same “Select Project” drop down from step 2. In the “Getting Started” panel (bottom left) click “Explore and enable APIs.” Click the “ENABLE APIS AND SERVICES” at the top of the Dashboard. Type “automl” into the search bar and click on the “Cloud AutoML API” card that shows up. Click the blue “ENABLE” button. You will likely have to enable billing at this point.</p>
+<p style="white-space: pre-wrap;">Step 5: Next we are going to need a <a href="https://en.wikipedia.org/wiki/JSON" target="_blank">JSON</a> file that contains the credentials we need to make requests to the AutoML endpoint. Click “CREATE CREDENTIALS”. Choose “Cloud AutoML API” from the “Which API are you using?” dropdown. Choose “No, I’m not using them” from the “Are you planning to use this API with App Engine or Compute Engine?” radio buttons. Click “What Credentials Do I need?”</p>
+<p style="white-space: pre-wrap;">Step 6: Enter a service account name, I’m using “T1000,” but I think you can put whatever you want in there. For Role select “AutoML Predictor.” Make sure JSON is the selected “Key type” because lord only knows what P12 is. Click the “Create” button and you will be prompted to download a JSON file. Keep this secret. Keep it safe.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; ">{</span>
+<span style="color:#696969; ">  "type": "service_account",</span>
+<span style="color:#696969; ">  "project_id": "hot-dog-app-226418",</span>
+<span style="color:#696969; ">  "private_key_id": "private_key",</span>
+<span style="color:#696969; ">  "private_key": "-----BEGIN PRIVATE KEY-----PRIVATE KEY----END PRIVATE KEY-----\n",</span>
+<span style="color:#696969; ">  "client_email": "</span><span style="color:#7144c4; ">t1000@example.com</span><span style="color:#696969; ">",</span>
+<span style="color:#696969; ">  "client_id": "12345",</span>
+<span style="color:#696969; ">  "auth_uri": "</span><span style="color:#5555dd; ">https://accounts.google.com/o/oauth2/auth</span><span style="color:#696969; ">",</span>
+<span style="color:#696969; ">  "token_uri": "</span><span style="color:#5555dd; ">https://oauth2.googleapis.com/token</span><span style="color:#696969; ">",</span>
+<span style="color:#696969; ">  "auth_provider_x509_cert_url": "</span><span style="color:#5555dd; ">https://www.googleapis.com/oauth2/v1/certs</span><span style="color:#696969; ">",</span>
+<span style="color:#696969; ">  "client_x509_cert_url": "</span><span style="color:#5555dd; ">https://www.googleapis.com/</span><span style="color:#696969; ">............"</span>
+<span style="color:#696969; ">}</span>
+</pre>
+<!--Created using ToHtml.com on 2018-12-23 19:11:51 UTC --><p style="white-space: pre-wrap;">Step 7: Visit the <a href="https://cloud.google.com/automl/ui/vision" target="_blank">Auto ML UI</a> to create the dataset. You will have to grant Auto ML access to your Google Account, so click “Allow.” Select your project from the drop down. Click “Set up now.” This may take a few moments, so go ahead and Google at least 100 pictures of hot dogs and 100 pictures of not hot dogs. The quick start guide actually says all you need is 10 pictures, but I was not able to train my model with 10 pictures per label. Plus, we want our hot dog app to be super duper accurate.</p>
+<p style="white-space: pre-wrap;">Step 8: Click “NEW DATASET” and give type “hot_dog” for the label. Click “Select Files” and upload at least 100 pictures of hot dogs. Click “CREATE DATASET.”</p>
+<p style="white-space: pre-wrap;">Step 9: Click “Add label” on the left. Create a label “hot_dog.” Click “Select all images” and choose the newly created “hot_dog” label from the label drop down.</p>
+<p style="white-space: pre-wrap;">Step 10: Click “ADD IMAGES”. Select your non hot dog images from your computer. Add a new label (see step 9) called “not_hot_dog” and add your new images to this label.</p>
+<p style="white-space: pre-wrap;">You should now have a data set with at least 200 images, half labeled as examples of hot dogs and the other half labeled as examples of not hot dogs.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          combination-animation-none
+          individual-animation-none
+          individual-text-animation-none
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:47.040000915527344%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image">
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1545607772453-NHUPB9WJY7BIERY0JBYX/ke17ZwdGBToddI8pDm48kE7Mb3yECj2EYZPCKBC5K6V7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0i0LM6FHaZlOeBxCS89q3Y-Z98OwGyfd_fDHmKmIbTD_-FRKyYAAK2ne1-Xb6H8xxA/Screen+Shot+2018-12-23+at+4.25.24+PM.png" alt="Screen Shot 2018-12-23 at 4.25.24 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1545607772453-NHUPB9WJY7BIERY0JBYX/ke17ZwdGBToddI8pDm48kE7Mb3yECj2EYZPCKBC5K6V7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0i0LM6FHaZlOeBxCS89q3Y-Z98OwGyfd_fDHmKmIbTD_-FRKyYAAK2ne1-Xb6H8xxA/Screen+Shot+2018-12-23+at+4.25.24+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1545607772453-NHUPB9WJY7BIERY0JBYX/ke17ZwdGBToddI8pDm48kE7Mb3yECj2EYZPCKBC5K6V7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0i0LM6FHaZlOeBxCS89q3Y-Z98OwGyfd_fDHmKmIbTD_-FRKyYAAK2ne1-Xb6H8xxA/Screen+Shot+2018-12-23+at+4.25.24+PM.png" data-image-dimensions="2500x1176" data-image-focal-point="0.5,0.5" alt="Screen Shot 2018-12-23 at 4.25.24 PM.png" data-load="false" data-image-id="5c201a520e2e7264c5354d21" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p style="white-space: pre-wrap;">Step 11: Click “Train” at the top left of your screen. If you have enough labeled pictures, you should then be able to click “Start Training.” Give your model a name (the default is fine) and then click “Start Training.” This process can take “15 minutes to several hours” depending on how much computer power you are paying for. I went with the free tier and training took around 10 minutes with roughly 200 pictures.</p>
+<p style="white-space: pre-wrap;">Step 12: Once the model has been trained, we can test it manually. Find a new picture of either a hot dog or non hot dog. Click on the model you just trained. Click on the predict tab. Upload an image and viola. My model had no problem identifying a hot dog as a hot dog, a truck as not a hot dog, but it was only 53.6% sure the picture of french fries was not a hot dog.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          combination-animation-none
+          individual-animation-none
+          individual-text-animation-none
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1976px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:71.86234283447266%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image">
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1545620956964-RRT1V2MR7539K9TB6A3U/ke17ZwdGBToddI8pDm48kFC7-Q29HgDVcRiAqcnxmHJ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1Ud97UOzVe9zeVc7LQBLMfrtXybeaJY36WLOerwc2HmmQOpYghpI-Ha_TwZsqqmJXng/Screen+Shot+2018-12-23+at+8.06.23+PM.png" alt="Screen Shot 2018-12-23 at 8.06.23 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1545620956964-RRT1V2MR7539K9TB6A3U/ke17ZwdGBToddI8pDm48kFC7-Q29HgDVcRiAqcnxmHJ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1Ud97UOzVe9zeVc7LQBLMfrtXybeaJY36WLOerwc2HmmQOpYghpI-Ha_TwZsqqmJXng/Screen+Shot+2018-12-23+at+8.06.23+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1545620956964-RRT1V2MR7539K9TB6A3U/ke17ZwdGBToddI8pDm48kFC7-Q29HgDVcRiAqcnxmHJ7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1Ud97UOzVe9zeVc7LQBLMfrtXybeaJY36WLOerwc2HmmQOpYghpI-Ha_TwZsqqmJXng/Screen+Shot+2018-12-23+at+8.06.23+PM.png" data-image-dimensions="1976x1420" data-image-focal-point="0.5,0.5" alt="Screen Shot 2018-12-23 at 8.06.23 PM.png" data-load="false" data-image-id="5c204dd74fa51a0505503cb1" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          combination-animation-none
+          individual-animation-none
+          individual-text-animation-none
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2024px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:69.86166381835938%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image">
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1545620993134-IBUK5A1BQNQXIB501435/ke17ZwdGBToddI8pDm48kJ3wXu_Kev98WaMomn0UN657gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UdPX9nym1w9gtWY6UIVc6hW74QmNiA6xxH4vzWK8ymTObSexTd1-frD7527z4SM9QQ/Screen+Shot+2018-12-23+at+8.07.10+PM.png" alt="Screen Shot 2018-12-23 at 8.07.10 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1545620993134-IBUK5A1BQNQXIB501435/ke17ZwdGBToddI8pDm48kJ3wXu_Kev98WaMomn0UN657gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UdPX9nym1w9gtWY6UIVc6hW74QmNiA6xxH4vzWK8ymTObSexTd1-frD7527z4SM9QQ/Screen+Shot+2018-12-23+at+8.07.10+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1545620993134-IBUK5A1BQNQXIB501435/ke17ZwdGBToddI8pDm48kJ3wXu_Kev98WaMomn0UN657gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UdPX9nym1w9gtWY6UIVc6hW74QmNiA6xxH4vzWK8ymTObSexTd1-frD7527z4SM9QQ/Screen+Shot+2018-12-23+at+8.07.10+PM.png" data-image-dimensions="2024x1414" data-image-focal-point="0.5,0.5" alt="Screen Shot 2018-12-23 at 8.07.10 PM.png" data-load="false" data-image-id="5c204dfeb8a0457386843d09" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          combination-animation-none
+          individual-animation-none
+          individual-text-animation-none
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1982px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:71.54389953613281%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image">
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1545620923538-6YQO0Q0AMDR7A7V6N5OM/ke17ZwdGBToddI8pDm48kICvXp8Qg6bS9H7lb9gES9R7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UbDMmiTKpV6QEwjuS99EwcCATLYOa_NuYdmu00q3P_rHZDqXZYzu2fuaodM4POSZ4w/Screen+Shot+2018-12-23+at+8.06.11+PM.png" alt="Screen Shot 2018-12-23 at 8.06.11 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1545620923538-6YQO0Q0AMDR7A7V6N5OM/ke17ZwdGBToddI8pDm48kICvXp8Qg6bS9H7lb9gES9R7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UbDMmiTKpV6QEwjuS99EwcCATLYOa_NuYdmu00q3P_rHZDqXZYzu2fuaodM4POSZ4w/Screen+Shot+2018-12-23+at+8.06.11+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1545620923538-6YQO0Q0AMDR7A7V6N5OM/ke17ZwdGBToddI8pDm48kICvXp8Qg6bS9H7lb9gES9R7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UbDMmiTKpV6QEwjuS99EwcCATLYOa_NuYdmu00q3P_rHZDqXZYzu2fuaodM4POSZ4w/Screen+Shot+2018-12-23+at+8.06.11+PM.png" data-image-dimensions="1982x1418" data-image-focal-point="0.5,0.5" alt="Screen Shot 2018-12-23 at 8.06.11 PM.png" data-load="false" data-image-id="5c204db06d2a734eed0c55e2" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<h3 style="white-space: pre-wrap;">
+<br>Part 2: Using Ruby to maker REST requests to your AutoML model</h3>
+<p style="white-space: pre-wrap;">Step 1: Create a project folder and files. In terminal type:</p>
+<pre style="color:#000000;background:#ffffff;"> <span style="color:#808030; ">~</span><span style="color:#808030; ">/</span>codes  mkdir hot_dog_app
+ <span style="color:#808030; ">~</span><span style="color:#808030; ">/</span>codes  mkdir hot_dog_app<span style="color:#808030; ">/</span>lib
+ <span style="color:#808030; ">~</span><span style="color:#808030; ">/</span>codes  mkdir hot_dog_app<span style="color:#808030; ">/</span>spec
+ <span style="color:#808030; ">~</span><span style="color:#808030; ">/</span>codes  touch hot_dog_app<span style="color:#808030; ">/</span>lib<span style="color:#808030; ">/</span>client<span style="color:#808030; ">.</span>rb
+ <span style="color:#808030; ">~</span><span style="color:#808030; ">/</span>codes  touch hot_dog_app<span style="color:#808030; ">/</span>spec<span style="color:#808030; ">/</span>client_spec<span style="color:#808030; ">.</span>rb
+ <span style="color:#808030; ">~</span><span style="color:#808030; ">/</span>codes  cd hot_dog_app
+</pre>
+<!--Created using ToHtml.com on 2018-12-24 03:14:16 UTC --><p style="white-space: pre-wrap;">Step 2: Our request is going to need a header and a body. Let’s start by writing a test for the header. Let’s describe what the header should look like and then assert when we call <code>client.headers</code> we get them. Here <code>google_authentication<em>_</em>token </code>is just a place holder because we’ll stub this value in our test. This token will change on some unknown interval, so if this is not an app with millions of users, you likely do not have to worry and you can just request a new token before making each AutoML request.  </p>
+<pre style="color:#000000;background:#ffffff;">RSpec<span style="color:#808030; ">.</span>describe Client<span style="color:#800000; font-weight:bold; "> do</span>
+  subject <span style="color:#800080; ">{</span> described_class<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span> <span style="color:#800080; ">}</span>
+
+  describe <span style="color:#0000e6; ">"headers"</span><span style="color:#800000; font-weight:bold; "> do</span>
+    let<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">headers</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+      <span style="color:#800080; ">{</span>
+        <span style="color:#0000e6; ">'Content-Type'</span>: <span style="color:#0000e6; ">'application/json'</span><span style="color:#808030; ">,</span>
+        <span style="color:#0000e6; ">'Authorization'</span>: <span style="color:#0000e6; ">'Bearer google_authentication_token'</span>
+      <span style="color:#800080; ">}</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+
+
+    it <span style="color:#0000e6; ">'returns the request headers'</span><span style="color:#800000; font-weight:bold; "> do</span>
+      expect<span style="color:#808030; ">(</span>subject<span style="color:#808030; ">.</span>headers<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq headers
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<!--Created using ToHtml.com on 2018-12-24 03:27:53 UTC --><p style="white-space: pre-wrap;">You can run this test from the project root with <code>rspec spec/client_spec.rb</code></p>
+<p style="white-space: pre-wrap;">Step 3: This test fails, so let’s get it passing! First we need to require our client file in our test:</p>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'./lib/client.rb'</span>
+
+RSpec<span style="color:#808030; ">.</span>describe Client<span style="color:#800000; font-weight:bold; "> do</span>
+  subject <span style="color:#800080; ">{</span> described_class<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span> <span style="color:#800080; ">}</span>
+
+</pre>
+<!--Created using ToHtml.com on 2018-12-24 03:29:25 UTC --><p style="white-space: pre-wrap;">Next let’s actually create a client class that can pass this test:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">class</span> Client
+  <span style="color:#800000; font-weight:bold; ">def</span> headers
+    <span style="color:#800080; ">{</span>
+      <span style="color:#0000e6; ">'Content-Type'</span>: <span style="color:#0000e6; ">'application/json'</span><span style="color:#808030; ">,</span>
+      <span style="color:#0000e6; ">'Authorization'</span>: <span style="color:#0000e6; ">"Bearer </span><span style="color:#000000; background:#ffffe8; ">#{google_authentication_token}</span><span style="color:#0000e6; ">"</span>
+    <span style="color:#800080; ">}</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p style="white-space: pre-wrap;">Let’s write a method to get our authentication token. We will need to use the <code>Google::Auth::ServiceAccountCredentials</code> which can be included in our client file from this <a href="https://github.com/googleapis/google-auth-library-ruby" target="_blank">gem</a>.</p>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'googleauth'</span>
+
+<span style="color:#800000; font-weight:bold; ">class</span> Client
+  SCOPE <span style="color:#808030; ">=</span> <span style="color:#0000e6; ">'https://www.googleapis.com/auth/cloud-platform'</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> headers
+    <span style="color:#800080; ">{</span>
+      <span style="color:#0000e6; ">'Content-Type'</span>: <span style="color:#0000e6; ">'application/json'</span><span style="color:#808030; ">,</span>
+      <span style="color:#0000e6; ">'Authorization'</span>: <span style="color:#0000e6; ">"Bearer </span><span style="color:#000000; background:#ffffe8; ">#{google_authentication_token}</span><span style="color:#0000e6; ">"</span>
+    <span style="color:#800080; ">}</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> google_authentication_token
+    authorizer <span style="color:#808030; ">=</span> Google<span style="color:#808030; ">::</span>Auth<span style="color:#808030; ">::</span>ServiceAccountCredentials<span style="color:#808030; ">.</span>make_creds<span style="color:#808030; ">(</span>
+      <span style="color:#005fd2; ">json_key_io</span>: <span style="color:#bb7977; font-weight:bold; ">File</span><span style="color:#808030; ">.</span><span style="color:#400000; ">open</span><span style="color:#808030; ">(</span><span style="color:#0000e6; ">'./secret_authorization.json'</span><span style="color:#808030; ">)</span><span style="color:#808030; ">,</span>
+      <span style="color:#005fd2; ">scope</span>: SCOPE
+    <span style="color:#808030; ">)</span>
+
+    authorizer<span style="color:#808030; ">.</span>fetch_access_token!<span style="color:#808030; ">[</span><span style="color:#0000e6; ">'access_token'</span><span style="color:#808030; ">]</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<!--Created using ToHtml.com on 2018-12-24 03:41:08 UTC --><p style="white-space: pre-wrap;">We need to move our secret json file that we got in step 5 of part 1 into our project. I am just putting it in the root of the project and calling it <code>secret_authorization.json</code>. You will likely want to encrypt this file if you are going to be putting this on Github. I recommend <a href="https://github.com/laserlemon/figaro" target="_blank">Figaro</a> for Rails.</p>
+<p style="white-space: pre-wrap;">The <code>make_creds</code> method reads in this JSON and gives us an <code><em>authorizer</em></code><em> </em>which we can then call<em> </em><code>fetch<em>_</em>access_token!</code> on. This will return a hash with a key <code>access_token </code>with the value we will need for our header. It should look something like:</p>
+<p style="white-space: pre-wrap;"><code>ya29.c.ABCDEFG123456…</code></p>
+<p style="white-space: pre-wrap;">Step 4: Let’s update our test to stub this authentication token method, since under the hood it is making an api call.</p>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'./lib/client.rb'</span>
+
+RSpec<span style="color:#808030; ">.</span>describe Client<span style="color:#800000; font-weight:bold; "> do</span>
+  subject <span style="color:#800080; ">{</span> described_class<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span> <span style="color:#800080; ">}</span>
+  <span style="color:#696969; "># mock an authorizer that we can call fetch_access_token! on</span>
+  let<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">authorizer</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> double <span style="color:#800080; ">}</span>
+
+  describe <span style="color:#0000e6; ">'#headers'</span><span style="color:#800000; font-weight:bold; "> do</span>
+    let<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">headers</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+      <span style="color:#800080; ">{</span>
+        <span style="color:#0000e6; ">'Content-Type'</span>: <span style="color:#0000e6; ">'application/json'</span><span style="color:#808030; ">,</span>
+        <span style="color:#0000e6; ">'Authorization'</span>: <span style="color:#0000e6; ">'Bearer google_authentication_token'</span>
+      <span style="color:#800080; ">}</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+
+    before<span style="color:#800000; font-weight:bold; "> do</span>
+      <span style="color:#696969; "># stub #make_creds method and have it return our stub authorizer</span>
+      allow<span style="color:#808030; ">(</span>Google<span style="color:#808030; ">::</span>Auth<span style="color:#808030; ">::</span>ServiceAccountCredentials<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to receive<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">make_creds</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> authorizer <span style="color:#800080; ">}</span>
+      <span style="color:#696969; "># stub #fetch_access_token! and have it return a hash with the correct key and</span>
+      <span style="color:#696969; "># a fake value</span>
+      allow<span style="color:#808030; ">(</span>authorizer<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to receive<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">fetch_access_token</span>!<span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span>
+        <span style="color:#800080; ">{</span> <span style="color:#0000e6; ">'access_token'</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">'google_authentication_token'</span> <span style="color:#800080; ">}</span>
+      <span style="color:#800080; ">}</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+
+    it <span style="color:#0000e6; ">'returns the request headers'</span><span style="color:#800000; font-weight:bold; "> do</span>
+      expect<span style="color:#808030; ">(</span>subject<span style="color:#808030; ">.</span>headers<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq headers
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<!--Created using ToHtml.com on 2018-12-24 04:06:11 UTC --><p style="white-space: pre-wrap;">And we can update our implementation with:</p>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'googleauth'</span>
+
+<span style="color:#800000; font-weight:bold; ">class</span> Client
+  SCOPE <span style="color:#808030; ">=</span> <span style="color:#0000e6; ">'https://www.googleapis.com/auth/cloud-platform'</span><span style="color:#808030; ">.</span><span style="color:#400000; ">freeze</span>
+  AUTH_FILE_PATH <span style="color:#808030; ">=</span> <span style="color:#0000e6; ">'./secret_authorization.json'</span><span style="color:#808030; ">.</span><span style="color:#400000; ">freeze</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> headers
+    <span style="color:#800080; ">{</span>
+      <span style="color:#0000e6; ">'Content-Type'</span>: <span style="color:#0000e6; ">'application/json'</span><span style="color:#808030; ">,</span>
+      <span style="color:#0000e6; ">'Authorization'</span>: <span style="color:#0000e6; ">"Bearer </span><span style="color:#000000; background:#ffffe8; ">#{google_authentication_token}</span><span style="color:#0000e6; ">"</span>
+    <span style="color:#800080; ">}</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> google_authentication_token
+    authorizer <span style="color:#808030; ">=</span> Google<span style="color:#808030; ">::</span>Auth<span style="color:#808030; ">::</span>ServiceAccountCredentials<span style="color:#808030; ">.</span>make_creds<span style="color:#808030; ">(</span>
+      <span style="color:#005fd2; ">json_key_io</span>: <span style="color:#bb7977; font-weight:bold; ">File</span><span style="color:#808030; ">.</span><span style="color:#400000; ">open</span><span style="color:#808030; ">(</span>AUTH_FILE_PATH<span style="color:#808030; ">)</span><span style="color:#808030; ">,</span>
+      <span style="color:#005fd2; ">scope</span>: SCOPE
+    <span style="color:#808030; ">)</span>
+
+    authorizer<span style="color:#808030; ">.</span>fetch_access_token!<span style="color:#808030; ">[</span><span style="color:#0000e6; ">'access_token'</span><span style="color:#808030; ">]</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<!--Created using ToHtml.com on 2018-12-24 04:04:44 UTC --><p style="white-space: pre-wrap;">Step 5: Now let’s set up a test describing what we expect the body of our request to look like. Google requires that we take the image we are submitting to the predict API, read it as a string, and then Base64 encode it.</p>
+<p style="white-space: pre-wrap;">In this test, notice that I’ve updated how we initialize method to now take in a file path. I wan our client object to get instantiated with an image file to send to AutoML.</p>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'./lib/client.rb'</span>
+
+RSpec<span style="color:#808030; ">.</span>describe Client<span style="color:#800000; font-weight:bold; "> do</span>
+  subject <span style="color:#800080; ">{</span> described_class<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#0000e6; ">'./spec/fixtures/hot_dog.jpg'</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span>
+  <span style="color:#696969; "># mock an authorizer that we can call fetch_access_token! on</span>
+  let<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">authorizer</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> double <span style="color:#800080; ">}</span>
+
+  describe <span style="color:#0000e6; ">'#headers'</span><span style="color:#800000; font-weight:bold; "> do</span>
+    let<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">headers</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+      <span style="color:#800080; ">{</span>
+        <span style="color:#0000e6; ">'Content-Type'</span>: <span style="color:#0000e6; ">'application/json'</span><span style="color:#808030; ">,</span>
+        <span style="color:#0000e6; ">'Authorization'</span>: <span style="color:#0000e6; ">'Bearer google_authentication_token'</span>
+      <span style="color:#800080; ">}</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+
+    before<span style="color:#800000; font-weight:bold; "> do</span>
+      <span style="color:#696969; "># stub #make_creds method and have it return our stub authorizer</span>
+      allow<span style="color:#808030; ">(</span>Google<span style="color:#808030; ">::</span>Auth<span style="color:#808030; ">::</span>ServiceAccountCredentials<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to receive<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">make_creds</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> authorizer <span style="color:#800080; ">}</span>
+      <span style="color:#696969; "># stub #fetch_access_token! and have it return a hash with the correct key and</span>
+      <span style="color:#696969; "># a fake value</span>
+      allow<span style="color:#808030; ">(</span>authorizer<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to receive<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">fetch_access_token</span>!<span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span>
+        <span style="color:#800080; ">{</span> <span style="color:#0000e6; ">'access_token'</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">'google_authentication_token'</span> <span style="color:#800080; ">}</span>
+      <span style="color:#800080; ">}</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+
+    it <span style="color:#0000e6; ">'returns the request headers'</span><span style="color:#800000; font-weight:bold; "> do</span>
+      expect<span style="color:#808030; ">(</span>subject<span style="color:#808030; ">.</span>headers<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq headers
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  describe <span style="color:#0000e6; ">'#body'</span><span style="color:#800000; font-weight:bold; "> do</span>
+    let<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">body</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+      <span style="color:#800080; ">{</span>
+        <span style="color:#005fd2; ">payload</span>: <span style="color:#800080; ">{</span>
+          <span style="color:#005fd2; ">image</span>: <span style="color:#800080; ">{</span>
+            <span style="color:#005fd2; ">imageBytes</span>: <span style="color:#0000e6; ">'base64_encoded_image'</span>
+          <span style="color:#800080; ">}</span>
+        <span style="color:#800080; ">}</span>
+      <span style="color:#800080; ">}</span><span style="color:#808030; ">.</span>to_json
+    <span style="color:#800000; font-weight:bold; ">end</span>
+
+    before<span style="color:#800000; font-weight:bold; "> do</span>
+      allow<span style="color:#808030; ">(</span>Base64<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to receive<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">strict_encode64</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> <span style="color:#0000e6; ">'base64_encoded_image'</span> <span style="color:#800080; ">}</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+
+    it <span style="color:#0000e6; ">'returns the request body'</span><span style="color:#800000; font-weight:bold; "> do</span>
+      expect<span style="color:#808030; ">(</span>subject<span style="color:#808030; ">.</span>body<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq body
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<!--Created using ToHtml.com on 2018-12-24 04:19:11 UTC --><p style="white-space: pre-wrap;">Step 6: Now let’s implement. </p>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'googleauth'</span>
+
+<span style="color:#800000; font-weight:bold; ">class</span> Client
+  SCOPE <span style="color:#808030; ">=</span> <span style="color:#0000e6; ">'https://www.googleapis.com/auth/cloud-platform'</span><span style="color:#808030; ">.</span><span style="color:#400000; ">freeze</span>
+  AUTH_FILE_PATH <span style="color:#808030; ">=</span> <span style="color:#0000e6; ">'./secret_authorization.json'</span><span style="color:#808030; ">.</span><span style="color:#400000; ">freeze</span>
+
+  attr_reader :<span style="color:#005fd2; ">image_path</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> initialize(image_path)
+    @image_path <span style="color:#808030; ">=</span> image_path
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> headers
+    <span style="color:#800080; ">{</span>
+      <span style="color:#0000e6; ">'Content-Type'</span>: <span style="color:#0000e6; ">'application/json'</span><span style="color:#808030; ">,</span>
+      <span style="color:#0000e6; ">'Authorization'</span>: <span style="color:#0000e6; ">"Bearer </span><span style="color:#000000; background:#ffffe8; ">#{google_authentication_token}</span><span style="color:#0000e6; ">"</span>
+    <span style="color:#800080; ">}</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> google_authentication_token
+    authorizer <span style="color:#808030; ">=</span> Google<span style="color:#808030; ">::</span>Auth<span style="color:#808030; ">::</span>ServiceAccountCredentials<span style="color:#808030; ">.</span>make_creds<span style="color:#808030; ">(</span>
+      <span style="color:#005fd2; ">json_key_io</span>: <span style="color:#bb7977; font-weight:bold; ">File</span><span style="color:#808030; ">.</span><span style="color:#400000; ">open</span><span style="color:#808030; ">(</span>AUTH_FILE_PATH<span style="color:#808030; ">)</span><span style="color:#808030; ">,</span>
+      <span style="color:#005fd2; ">scope</span>: SCOPE
+    <span style="color:#808030; ">)</span>
+
+    authorizer<span style="color:#808030; ">.</span>fetch_access_token!<span style="color:#808030; ">[</span><span style="color:#0000e6; ">'access_token'</span><span style="color:#808030; ">]</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> body
+    <span style="color:#800080; ">{</span>
+      <span style="color:#005fd2; ">payload</span>: <span style="color:#800080; ">{</span>
+        <span style="color:#005fd2; ">image</span>: <span style="color:#800080; ">{</span>
+          <span style="color:#005fd2; ">imageBytes</span>: Base64<span style="color:#808030; ">.</span>strict_encode64<span style="color:#808030; ">(</span><span style="color:#400000; ">open</span><span style="color:#808030; ">(</span>image_path<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span><span style="color:#400000; ">read</span><span style="color:#808030; ">)</span>
+        <span style="color:#800080; ">}</span>
+      <span style="color:#800080; ">}</span>
+    <span style="color:#800080; ">}</span><span style="color:#808030; ">.</span>to_json
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<!--Created using ToHtml.com on 2018-12-24 04:18:33 UTC --><p style="white-space: pre-wrap;">Step 7: Now let’s write our last test describing the making of our post request to the AutoML predict API. I am familiar with <code>HTTPClient</code> so that is the <a href="https://github.com/nahi/httpclient" target="_blank">gem</a> we will use here.</p>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'./lib/client.rb'</span>
+
+RSpec<span style="color:#808030; ">.</span>describe Client<span style="color:#800000; font-weight:bold; "> do</span>
+  subject <span style="color:#800080; ">{</span> described_class<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#0000e6; ">'./spec/fixtures/hot_dog.jpg'</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">}</span>
+  <span style="color:#696969; "># mock an authorizer that we can call fetch_access_token! on</span>
+  let<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">authorizer</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> double <span style="color:#800080; ">}</span>
+
+  describe <span style="color:#0000e6; ">'#headers'</span><span style="color:#800000; font-weight:bold; "> do</span>
+    let<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">headers</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+      <span style="color:#800080; ">{</span>
+        <span style="color:#0000e6; ">'Content-Type'</span>: <span style="color:#0000e6; ">'application/json'</span><span style="color:#808030; ">,</span>
+        <span style="color:#0000e6; ">'Authorization'</span>: <span style="color:#0000e6; ">'Bearer google_authentication_token'</span>
+      <span style="color:#800080; ">}</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+
+    before<span style="color:#800000; font-weight:bold; "> do</span>
+      <span style="color:#696969; "># stub #make_creds method and have it return our stub authorizer</span>
+      allow<span style="color:#808030; ">(</span>Google<span style="color:#808030; ">::</span>Auth<span style="color:#808030; ">::</span>ServiceAccountCredentials<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to receive<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">make_creds</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> authorizer <span style="color:#800080; ">}</span>
+      <span style="color:#696969; "># stub #fetch_access_token! and have it return a hash with the correct key and</span>
+      <span style="color:#696969; "># a fake value</span>
+      allow<span style="color:#808030; ">(</span>authorizer<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to receive<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">fetch_access_token</span>!<span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span>
+        <span style="color:#800080; ">{</span> <span style="color:#0000e6; ">'access_token'</span> <span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">'google_authentication_token'</span> <span style="color:#800080; ">}</span>
+      <span style="color:#800080; ">}</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+
+    it <span style="color:#0000e6; ">'returns the request headers'</span><span style="color:#800000; font-weight:bold; "> do</span>
+      expect<span style="color:#808030; ">(</span>subject<span style="color:#808030; ">.</span>headers<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq headers
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  describe <span style="color:#0000e6; ">'#body'</span><span style="color:#800000; font-weight:bold; "> do</span>
+    let<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">body</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+      <span style="color:#800080; ">{</span>
+        <span style="color:#005fd2; ">payload</span>: <span style="color:#800080; ">{</span>
+          <span style="color:#005fd2; ">image</span>: <span style="color:#800080; ">{</span>
+            <span style="color:#005fd2; ">imageBytes</span>: <span style="color:#0000e6; ">'base64_encoded_image'</span>
+          <span style="color:#800080; ">}</span>
+        <span style="color:#800080; ">}</span>
+      <span style="color:#800080; ">}</span><span style="color:#808030; ">.</span>to_json
+    <span style="color:#800000; font-weight:bold; ">end</span>
+
+    before<span style="color:#800000; font-weight:bold; "> do</span>
+      allow<span style="color:#808030; ">(</span>Base64<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to receive<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">strict_encode64</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> <span style="color:#0000e6; ">'base64_encoded_image'</span> <span style="color:#800080; ">}</span>
+    <span style="color:#800000; font-weight:bold; ">end</span>
+
+    it <span style="color:#0000e6; ">'returns the request body'</span><span style="color:#800000; font-weight:bold; "> do</span>
+      expect<span style="color:#808030; ">(</span>subject<span style="color:#808030; ">.</span>body<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to eq body
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  describe <span style="color:#0000e6; ">'#post'</span><span style="color:#800000; font-weight:bold; "> do</span>
+    let<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">response</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> double <span style="color:#800080; ">}</span>
+    let<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">json</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> <span style="color:#0000e6; ">"Hello World"</span><span style="color:#808030; ">.</span>to_json <span style="color:#800080; ">}</span>
+
+    before <span style="color:#800080; ">{</span> allow<span style="color:#808030; ">(</span>response<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to receive<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">body</span><span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> json <span style="color:#800080; ">}</span> <span style="color:#800080; ">}</span>
+
+    it <span style="color:#0000e6; ">'sends a post request'</span><span style="color:#800000; font-weight:bold; "> do</span>
+      expect<span style="color:#808030; ">(</span>HTTPClient<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>to receive<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">post</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>with<span style="color:#808030; ">(</span>
+        described_class<span style="color:#808030; ">::</span>URL<span style="color:#808030; ">,</span>
+        <span style="color:#005fd2; ">body</span>: subject<span style="color:#808030; ">.</span>body<span style="color:#808030; ">,</span>
+        <span style="color:#005fd2; ">header</span>: subject<span style="color:#808030; ">.</span>headers
+      <span style="color:#808030; ">)</span> <span style="color:#800080; ">{</span> response <span style="color:#800080; ">}</span>
+
+      subject<span style="color:#808030; ">.</span>post
+    <span style="color:#800000; font-weight:bold; ">end</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<!--Created using ToHtml.com on 2018-12-24 05:09:52 UTC --><p style="white-space: pre-wrap;">Step 8: And now let’s implement! I’ve dotted out a part of the url for my test app because I am paranoid. You can find this URL on the predict tab of your AutoML project below where we were making test requests. There should be a sample Curl request with the full URL you need to send your post request to. Please note, the URL ends with “:predict.”</p>
+<pre style="color:#000000;background:#ffffff;">require <span style="color:#0000e6; ">'googleauth'</span>
+require <span style="color:#0000e6; ">'httpclient'</span>
+
+<span style="color:#800000; font-weight:bold; ">class</span> Client
+  SCOPE <span style="color:#808030; ">=</span> <span style="color:#0000e6; ">'https://www.googleapis.com/auth/cloud-platform'</span><span style="color:#808030; ">.</span><span style="color:#400000; ">freeze</span>
+  AUTH_FILE_PATH <span style="color:#808030; ">=</span> <span style="color:#0000e6; ">'./secret_authorization.json'</span><span style="color:#808030; ">.</span><span style="color:#400000; ">freeze</span>
+  URL <span style="color:#808030; ">=</span> <span style="color:#0000e6; ">'https://automl.googleapis.com/v1beta1/projects/hot-dog-app-226418/locations/us-central1/models/ICN1498268009069992673:predict'</span><span style="color:#808030; ">.</span><span style="color:#400000; ">freeze</span>
+
+  attr_reader :<span style="color:#005fd2; ">image_path</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> initialize(image_path)
+    @image_path <span style="color:#808030; ">=</span> image_path
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> headers
+    <span style="color:#800080; ">{</span>
+      <span style="color:#0000e6; ">'Content-Type'</span>: <span style="color:#0000e6; ">'application/json'</span><span style="color:#808030; ">,</span>
+      <span style="color:#0000e6; ">'Authorization'</span>: <span style="color:#0000e6; ">"Bearer </span><span style="color:#000000; background:#ffffe8; ">#{google_authentication_token}</span><span style="color:#0000e6; ">"</span>
+    <span style="color:#800080; ">}</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> google_authentication_token
+    authorizer <span style="color:#808030; ">=</span> Google<span style="color:#808030; ">::</span>Auth<span style="color:#808030; ">::</span>ServiceAccountCredentials<span style="color:#808030; ">.</span>make_creds<span style="color:#808030; ">(</span>
+      <span style="color:#005fd2; ">json_key_io</span>: <span style="color:#bb7977; font-weight:bold; ">File</span><span style="color:#808030; ">.</span><span style="color:#400000; ">open</span><span style="color:#808030; ">(</span>AUTH_FILE_PATH<span style="color:#808030; ">)</span><span style="color:#808030; ">,</span>
+      <span style="color:#005fd2; ">scope</span>: SCOPE
+    <span style="color:#808030; ">)</span>
+
+    authorizer<span style="color:#808030; ">.</span>fetch_access_token!<span style="color:#808030; ">[</span><span style="color:#0000e6; ">'access_token'</span><span style="color:#808030; ">]</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> body
+    <span style="color:#800080; ">{</span>
+      <span style="color:#005fd2; ">payload</span>: <span style="color:#800080; ">{</span>
+        <span style="color:#005fd2; ">image</span>: <span style="color:#800080; ">{</span>
+          <span style="color:#005fd2; ">imageBytes</span>: Base64<span style="color:#808030; ">.</span>strict_encode64<span style="color:#808030; ">(</span><span style="color:#400000; ">open</span><span style="color:#808030; ">(</span>image_path<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span><span style="color:#400000; ">read</span><span style="color:#808030; ">)</span>
+        <span style="color:#800080; ">}</span>
+      <span style="color:#800080; ">}</span>
+    <span style="color:#800080; ">}</span><span style="color:#808030; ">.</span>to_json
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> post
+    response <span style="color:#808030; ">=</span> HTTPClient<span style="color:#808030; ">.</span>post<span style="color:#808030; ">(</span>URL<span style="color:#808030; ">,</span> <span style="color:#005fd2; ">body</span>: body<span style="color:#808030; ">,</span> <span style="color:#005fd2; ">header</span>: headers<span style="color:#808030; ">)</span>
+    MultiJson<span style="color:#808030; ">.</span>load<span style="color:#808030; ">(</span>response<span style="color:#808030; ">.</span>body<span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<!--Created using ToHtml.com on 2018-12-24 05:09:22 UTC --><p style="white-space: pre-wrap;">Step 9: Open up pry, require the <code>client.rb</code> file and test your hot dog app in console.</p>
+<pre style="color:#000000;background:#ffffff;"> <span style="color:#808030; ">~</span><span style="color:#0000e6; ">/codes</span><span style="color:#800000; ">/</span>hot_dog_app  pry
+<span style="color:#808030; ">[</span><span style="color:#008c00; ">1</span><span style="color:#808030; ">]</span> pry<span style="color:#808030; ">(</span><span style="color:#400000; ">main</span><span style="color:#808030; ">)</span>&gt; require <span style="color:#0000e6; ">'./lib/client.rb'</span>
+<span style="color:#808030; ">=</span>&gt; <span style="color:#800000; font-weight:bold; ">true</span>
+<span style="color:#808030; ">[</span><span style="color:#008c00; ">2</span><span style="color:#808030; ">]</span> pry<span style="color:#808030; ">(</span><span style="color:#400000; ">main</span><span style="color:#808030; ">)</span>&gt; client <span style="color:#808030; ">=</span> Client<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#0000e6; ">'../../Downloads/pizza.jpg'</span><span style="color:#808030; ">)</span>
+<span style="color:#808030; ">=</span>&gt; <span style="color:#696969; ">#&lt;Client:0x007fd893e9e3c8 @image_path="../../Downloads/pizza.jpg"&gt;</span>
+<span style="color:#808030; ">[</span><span style="color:#008c00; ">3</span><span style="color:#808030; ">]</span> pry<span style="color:#808030; ">(</span><span style="color:#400000; ">main</span><span style="color:#808030; ">)</span>&gt; client<span style="color:#808030; ">.</span>post
+<span style="color:#808030; ">=</span>&gt; <span style="color:#800080; ">{</span><span style="color:#0000e6; ">"payload"</span><span style="color:#808030; ">=</span>&gt;<span style="color:#808030; ">[</span><span style="color:#800080; ">{</span><span style="color:#0000e6; ">"classification"</span><span style="color:#808030; ">=</span>&gt;<span style="color:#800080; ">{</span><span style="color:#0000e6; ">"score"</span><span style="color:#808030; ">=</span>&gt;<span style="color:#008000; ">0.7432721</span><span style="color:#800080; ">}</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">"displayName"</span><span style="color:#808030; ">=</span>&gt;<span style="color:#0000e6; ">"not_hot_dog"</span><span style="color:#800080; ">}</span><span style="color:#808030; ">]</span><span style="color:#800080; ">}</span>
+<span style="color:#808030; ">[</span><span style="color:#008c00; ">4</span><span style="color:#808030; ">]</span> pry<span style="color:#808030; ">(</span><span style="color:#400000; ">main</span><span style="color:#808030; ">)</span>&gt; client <span style="color:#808030; ">=</span> Client<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#0000e6; ">'../../Downloads/hotdogs.jpg'</span><span style="color:#808030; ">)</span>
+<span style="color:#808030; ">=</span>&gt; <span style="color:#696969; ">#&lt;Client:0x007fd893e659b0 @image_path="../../Downloads/hotdogs.jpg"&gt;</span>
+<span style="color:#808030; ">[</span><span style="color:#008c00; ">5</span><span style="color:#808030; ">]</span> pry<span style="color:#808030; ">(</span><span style="color:#400000; ">main</span><span style="color:#808030; ">)</span>&gt; client<span style="color:#808030; ">.</span>post
+<span style="color:#808030; ">=</span>&gt; <span style="color:#800080; ">{</span><span style="color:#0000e6; ">"payload"</span><span style="color:#808030; ">=</span>&gt;<span style="color:#808030; ">[</span><span style="color:#800080; ">{</span><span style="color:#0000e6; ">"classification"</span><span style="color:#808030; ">=</span>&gt;<span style="color:#800080; ">{</span><span style="color:#0000e6; ">"score"</span><span style="color:#808030; ">=</span>&gt;<span style="color:#008000; ">0.9999999</span><span style="color:#800080; ">}</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">"displayName"</span><span style="color:#808030; ">=</span>&gt;<span style="color:#0000e6; ">"hot_dog"</span><span style="color:#800080; ">}</span><span style="color:#808030; ">]</span><span style="color:#800080; ">}</span>
+<span style="color:#808030; ">[</span><span style="color:#008c00; ">6</span><span style="color:#808030; ">]</span> pry<span style="color:#808030; ">(</span><span style="color:#400000; ">main</span><span style="color:#808030; ">)</span>&gt;
+</pre>
+<!--Created using ToHtml.com on 2018-12-24 05:02:45 UTC --><p style="white-space: pre-wrap;">From here you can incorporate your <code>client.rb</code> file into a new or existing Rails app or other Ruby project. You might consider storing these classifications and or displaying them to your user.</p>
+<p style="white-space: pre-wrap;">I hope that you have fun with this exciting new API from our friends at Google. I’m looking forward to see what you create!</p>
+</body></html>

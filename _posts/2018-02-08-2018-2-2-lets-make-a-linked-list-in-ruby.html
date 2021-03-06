@@ -1,0 +1,1784 @@
+---
+layout: post
+title: Let's make a Linked List in Ruby
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '96'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h2>Tutorial: How to Create A Linked List In Ruby</h2>
+<p>The linked list is one of the simplest data structures in computer science. Let's code one in Ruby! We'll be working off of a fun project from the <a href="https://www.turing.io/">Turing School of Software Design</a> curriculum (my code school alma mater). This little <a target="_blank" href="http://backend.turing.io/module1/projects/perilous_journey">dandy</a> is given to students in their first week of programming. Into the fire!</p>
+
+
+ 
+   <iframe src="//www.youtube.com/embed/_jQhALI4ujg?wmode=opaque&amp;enablejsapi=1" height="480" width="854" scrolling="no" frameborder="0" allowfullscreen="">
+</iframe>
+ 
+
+<h3>Step 1: The Node</h3>
+<p>The building block of a linked list is a node. The node will be quite simple – a Node needs to have a slot for some data and a slot for a “next node.” Eventually this next_node position will be what we use to link the multiple nodes together to form the list.</p>
+<p>Let's start by implementing the following behavior:</p>
+<pre style="color:#000000;background:#ffffff;">&gt; require <span style="color:#0000e6; ">"./lib/node"</span>
+&gt; node <span style="color:#808030; ">=</span> Node<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#0000e6; ">"Burke"</span><span style="color:#808030; ">)</span>
+<span style="color:#808030; ">=</span>&gt; &lt;Node @surname<span style="color:#808030; ">=</span><span style="color:#0000e6; ">"Burke"</span> @next_node<span style="color:#808030; ">=</span><span style="color:#800000; font-weight:bold; ">nil</span> <span style="color:#696969; ">#5678904567890&gt;</span>
+&gt; node<span style="color:#808030; ">.</span>surname
+<span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"Burke"</span>
+&gt; node<span style="color:#808030; ">.</span>next_node
+<span style="color:#808030; ">=</span>&gt; <span style="color:#800000; font-weight:bold; ">nil</span>
+</pre>
+<p>In the above example we want to be able to instantiate a new node that will store a surname as our example data. At first, calling next_node should return nil because the node has no child node.</p>
+<p>Time to make some folders and files to house our projcet:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1164px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:18.041236877441406%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517629908556-HPGQBU6FZ71Z8OI8VQZB/ke17ZwdGBToddI8pDm48kPWLq-EyF94UmNcKYO3CrUEUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcEVJgOnLwqOjCYCX1l3GJWOpfx5ztIZ49dYHeSfg9BeUVWNO3dCZSO6HxvhCEdNbH/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517629908556-HPGQBU6FZ71Z8OI8VQZB/ke17ZwdGBToddI8pDm48kPWLq-EyF94UmNcKYO3CrUEUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcEVJgOnLwqOjCYCX1l3GJWOpfx5ztIZ49dYHeSfg9BeUVWNO3dCZSO6HxvhCEdNbH/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517629908556-HPGQBU6FZ71Z8OI8VQZB/ke17ZwdGBToddI8pDm48kPWLq-EyF94UmNcKYO3CrUEUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcEVJgOnLwqOjCYCX1l3GJWOpfx5ztIZ49dYHeSfg9BeUVWNO3dCZSO6HxvhCEdNbH/image-asset.png" data-image-dimensions="1164x210" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5a7531d471c10bcbfb30130a" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>In the above screenshot, I have a project directory called 'perilous_journey' containing two subfolders - /lib and /test. In lib I create a node.rb file and then in test I create a node_test.rb file. </p>
+<p>Next we'll write a test.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># perilous_journy/test/node_test.rb</span>
+require <span style="color:#0000e6; ">'minitest/autorun'</span>
+require <span style="color:#0000e6; ">'minitest/pride'</span>
+require <span style="color:#0000e6; ">'./lib/node.rb'</span>
+
+<span style="color:#800000; font-weight:bold; ">class</span> NodeTest &lt; Minitest<span style="color:#808030; ">::</span>Test
+  <span style="color:#800000; font-weight:bold; ">def</span> test_new_returns_a_node
+    subject <span style="color:#808030; ">=</span> Node<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Burke'</span><span style="color:#808030; ">)</span>
+    assert_instance_of Node<span style="color:#808030; ">,</span> subject
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Here we use minitest to assert that when we call Node.new and pass in the parameter 'Burke' we should get a new instance of a node. Running this test by typing 'ruby test/node_test.rb' will return:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1248px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:38.94230651855469%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517630815273-1RJ4G8DJ1E7KWO16GEC1/ke17ZwdGBToddI8pDm48kC126aBwXYAdemYDwbrpg6IUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcNj0V0K0ZW8h02nWgFMgpgYGsoHJs7fPuvV3XTitV7ACiTtrKp9KWPfYMmg1a2yHp/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517630815273-1RJ4G8DJ1E7KWO16GEC1/ke17ZwdGBToddI8pDm48kC126aBwXYAdemYDwbrpg6IUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcNj0V0K0ZW8h02nWgFMgpgYGsoHJs7fPuvV3XTitV7ACiTtrKp9KWPfYMmg1a2yHp/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517630815273-1RJ4G8DJ1E7KWO16GEC1/ke17ZwdGBToddI8pDm48kC126aBwXYAdemYDwbrpg6IUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcNj0V0K0ZW8h02nWgFMgpgYGsoHJs7fPuvV3XTitV7ACiTtrKp9KWPfYMmg1a2yHp/image-asset.png" data-image-dimensions="1248x486" data-image-focal-point="1.0,0.5" alt="" data-load="false" data-image-id="5a75355f652dea12dfcb77e7" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>The error says that we have an uninitialized constant, so let's create it!</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># perilous_journy/lib/node.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> Node
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>And next we'll run our test.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1286px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:42.768272399902344%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517630863913-4ZW4AH19ATMPF4SS1RSN/ke17ZwdGBToddI8pDm48kCVKv5-era_bZ-ssn56L8S4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKctht6J7lZ_VS6NKdYTqxivK3nNnwBDtSFpAC-8cvIu03PQIan5q_E_P1-iFGlJ03a/Screen+Shot+2018-02-02+at+9.07.18+PM.png" alt="Screen Shot 2018-02-02 at 9.07.18 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517630863913-4ZW4AH19ATMPF4SS1RSN/ke17ZwdGBToddI8pDm48kCVKv5-era_bZ-ssn56L8S4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKctht6J7lZ_VS6NKdYTqxivK3nNnwBDtSFpAC-8cvIu03PQIan5q_E_P1-iFGlJ03a/Screen+Shot+2018-02-02+at+9.07.18+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517630863913-4ZW4AH19ATMPF4SS1RSN/ke17ZwdGBToddI8pDm48kCVKv5-era_bZ-ssn56L8S4UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKctht6J7lZ_VS6NKdYTqxivK3nNnwBDtSFpAC-8cvIu03PQIan5q_E_P1-iFGlJ03a/Screen+Shot+2018-02-02+at+9.07.18+PM.png" data-image-dimensions="1286x550" data-image-focal-point="0.5,0.5" alt="Screen Shot 2018-02-02 at 9.07.18 PM.png" data-load="false" data-image-id="5a75358f24a69434ae1696e9" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>We are still getting an error, but it's an ArgumentError. In our test we are passing in a surname, which now we need to account for in our implementation. When we add the following initialization method our test should pass.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># perilous_journy/lib/node.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> Node
+  <span style="color:#800000; font-weight:bold; ">def</span> initialize(surname)
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Next we'll add a new test right under our first test. In this new test we'll assert that when we call the method 'surname' on our node instance, it should return the name that it was initialized with.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> test_surname_returns_name
+  subject <span style="color:#808030; ">=</span> Node<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Burke'</span><span style="color:#808030; ">)</span>
+  assert_equal <span style="color:#0000e6; ">'Burke'</span><span style="color:#808030; ">,</span> subject<span style="color:#808030; ">.</span>surname
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>When we run this test we get an undefined method error because we have not defined the surname method yet.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1436px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:25.348190307617188%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517631252827-O9M8GKF621JD2JBYQJ8S/ke17ZwdGBToddI8pDm48kAuehktiZgmhb0gaBZrirMIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKc3wHMT8laf6qzrwdnNXdZOza5QUth8UOwz-2parGqXKs2UMVRAIHDiMIAx3atEfjP/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517631252827-O9M8GKF621JD2JBYQJ8S/ke17ZwdGBToddI8pDm48kAuehktiZgmhb0gaBZrirMIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKc3wHMT8laf6qzrwdnNXdZOza5QUth8UOwz-2parGqXKs2UMVRAIHDiMIAx3atEfjP/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517631252827-O9M8GKF621JD2JBYQJ8S/ke17ZwdGBToddI8pDm48kAuehktiZgmhb0gaBZrirMIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKc3wHMT8laf6qzrwdnNXdZOza5QUth8UOwz-2parGqXKs2UMVRAIHDiMIAx3atEfjP/image-asset.png" data-image-dimensions="1436x364" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5a753714085229a6161c03b1" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>We can add this method by first creating an instance variable called surname in our initialization method and setting it equal to the surname string passed in as a parameter. Next we will add an attribute reader so that we can call this attribute as if it was a method. For more on attribute readers, I recommend this helpful <a target="_blank" href="https://stackoverflow.com/questions/5046831/why-use-rubys-attr-accessor-attr-reader-and-attr-writer">stackoverflow post</a>. After implementing the code below, our test will pass.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># perilous_journy/lib/node.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> Node
+  attr_reader :<span style="color:#005fd2; ">surname</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> initialize(surname)
+    @surname <span style="color:#808030; ">=</span> surname
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Next we will write a test asserting that our node is initialized with an empty next node.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> test_next_node_returns_nil
+  subject <span style="color:#808030; ">=</span> Node<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Burke'</span><span style="color:#808030; ">)</span>
+  assert_nil subject<span style="color:#808030; ">.</span>next_node
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Running our test will give us another undefined method error because we have not yet implemented a next_node method.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1814px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:35.28114700317383%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517632047339-TJBBY2KYVL9MHID4YMAG/ke17ZwdGBToddI8pDm48kDrRYIUK85qhAnV5Vp3cBnsUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dtX1xaOWTlKAB0mEFDxjtwW76hNoUJsMpPWo6Pwl9PMMCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517632047339-TJBBY2KYVL9MHID4YMAG/ke17ZwdGBToddI8pDm48kDrRYIUK85qhAnV5Vp3cBnsUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dtX1xaOWTlKAB0mEFDxjtwW76hNoUJsMpPWo6Pwl9PMMCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517632047339-TJBBY2KYVL9MHID4YMAG/ke17ZwdGBToddI8pDm48kDrRYIUK85qhAnV5Vp3cBnsUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dtX1xaOWTlKAB0mEFDxjtwW76hNoUJsMpPWo6Pwl9PMMCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1814x640" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5a753a2f24a69434ae175e4e" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>To fix this error, we'll add another attribute reader, following the same pattern we used for the surname. Running our tests against the code below and we should have a passing test suite.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># perilous_journy/lib/node.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> Node
+  attr_reader :<span style="color:#005fd2; ">surname</span><span style="color:#808030; ">,</span>
+              :<span style="color:#005fd2; ">next_node</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> initialize(surname)
+    @surname <span style="color:#808030; ">=</span> surname
+    @next_node <span style="color:#808030; ">=</span> <span style="color:#800000; font-weight:bold; ">nil</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<h3>Step 2: The LInked List</h3>
+<p>Now that we have a simple node class, we now want to create a linked list with the following behaviors:</p>
+<ul>
+<li>head - the ability to examine the first node in our linked list</li>
+<li>append - the ability to add new nodes to our list</li>
+<li>to_string - the ability to convert our node data into a string</li>
+</ul>
+<pre style="color:#000000;background:#ffffff;">&gt; require <span style="color:#0000e6; ">"./lib/linked_list"</span>
+&gt; <span style="color:#400000; ">list</span> <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+<span style="color:#808030; ">=</span>&gt; &lt;LinkedList @head<span style="color:#808030; ">=</span><span style="color:#800000; font-weight:bold; ">nil</span> <span style="color:#696969; ">#45678904567&gt;</span>
+&gt; <span style="color:#400000; ">list</span><span style="color:#808030; ">.</span>head
+<span style="color:#808030; ">=</span>&gt; <span style="color:#800000; font-weight:bold; ">nil</span>
+&gt; <span style="color:#400000; ">list</span><span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"West"</span><span style="color:#808030; ">)</span>
+<span style="color:#808030; ">=</span>&gt; &lt;Node @surname<span style="color:#808030; ">=</span><span style="color:#0000e6; ">"West"</span> @next_node<span style="color:#808030; ">=</span><span style="color:#800000; font-weight:bold; ">nil</span> <span style="color:#696969; ">#5678904567890&gt;</span>
+&gt; <span style="color:#400000; ">list</span>
+<span style="color:#808030; ">=</span>&gt; &lt;LinkedList @head<span style="color:#808030; ">=</span>&lt;Node @surname<span style="color:#808030; ">=</span><span style="color:#0000e6; ">"West"</span> <span style="color:#808030; ">.</span><span style="color:#808030; ">.</span><span style="color:#808030; ">.</span> &gt; <span style="color:#696969; ">#45678904567&gt;</span>
+&gt; <span style="color:#400000; ">list</span><span style="color:#808030; ">.</span>head<span style="color:#808030; ">.</span>next_node
+<span style="color:#808030; ">=</span>&gt; <span style="color:#800000; font-weight:bold; ">nil</span>
+&gt; <span style="color:#400000; ">list</span><span style="color:#808030; ">.</span><span style="color:#400000; ">count</span>
+<span style="color:#808030; ">=</span>&gt; <span style="color:#008c00; ">1</span>
+&gt; <span style="color:#400000; ">list</span><span style="color:#808030; ">.</span>to_string
+<span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"The West family"</span>
+</pre>
+<p>Let's create two new files to house our new test and linked list class.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1324px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:13.444108963012695%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517632798363-H5PSDKMPJMETM07LXSB2/ke17ZwdGBToddI8pDm48kOcauRqqmBKVHO6yjXFUq54UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcUGzTTpJjQpY_gv813YzekNmO1kcFbxDKJf8j2t6WYZhkKPcxHxkcczDdx30A_qfn/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517632798363-H5PSDKMPJMETM07LXSB2/ke17ZwdGBToddI8pDm48kOcauRqqmBKVHO6yjXFUq54UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcUGzTTpJjQpY_gv813YzekNmO1kcFbxDKJf8j2t6WYZhkKPcxHxkcczDdx30A_qfn/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517632798363-H5PSDKMPJMETM07LXSB2/ke17ZwdGBToddI8pDm48kOcauRqqmBKVHO6yjXFUq54UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcUGzTTpJjQpY_gv813YzekNmO1kcFbxDKJf8j2t6WYZhkKPcxHxkcczDdx30A_qfn/image-asset.png" data-image-dimensions="1324x178" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5a753d1ef9619a31bdf68503" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>We will create a test for new and a test for head.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># perilous_journy/test/linked_list_test.rb</span>
+require <span style="color:#0000e6; ">'minitest/autorun'</span>
+require <span style="color:#0000e6; ">'minitest/pride'</span>
+require <span style="color:#0000e6; ">'./lib/linked_list.rb'</span>
+
+<span style="color:#800000; font-weight:bold; ">class</span> LinkedListTest &lt; Minitest<span style="color:#808030; ">::</span>Test
+  <span style="color:#800000; font-weight:bold; ">def</span> test_new_returns_a_linked_list
+    subject <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+    assert_instance_of LinkedList<span style="color:#808030; ">,</span> subject
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> test_head_returns_nil_when_first_initialized
+    subject <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+    assert_nil subject<span style="color:#808030; ">.</span>head
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Running these two tests will give us an uninitialized constant error.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1650px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:55.6363639831543%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517633027240-XH3A9W2PV70P9Z184J0Q/ke17ZwdGBToddI8pDm48kKbFcymPN6CJEyU9PZcz2V8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dh16R8xqtq_kI3zCdd8EpkBqSU67bo4g1Kdo9pL24auNCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517633027240-XH3A9W2PV70P9Z184J0Q/ke17ZwdGBToddI8pDm48kKbFcymPN6CJEyU9PZcz2V8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dh16R8xqtq_kI3zCdd8EpkBqSU67bo4g1Kdo9pL24auNCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517633027240-XH3A9W2PV70P9Z184J0Q/ke17ZwdGBToddI8pDm48kKbFcymPN6CJEyU9PZcz2V8UqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dh16R8xqtq_kI3zCdd8EpkBqSU67bo4g1Kdo9pL24auNCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1650x918" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5a753e0324a69434ae17fb3f" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>We can define our linked list following a similar pattern used by our node. The linked list initialization method will not take any parameters, but it will initialize an @head instance variable with the value nil. Implementing the following code should pass our two latest tests.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># perilous_journy/lib/linked_list.rb</span>
+require <span style="color:#0000e6; ">'./lib/node'</span>
+
+<span style="color:#800000; font-weight:bold; ">class</span> LinkedList
+  attr_reader :<span style="color:#005fd2; ">head</span>
+  <span style="color:#800000; font-weight:bold; ">def</span> initialize
+    @head <span style="color:#808030; ">=</span> <span style="color:#800000; font-weight:bold; ">nil</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Now let's write a test that we can append new nodes to our linked list. we want to assert that the append method returns a node with the surname that we give as a parameter to append. We also want to assert that the new node has been stored in the head of our linked list.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> test_append_adds_new_node_to_end_of_list
+  subject <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+
+  result <span style="color:#808030; ">=</span> subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'West'</span><span style="color:#808030; ">)</span>
+
+  assert_instance_of Node<span style="color:#808030; ">,</span> result
+  assert_equal <span style="color:#0000e6; ">'West'</span><span style="color:#808030; ">,</span> result<span style="color:#808030; ">.</span>surname
+  assert_equal result<span style="color:#808030; ">,</span> subject<span style="color:#808030; ">.</span>head
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>When we run this test we'll get an undefined method error because we have not yet implemented an append method.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1736px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:15.8986177444458%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517633700306-T1TCJVRMSI5U3WKBKDSS/ke17ZwdGBToddI8pDm48kE3bQu2pqs1sgV7NN2wd9wwUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2du7kmzhbnuAqVV1D5Fnm4Zzn4IGgkHzD4eRjbWD6HWnrCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517633700306-T1TCJVRMSI5U3WKBKDSS/ke17ZwdGBToddI8pDm48kE3bQu2pqs1sgV7NN2wd9wwUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2du7kmzhbnuAqVV1D5Fnm4Zzn4IGgkHzD4eRjbWD6HWnrCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517633700306-T1TCJVRMSI5U3WKBKDSS/ke17ZwdGBToddI8pDm48kE3bQu2pqs1sgV7NN2wd9wwUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2du7kmzhbnuAqVV1D5Fnm4Zzn4IGgkHzD4eRjbWD6HWnrCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1736x276" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5a7540a471c10bcbfb327f64" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>To fix this, we will define an append method that takes in a string name parameter, creates a new node and stores it in our linked list's head. We will change our attr_reader to an attr_accessor (see above stackoverflow link for additional information) so that we can read and write to the @head instance variable. Running the following code will pass our latest test. Notice that we have to use self.head for the attr_accessor to write correctly. In this case, self refers to the instance of the linked list.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># perilous_journy/lib/linked_list.rb</span>
+require <span style="color:#0000e6; ">'./lib/node'</span>
+
+<span style="color:#800000; font-weight:bold; ">class</span> LinkedList
+  attr_accessor :<span style="color:#005fd2; ">head</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> initialize
+    @head <span style="color:#808030; ">=</span> <span style="color:#800000; font-weight:bold; ">nil</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> append(surname)
+    <span style="color:#800000; font-weight:bold; ">self</span><span style="color:#808030; ">.</span>head <span style="color:#808030; ">=</span> Node<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span>surname<span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Now it is time to write a test for what will be our count method. The count method should return 0 when there is an empty list, and 1 when there is a node in the head of our list.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> test_count_returns_zero_for_empty_list
+  subject <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+  assert_equal <span style="color:#008c00; ">0</span><span style="color:#808030; ">,</span> subject<span style="color:#808030; ">.</span><span style="color:#400000; ">count</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">def</span> test_count_returns_one_for_list_with_one_node
+  subject <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'West'</span><span style="color:#808030; ">)</span>
+
+  assert_equal <span style="color:#008c00; ">1</span><span style="color:#808030; ">,</span> subject<span style="color:#808030; ">.</span><span style="color:#400000; ">count</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Running these two new tests will give as an undefined method error for each test.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1724px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:12.29698371887207%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517634543989-LELE1TDS5Y3CT85ZO90G/ke17ZwdGBToddI8pDm48kC22M0VI9fX6ikNXey9o2ugUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dsM932uja-g9N0OWMbAFmdeMs1_x4yMq4kgleeKMVu7SCjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517634543989-LELE1TDS5Y3CT85ZO90G/ke17ZwdGBToddI8pDm48kC22M0VI9fX6ikNXey9o2ugUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dsM932uja-g9N0OWMbAFmdeMs1_x4yMq4kgleeKMVu7SCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517634543989-LELE1TDS5Y3CT85ZO90G/ke17ZwdGBToddI8pDm48kC22M0VI9fX6ikNXey9o2ugUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dsM932uja-g9N0OWMbAFmdeMs1_x4yMq4kgleeKMVu7SCjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1724x212" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5a7543efe2c4831a616466f6" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>For the purpose of developing in small bite sized chunks - which I think is one of the most important skills for new developers, let's take these tests as literally as possible and avoid jumping into implementing a while loop or recursion for just a few more steps.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> count
+<span style="color:#800000; font-weight:bold; ">  if</span> head<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">nil</span>?
+    <span style="color:#008c00; ">0</span>
+  <span style="color:#800000; font-weight:bold; ">else</span>
+    <span style="color:#008c00; ">1</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The above method will pass the tests that we've written so far, but is not a true count implementation. We'll get there!</p>
+<p>For now, let's just pound out a simple to_string method that will take the data in our linked list and concatenate it into a string.</p>
+<p>First our test will assert that when we call to_string on our list, we will get a full sentence response.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> test_to_string_returns_correct_sentence_when_one_node_present
+  subject <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'West'</span><span style="color:#808030; ">)</span>
+
+  result <span style="color:#808030; ">=</span> subject<span style="color:#808030; ">.</span>to_string
+
+  assert_equal <span style="color:#0000e6; ">'The West family'</span><span style="color:#808030; ">,</span> result
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Running this test will give us an undefined method error so it is now time to implement our to_string method.</p>
+<p>Taking the most literal approach to passing this test, we can get away with something like:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> to_string
+  <span style="color:#0000e6; ">"The </span><span style="color:#000000; background:#ffffe8; ">#{head</span><span style="color:#808030; background:#ffffe8; ">.</span><span style="color:#000000; background:#ffffe8; ">surname}</span><span style="color:#0000e6; "> family"</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The purpose for these simple implementations is just to take bite sized chunks out of our link list challenge at a time. Next we'll move into some tougher ground. For now let's celebrate how far we have come by opening a pry session in terminal and flex our linked list implementation.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2204px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:35.11796569824219%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517635420978-BUOH3TNG73F8SON2EKZR/ke17ZwdGBToddI8pDm48kCRD3eIdSnT2iYi8YgKxzPQUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dsCjsV_DolO-D35LVEBOuTZyq8yKsduU7XAg3UNShPY5CjLISwBs8eEdxAxTptZAUg/Screen+Shot+2018-02-02+at+10.22.57+PM.png" alt="Screen Shot 2018-02-02 at 10.22.57 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517635420978-BUOH3TNG73F8SON2EKZR/ke17ZwdGBToddI8pDm48kCRD3eIdSnT2iYi8YgKxzPQUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dsCjsV_DolO-D35LVEBOuTZyq8yKsduU7XAg3UNShPY5CjLISwBs8eEdxAxTptZAUg/Screen+Shot+2018-02-02+at+10.22.57+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517635420978-BUOH3TNG73F8SON2EKZR/ke17ZwdGBToddI8pDm48kCRD3eIdSnT2iYi8YgKxzPQUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dsCjsV_DolO-D35LVEBOuTZyq8yKsduU7XAg3UNShPY5CjLISwBs8eEdxAxTptZAUg/Screen+Shot+2018-02-02+at+10.22.57+PM.png" data-image-dimensions="2204x774" data-image-focal-point="0.5,0.5" alt="Screen Shot 2018-02-02 at 10.22.57 PM.png" data-load="false" data-image-id="5a75475c9140b78298cb7a7b" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<h3>Step 3: Multiple Nodes</h3>
+<p>Our linked list is not doing much good for us because at this point it can only store one node. Time to remedy that! Let's first test that we can append multiple nodes to our list.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> test_append_two_nodes
+  subject <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Rhodes'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Hardy'</span><span style="color:#808030; ">)</span>
+
+  result <span style="color:#808030; ">=</span> subject<span style="color:#808030; ">.</span>head<span style="color:#808030; ">.</span>next_node<span style="color:#808030; ">.</span>surname
+
+  assert_equal <span style="color:#0000e6; ">'Hardy'</span><span style="color:#808030; ">,</span> result
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Running this test we get undefined method surname, which is odd because our node has a surname and we have a test to prove it. Let's use a binding.pry right after our second append and before our result in our test so that we can pause our test run and see what is happening. Before running our test let's <strong>remember</strong> to add require 'pry' at the top of our test file.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> test_append_two_nodes
+  subject <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Rhodes'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Hardy'</span><span style="color:#808030; ">)</span>
+  <span style="color:#400000; ">binding</span><span style="color:#808030; ">.</span>pry
+  result <span style="color:#808030; ">=</span> subject<span style="color:#808030; ">.</span>head<span style="color:#808030; ">.</span>next_node<span style="color:#808030; ">.</span>surname
+
+  assert_equal <span style="color:#0000e6; ">'Hardy'</span><span style="color:#808030; ">,</span> result
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>When we run our test it will pause and give us the power to step through the code like so:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2500px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:41.560001373291016%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517635970670-DHFK60WHWK6ONT4K6P53/ke17ZwdGBToddI8pDm48kOjQguguee9wKVp-mJA4Fy97gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mkPpyi1Bz2to4k3qr62nuF-KWD2syDtsL7QxwVl1MuubOwzKBHsQOuTFLWfztBBOw/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517635970670-DHFK60WHWK6ONT4K6P53/ke17ZwdGBToddI8pDm48kOjQguguee9wKVp-mJA4Fy97gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mkPpyi1Bz2to4k3qr62nuF-KWD2syDtsL7QxwVl1MuubOwzKBHsQOuTFLWfztBBOw/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517635970670-DHFK60WHWK6ONT4K6P53/ke17ZwdGBToddI8pDm48kOjQguguee9wKVp-mJA4Fy97gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z4YTzHvnKhyp6Da-NYroOW3ZGjoBKy3azqku80C789l0mkPpyi1Bz2to4k3qr62nuF-KWD2syDtsL7QxwVl1MuubOwzKBHsQOuTFLWfztBBOw/image-asset.png" data-image-dimensions="2500x1039" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5a754982e4966bf9ce218adb" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>As we can see, the second append call completely over wrote the first append rather than actually adding the 'Hardy' node as the next node on the original 'Rhodes' node.</p>
+<p>Let's take a quick detour back to our node class. We are going to want to add tests and implementation for two behaviors that will help us get our linked list append method just right.</p>
+<p>We want the node to be able to report back to the list if it is the tail of the list. In other words, if the node does not have a next node, it is at the end of the list. At issue here is the notion of encapsulation and separation of concerns. Rather than reaching into the Node to determine if the next node is nil, our linked list will just nicely ask the node, 'Hey, Node, are you the tail?'</p>
+<p>We also want to make sure that we can set the next_node to be a new node.</p>
+<p>Let's write some tests (this is back in the node_test.rb file).</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> test_tail_returns_true_if_next_node_is_nil
+  subject <span style="color:#808030; ">=</span> Node<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Burke'</span><span style="color:#808030; ">)</span>
+  assert_equal subject<span style="color:#808030; ">.</span>tail?<span style="color:#808030; ">,</span> <span style="color:#800000; font-weight:bold; ">true</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">def</span> test_next_node_can_change_node_state
+  subject <span style="color:#808030; ">=</span> Node<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Burke'</span><span style="color:#808030; ">)</span>
+  data <span style="color:#808030; ">=</span> <span style="color:#0000e6; ">'pants'</span>
+
+  subject<span style="color:#808030; ">.</span>next_node <span style="color:#808030; ">=</span> data
+  result <span style="color:#808030; ">=</span> subject<span style="color:#808030; ">.</span>next_node
+
+  assert_equal data<span style="color:#808030; ">,</span> result
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>In the above code we assert that when we call tail? on a node that has no next node it should return true. Next we test that we can set our node's next_node to be some type of data. I used the word 'pants' to signify that this variable's data does not actually matter. The use of the word pants originates from a <a href="https://twitter.com/searls">Justin Searls</a> conference talk. Typically the next_node would be set to be an actual node and not the string 'pants', but for the purpose of unit testing the node object it seems unnecessary to actually create a second node.</p>
+<p>To get these tests to pass, we can make two changes to our code. First we need to move next_node from our attr_reader to an attr_accessor. This will allow us to both get and set the next node.</p>
+<p>Next we need to define our tail? method. Implementing the following code will pass the latest two node tests.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># perilous_journy/lib/node.rb</span>
+<span style="color:#800000; font-weight:bold; ">class</span> Node
+  attr_reader :<span style="color:#005fd2; ">surname</span>
+  attr_accessor :<span style="color:#005fd2; ">next_node</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> initialize(surname)
+    @surname <span style="color:#808030; ">=</span> surname
+    @next_node <span style="color:#808030; ">=</span> <span style="color:#800000; font-weight:bold; ">nil</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> tail?
+    next_node<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">nil</span>?
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Now, back at our linked list it is time to append new nodes properly. In order to append, we are going to need our linked list to be able to quickly get us the last node in a list. Let's write a test for this behavior:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> test_last_node_returns_the_tail
+  subject <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Rhodes'</span><span style="color:#808030; ">)</span>
+
+  result <span style="color:#808030; ">=</span> subject<span style="color:#808030; ">.</span>last_node<span style="color:#808030; ">(</span>subject<span style="color:#808030; ">.</span>head<span style="color:#808030; ">)</span>
+
+  assert_instance_of Node<span style="color:#808030; ">,</span> result
+  assert_equal <span style="color:#0000e6; ">'Rhodes'</span><span style="color:#808030; ">,</span> result<span style="color:#808030; ">.</span>surname
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Currently our append can handle adding one node to our list. So whatever node we last append should be returned by the last_node. I also want to make this method a bit more flexible for down the road. As a result, this method will take an argument of a starting node. Typically we'll start at the head, but as we go on to implement recursion, the starting node will recurse over the entire linked list of nodes.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1586px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:18.78940773010254%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517690091613-QF5W7VVJ354OVCCOGWJR/ke17ZwdGBToddI8pDm48kHkDV7Vkj0D-3yFj-t7cr-oUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dpMADl7st2Zdo5z1k5HBXc4G1tBHfFhy6-c3QirTxFN7CjLISwBs8eEdxAxTptZAUg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517690091613-QF5W7VVJ354OVCCOGWJR/ke17ZwdGBToddI8pDm48kHkDV7Vkj0D-3yFj-t7cr-oUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dpMADl7st2Zdo5z1k5HBXc4G1tBHfFhy6-c3QirTxFN7CjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517690091613-QF5W7VVJ354OVCCOGWJR/ke17ZwdGBToddI8pDm48kHkDV7Vkj0D-3yFj-t7cr-oUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dpMADl7st2Zdo5z1k5HBXc4G1tBHfFhy6-c3QirTxFN7CjLISwBs8eEdxAxTptZAUg/image-asset.png" data-image-dimensions="1586x298" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5a761cebc830259c53a2f560" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>In our linked list class let's add the following implementation.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> last_node(node)
+  <span style="color:#800000; font-weight:bold; ">return</span> node <span style="color:#800000; font-weight:bold; ">if</span> node<span style="color:#808030; ">.</span>tail?
+  last_node<span style="color:#808030; ">(</span>node<span style="color:#808030; ">.</span>next_node<span style="color:#808030; ">)</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The first line says return the node passed in as the node argument if this node is the tail node. Here we leverage the method we just added to the node class. If node.tail? is true, then by definition that node must be the last node.</p>
+<p>Now, here's the recursive part. If the node we are starting at is not the tail of the linked list we move to the next line in which we call the method we are currently in (last_node) and pass it the argument of node.next_node.</p>
+<p>In your mind's eye try to imagine the next step. We have the second node in our linked list (node.next_node) as the input for our last_node method call. If this node is the tail, our method will return it up the call stack and our original call of last_node will return the node that responds true to node.tail? </p>
+<p>Our last_node test should be passing with the above code, but our append two test is broken.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1208px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:29.470199584960938%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517690660812-TSY3TC6OOJLD8JY5OGMT/ke17ZwdGBToddI8pDm48kImNsLBxPohZrOze0xTjfagUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcaI2TrqzoqFIEK4ifn5dLLo0BzBOnwH_JQA_nCn48v90cG8OWf0SQYcjCA18zFbJO/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517690660812-TSY3TC6OOJLD8JY5OGMT/ke17ZwdGBToddI8pDm48kImNsLBxPohZrOze0xTjfagUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcaI2TrqzoqFIEK4ifn5dLLo0BzBOnwH_JQA_nCn48v90cG8OWf0SQYcjCA18zFbJO/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517690660812-TSY3TC6OOJLD8JY5OGMT/ke17ZwdGBToddI8pDm48kImNsLBxPohZrOze0xTjfagUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcaI2TrqzoqFIEK4ifn5dLLo0BzBOnwH_JQA_nCn48v90cG8OWf0SQYcjCA18zFbJO/image-asset.png" data-image-dimensions="1208x356" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5a761f240d929789ffe2be11" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Before we jump back into append, we are going to want another helper method. In the case that our list is empty, we'll just use the implementation that we currently have in append. To do so, let's write a test that will assert that when we call .empty? on an empty linked list, we get true. The same method should return false if the linked list has one or more nodes.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> test_empty_returns_true_when_head_is_nil
+  subject <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+  assert_equal <span style="color:#800000; font-weight:bold; ">true</span><span style="color:#808030; ">,</span> subject<span style="color:#808030; ">.</span><span style="color:#400000; ">empty?</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">def</span> test_empty_returns_false_when_head_is_not_nil
+  subject <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Rhodes'</span><span style="color:#808030; ">)</span>
+
+  assert_equal <span style="color:#800000; font-weight:bold; ">false</span><span style="color:#808030; ">,</span> subject<span style="color:#808030; ">.</span><span style="color:#400000; ">empty?</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The implementation to get these two tests to pass is just to check whether or not the @head instance variable is nil. The following code will pass both of these tests:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> empty?
+  head<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">nil</span>?
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Now we have what we need to go back into our append method. For these types of problems, I think it is helpful to try to say in words exactly what we want to have happen. Pseudocoding is also useful. </p>
+<ul dir="ltr">
+<li>Create a new node with the input string - list.append('Rhodes')</li>
+<li>Check if the linked list is empty</li>
+<li>If it is empty, assign the new node to the head of the list</li>
+<li>If it is not empty, find the last_node in the list</li>
+<li>Assign the last_node's next node to be our new node</li>
+</ul>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> append(surname)
+  node <span style="color:#808030; ">=</span> Node<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span>surname<span style="color:#808030; ">)</span>
+<span style="color:#800000; font-weight:bold; ">  if</span> <span style="color:#400000; ">empty?</span>
+    <span style="color:#800000; font-weight:bold; ">self</span><span style="color:#808030; ">.</span>head <span style="color:#808030; ">=</span> node
+  <span style="color:#800000; font-weight:bold; ">else</span>
+    last_node<span style="color:#808030; ">(</span>head<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>next_node <span style="color:#808030; ">=</span> node
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The above implementation gets our tests all passing. Now let's clean it up just a smidge. There are really two things going on in this method - the creation of a new node and then adding it to the linked list. We should strive to write methods that do one thing, so let's pull the node creation functionality out into its own first class method. First a test:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> test_new_node_returns_a_new_node
+  subject <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+
+  result <span style="color:#808030; ">=</span> subject<span style="color:#808030; ">.</span>new_node<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Rhodes'</span><span style="color:#808030; ">)</span>
+
+  assert_instance_of Node<span style="color:#808030; ">,</span> result
+  assert_equal <span style="color:#0000e6; ">'Rhodes'</span><span style="color:#808030; ">,</span> result<span style="color:#808030; ">.</span>surname
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Running this test get's us an undefined method error, so let's implement a method that will return a new node for us.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> new_node(surname)
+  Node<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span>surname<span style="color:#808030; ">)</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Now we can refactor our append method to look something like this:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> append(surname)
+<span style="color:#800000; font-weight:bold; ">  if</span> <span style="color:#400000; ">empty?</span>
+    <span style="color:#800000; font-weight:bold; ">self</span><span style="color:#808030; ">.</span>head <span style="color:#808030; ">=</span> new_node<span style="color:#808030; ">(</span>surname<span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">else</span>
+    last_node<span style="color:#808030; ">(</span>head<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>next_node <span style="color:#808030; ">=</span> new_node<span style="color:#808030; ">(</span>surname<span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>There is still a little bit we could DRY up in the above method. Let's extract setting the head and tail, the two branches of our conditional, into their own private methods. Private methods are used internally on the instance, and are tested indirectly already so we do not need to write an additional test for either of these two methods.</p>
+<pre style="color:#000000;background:#ffffff;">private
+
+  <span style="color:#800000; font-weight:bold; ">def</span> set_head(surname)
+    <span style="color:#800000; font-weight:bold; ">self</span><span style="color:#808030; ">.</span>head <span style="color:#808030; ">=</span> new_node<span style="color:#808030; ">(</span>surname<span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+
+  <span style="color:#800000; font-weight:bold; ">def</span> set_tail(surname)
+    last_node<span style="color:#808030; ">(</span>head<span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>next_node <span style="color:#808030; ">=</span> new_node<span style="color:#808030; ">(</span>surname<span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+en
+</pre>
+<p>Using these private methods, we now can refactor append to look like this:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> append(surname)
+<span style="color:#800000; font-weight:bold; ">  if</span> <span style="color:#400000; ">empty?</span>
+    set_head<span style="color:#808030; ">(</span>surname<span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">else</span>
+    set_tail<span style="color:#808030; ">(</span>surname<span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>And because I'm a fan of one line methods, let's use a ternary statement to short the above code to:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> append(surname)
+  <span style="color:#400000; ">empty?</span> ? set_head<span style="color:#808030; ">(</span>surname<span style="color:#808030; ">)</span> : set_tail<span style="color:#808030; ">(</span>surname<span style="color:#808030; ">)</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Glorious. And just for our own personal edification, we'll write a test to confirm that our append method can append three nodes, which will pass without any additional implementation.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> test_append_three_nodes
+  subject <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Rhodes'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Hardy'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Smith'</span><span style="color:#808030; ">)</span>
+
+  result <span style="color:#808030; ">=</span> subject<span style="color:#808030; ">.</span>head<span style="color:#808030; ">.</span>next_node<span style="color:#808030; ">.</span>next_node<span style="color:#808030; ">.</span>surname
+
+  assert_equal <span style="color:#0000e6; ">'Smith'</span><span style="color:#808030; ">,</span> result
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<h3>Step 4: Count For Real</h3>
+<p>Let's return to our count method and now get it working such that it actually counts each node. To do so we can set up a linked list just like we did in the most recently added test and assert that our count should equal three. This test will fail because our current implementation should only return a 1. Here's that current implementation:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> count
+<span style="color:#800000; font-weight:bold; ">  if</span> head<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">nil</span>?
+    <span style="color:#008c00; ">0</span>
+  <span style="color:#800000; font-weight:bold; ">else</span>
+    <span style="color:#008c00; ">1</span>
+  <span style="color:#800000; font-weight:bold; ">end</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>And here's the test to break it:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> test_count_three_nodes
+  subject <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Rhodes'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Hardy'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Smith'</span><span style="color:#808030; ">)</span>
+
+  result <span style="color:#808030; ">=</span> subject<span style="color:#808030; ">.</span><span style="color:#400000; ">count</span>
+
+  assert_equal <span style="color:#008c00; ">3</span><span style="color:#808030; ">,</span> result
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1438px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:26.42559051513672%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517692578735-SQ0WFMKSV6NVQHV2N5U7/ke17ZwdGBToddI8pDm48kLipXeCEVawKN2ulMZvTSxoUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKckarMZ_cXJP8fxd9yGPgTJr5e4eSCmfAxc5H78hP0xBjfzA8VYzqA59npVldSxtQ-/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517692578735-SQ0WFMKSV6NVQHV2N5U7/ke17ZwdGBToddI8pDm48kLipXeCEVawKN2ulMZvTSxoUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKckarMZ_cXJP8fxd9yGPgTJr5e4eSCmfAxc5H78hP0xBjfzA8VYzqA59npVldSxtQ-/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517692578735-SQ0WFMKSV6NVQHV2N5U7/ke17ZwdGBToddI8pDm48kLipXeCEVawKN2ulMZvTSxoUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKckarMZ_cXJP8fxd9yGPgTJr5e4eSCmfAxc5H78hP0xBjfzA8VYzqA59npVldSxtQ-/image-asset.png" data-image-dimensions="1438x380" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5a7626a2085229a616403a7d" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>Similar to our append method we are going to need the additional help of a count method that we can call recursively. Since this method will only be called inside of our count method we can make it private. I have in mind a method that takes in a counter and a node. The counter is an integer to keep track of how many nodes we've counted. The node is the current node to count.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> count_node(node, counter)
+  <span style="color:#800000; font-weight:bold; ">return</span> counter <span style="color:#800000; font-weight:bold; ">if</span> node<span style="color:#808030; ">.</span>tail?
+  count_node<span style="color:#808030; ">(</span>node<span style="color:#808030; ">.</span>next_node<span style="color:#808030; ">,</span> counter <span style="color:#808030; ">+</span><span style="color:#808030; ">=</span> <span style="color:#008c00; ">1</span><span style="color:#808030; ">)</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>If the node is the tail of our list, return the counter. Otherwise, call count node, but pass in the next node and increment the counter. So if we start at the head and give the counter a 1 to start from (because if the node is not empty, there is at least one node) and discover that the head is also the tail of our list, this method will return the counter, a 1. Otherwise it will move to the next node in the list, increment the counter to two and run the check again. If this second node is in fact the tail, we'll get the counter returned, which will be two.</p>
+<p>Let's use this private count_node method in our count method:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> count
+  <span style="color:#800000; font-weight:bold; ">return</span> <span style="color:#008c00; ">0</span> <span style="color:#800000; font-weight:bold; ">if</span> <span style="color:#400000; ">empty?</span>
+  count_node<span style="color:#808030; ">(</span>head<span style="color:#808030; ">,</span> <span style="color:#008c00; ">1</span><span style="color:#808030; ">)</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Our count method will return 0 if the linked list is empty, otherwise it will call the count_node private method, passing in the head as the node parameter and the integer 1 as the counter. This will pass our tests!</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:442px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:36.65158462524414%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517693809992-DPR9HA6B4TWYI10ACFPM/ke17ZwdGBToddI8pDm48kOrMyEj0anZeJVoP_jGSQbJZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVEuyRN93gcgZWCiqWZrFY3YQReg3V4sBoy26ymNYIET8qQvevUbj177dmcMs1F0H-0/Screen+Shot+2018-02-03+at+2.36.36+PM.png" alt="Screen Shot 2018-02-03 at 2.36.36 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517693809992-DPR9HA6B4TWYI10ACFPM/ke17ZwdGBToddI8pDm48kOrMyEj0anZeJVoP_jGSQbJZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVEuyRN93gcgZWCiqWZrFY3YQReg3V4sBoy26ymNYIET8qQvevUbj177dmcMs1F0H-0/Screen+Shot+2018-02-03+at+2.36.36+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517693809992-DPR9HA6B4TWYI10ACFPM/ke17ZwdGBToddI8pDm48kOrMyEj0anZeJVoP_jGSQbJZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVEuyRN93gcgZWCiqWZrFY3YQReg3V4sBoy26ymNYIET8qQvevUbj177dmcMs1F0H-0/Screen+Shot+2018-02-03+at+2.36.36+PM.png" data-image-dimensions="442x162" data-image-focal-point="0.5,0.5" alt="Screen Shot 2018-02-03 at 2.36.36 PM.png" data-load="false" data-image-id="5a762b71085229a6164158a3" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<h3>Step 5: To STring for Real</h3>
+<p>We've handled append properly. We've recursively counted our nodes. Now it's time to get our to_string method working as intended. Our desired behavior is that if we append three nodes onto our list with names 'Rhodes, Hardy, and Smith' and call to String we should get:</p>
+<p>`=&gt; "The rhodes family, followed by the Hardy family, followed by the Smith family"</p>
+<p>Let's write our test and get started!</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> test_to_string_works_with_three_nodes
+  subject <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Rhodes'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Hardy'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Smith'</span><span style="color:#808030; ">)</span>
+  expected <span style="color:#808030; ">=</span> <span style="color:#0000e6; ">'The Rhodes family, followed by the Hardy family, followed by the Smith family'</span>
+
+  result <span style="color:#808030; ">=</span> subject<span style="color:#808030; ">.</span>to_string
+
+  assert_equal expected<span style="color:#808030; ">,</span> result
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Our current to_string implementation does not pass this new test:</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:1726px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:30.590959548950195%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517694138672-MGW2J59VKFUHL4O8J967/ke17ZwdGBToddI8pDm48kG8j6leJ6f4jXs_mKo6aD3wUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dl7kJkSnWgVDWdVOzoYj8Q0LlYdu_EKULdvscm0yaNcNCjLISwBs8eEdxAxTptZAUg/Screen+Shot+2018-02-03+at+2.41.47+PM.png" alt="Screen Shot 2018-02-03 at 2.41.47 PM.png"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517694138672-MGW2J59VKFUHL4O8J967/ke17ZwdGBToddI8pDm48kG8j6leJ6f4jXs_mKo6aD3wUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dl7kJkSnWgVDWdVOzoYj8Q0LlYdu_EKULdvscm0yaNcNCjLISwBs8eEdxAxTptZAUg/Screen+Shot+2018-02-03+at+2.41.47+PM.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517694138672-MGW2J59VKFUHL4O8J967/ke17ZwdGBToddI8pDm48kG8j6leJ6f4jXs_mKo6aD3wUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYy7Mythp_T-mtop-vrsUOmeInPi9iDjx9w8K4ZfjXt2dl7kJkSnWgVDWdVOzoYj8Q0LlYdu_EKULdvscm0yaNcNCjLISwBs8eEdxAxTptZAUg/Screen+Shot+2018-02-03+at+2.41.47+PM.png" data-image-dimensions="1726x528" data-image-focal-point="0.5,0.5" alt="Screen Shot 2018-02-03 at 2.41.47 PM.png" data-load="false" data-image-id="5a762cba71c10bcbfb56930b" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<p>We can follow our recursive pattern yet again. First let's start with a simple private concat method that we will use to add sentence fragments together.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> concat(sentence, node)
+  <span style="color:#0000e6; ">"</span><span style="color:#000000; background:#ffffe8; ">#{sentence}</span><span style="color:#0000e6; ">, followed by the </span><span style="color:#000000; background:#ffffe8; ">#{node</span><span style="color:#808030; background:#ffffe8; ">.</span><span style="color:#000000; background:#ffffe8; ">surname}</span><span style="color:#0000e6; "> family"</span>
+en
+</pre>
+<p>This concat method takes in a sentence and a node. It concatenates ", followed by the &lt;node.surname&gt;" onto the passed in string.</p>
+<p>Next let's add a stringify_node private method that we can call recursively from within our to_string method.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> stringify_node(node, sentence)
+  <span style="color:#800000; font-weight:bold; ">return</span> <span style="color:#400000; ">concat</span><span style="color:#808030; ">(</span>sentence<span style="color:#808030; ">,</span> node<span style="color:#808030; ">)</span> <span style="color:#800000; font-weight:bold; ">if</span> node<span style="color:#808030; ">.</span>tail?
+  stringify_node<span style="color:#808030; ">(</span>node<span style="color:#808030; ">.</span>next_node<span style="color:#808030; ">,</span> <span style="color:#400000; ">concat</span><span style="color:#808030; ">(</span>sentence<span style="color:#808030; ">,</span> node<span style="color:#808030; ">)</span><span style="color:#808030; ">)</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>This method will take in a node and a sentence string. It will concat the passed in node to the passed in sentence if this is the last node. Otherwise, we will recursively call stringify_node and pass in the next node as well as an updated sentence that has the current node concatenated onto the end.</p>
+<p>Since the start of our sentence string is a little different than the string concatenated for subsequent nodes, we can extract that bit into it's very own private method like this:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> sentence_starter
+  <span style="color:#0000e6; ">"The </span><span style="color:#000000; background:#ffffe8; ">#{head</span><span style="color:#808030; background:#ffffe8; ">.</span><span style="color:#000000; background:#ffffe8; ">surname}</span><span style="color:#0000e6; "> family"</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Backing out to the public to_string method we can put all these pieces together and go with something like this:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> to_string
+  <span style="color:#800000; font-weight:bold; ">return</span> <span style="color:#0000e6; ">""</span> <span style="color:#800000; font-weight:bold; ">if</span> <span style="color:#400000; ">empty?</span>
+  <span style="color:#800000; font-weight:bold; ">return</span> sentence_starter <span style="color:#800000; font-weight:bold; ">if</span> head<span style="color:#808030; ">.</span>tail?
+  stringify_node<span style="color:#808030; ">(</span>head<span style="color:#808030; ">.</span>next_node<span style="color:#808030; ">,</span> sentence_starter<span style="color:#808030; ">)</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2120px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:63.11320495605469%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517695686657-XOGS3JN42MB8E0V0QRUP/ke17ZwdGBToddI8pDm48kH35g1cXVGHV1d2XQjCrcX57gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UQSPQIvCuC2SfybXArSo8-WREmEvB4Yx0Xqxq6BlLdCYm7cT0R_dexc_UL_zbpz6JQ/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517695686657-XOGS3JN42MB8E0V0QRUP/ke17ZwdGBToddI8pDm48kH35g1cXVGHV1d2XQjCrcX57gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UQSPQIvCuC2SfybXArSo8-WREmEvB4Yx0Xqxq6BlLdCYm7cT0R_dexc_UL_zbpz6JQ/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1517695686657-XOGS3JN42MB8E0V0QRUP/ke17ZwdGBToddI8pDm48kH35g1cXVGHV1d2XQjCrcX57gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UQSPQIvCuC2SfybXArSo8-WREmEvB4Yx0Xqxq6BlLdCYm7cT0R_dexc_UL_zbpz6JQ/image-asset.png" data-image-dimensions="2120x1338" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="5a7632c5e4966bf9ce45e0c6" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<h3>Step 6: Prepend</h3>
+<p dir="ltr">Let's add a prepend method to our linked list. Prepend is the opposite of append in that it adds a new node to the front or head of our linked list. First, let's start with a test.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> test_prepend_appends_to_head
+  expected <span style="color:#808030; ">=</span> <span style="color:#0000e6; ">'The McKinney family, followed by the Brooks family, followed by the Henderson family'</span>
+  subject <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Brooks'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Henderson'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>prepend<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'McKinney'</span><span style="color:#808030; ">)</span>
+
+  result <span style="color:#808030; ">=</span> subject<span style="color:#808030; ">.</span>to_string
+
+  assert_equal expected<span style="color:#808030; ">,</span> result
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Here we are going to use our to_string method to infer the order of our linked list nodes. Since we append two nodes (Brooks, Henderson) and then prepend a new node (McKinney) our to_string call should give us our families in the order described in the expected variable above.</p>
+<p>To implement we do not need to worry about recursion. All we have to do is create a new node, take the head and set that as the next node after our new node and finally add our new node to the head of our linked list. Again, we must use the self call to reference the instance of the linked list and take advantage of our attr_accessor.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> prepend(surname)
+  node <span style="color:#808030; ">=</span> new_node<span style="color:#808030; ">(</span>surname<span style="color:#808030; ">)</span>
+  node<span style="color:#808030; ">.</span>next_node <span style="color:#808030; ">=</span> head
+  <span style="color:#800000; font-weight:bold; ">self</span><span style="color:#808030; ">.</span>head <span style="color:#808030; ">=</span> node
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<h3>Step 7 Insert</h3>
+<p dir="ltr">Now we want to implement an insert method which adds a new node with the given name at a specified position.</p>
+<pre style="color:#000000;background:#ffffff;">&gt; require <span style="color:#0000e6; ">"./lib/linked_list"</span>
+&gt; <span style="color:#400000; ">list</span> <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+&gt; <span style="color:#400000; ">list</span><span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"Brooks"</span><span style="color:#808030; ">)</span>
+<span style="color:#808030; ">=</span>&gt; &lt;Node @surname<span style="color:#808030; ">=</span><span style="color:#0000e6; ">"Brooks"</span> @next_node<span style="color:#808030; ">=</span><span style="color:#800000; font-weight:bold; ">nil</span> <span style="color:#696969; ">#5678904567890&gt;</span>
+&gt; <span style="color:#400000; ">list</span><span style="color:#808030; ">.</span>to_string
+<span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"The Brooks family"</span>
+&gt; <span style="color:#400000; ">list</span><span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"Henderson"</span><span style="color:#808030; ">)</span>
+<span style="color:#808030; ">=</span>&gt; &lt;Node @surname<span style="color:#808030; ">=</span><span style="color:#0000e6; ">"Henderson"</span> @next_node<span style="color:#808030; ">=</span><span style="color:#800000; font-weight:bold; ">nil</span> <span style="color:#696969; ">#5678904567890&gt;</span>
+&gt; <span style="color:#400000; ">list</span><span style="color:#808030; ">.</span>prepend<span style="color:#808030; ">(</span><span style="color:#0000e6; ">"McKinney"</span><span style="color:#808030; ">)</span>
+<span style="color:#808030; ">=</span>&gt; &lt;Node @surname<span style="color:#808030; ">=</span><span style="color:#0000e6; ">"McKinney"</span> @next_node<span style="color:#808030; ">=</span>&lt;Node @surname<span style="color:#808030; ">=</span><span style="color:#0000e6; ">"Brooks"</span> <span style="color:#808030; ">.</span><span style="color:#808030; ">.</span><span style="color:#808030; ">.</span> &gt; <span style="color:#696969; ">#5678904567890&gt;</span>
+&gt; <span style="color:#400000; ">list</span><span style="color:#808030; ">.</span>to_string
+<span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"The McKinney family, followed by the Brooks family, followed by the Henderson family"</span>
+&gt; <span style="color:#400000; ">list</span><span style="color:#808030; ">.</span><span style="color:#400000; ">count</span>
+<span style="color:#808030; ">=</span>&gt; <span style="color:#008c00; ">3</span>
+&gt; <span style="color:#400000; ">list</span><span style="color:#808030; ">.</span><span style="color:#400000; ">insert</span><span style="color:#808030; ">(</span><span style="color:#008c00; ">1</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">"Lawson"</span><span style="color:#808030; ">)</span>
+<span style="color:#808030; ">=</span>&gt; &lt;Node @surname<span style="color:#808030; ">=</span><span style="color:#0000e6; ">"Lawson"</span> @next_node<span style="color:#808030; ">=</span>&lt;Node @surname<span style="color:#808030; ">=</span><span style="color:#0000e6; ">"Brooks"</span> <span style="color:#808030; ">.</span><span style="color:#808030; ">.</span><span style="color:#808030; ">.</span> &gt; <span style="color:#696969; ">#5678904567890&gt;</span>
+&gt; <span style="color:#400000; ">list</span><span style="color:#808030; ">.</span>to_string
+<span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"The McKinney family, followed by the Lawson family, followed by the Brooks family, followed by the Henderson family"</span>
+</pre>
+<p>The position should be 0 indexed, so if we wanted to insert a node at the head of the list we would input a 0. To insert to the second position we would input a 1 and so on.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> test_insert
+  expected <span style="color:#0000e6; ">'The Brooks family, followed by the Lawson family, followed by the Henderson family, followed by the McKinney family'</span>
+  subject <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Brooks'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Henderson'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'McKinney'</span><span style="color:#808030; ">)</span>
+
+  result <span style="color:#808030; ">=</span> subject<span style="color:#808030; ">.</span><span style="color:#400000; ">insert</span><span style="color:#808030; ">(</span><span style="color:#008c00; ">1</span><span style="color:#808030; ">,</span> <span style="color:#0000e6; ">'Lawson'</span><span style="color:#808030; ">)</span>
+
+  assert_instance_of Node<span style="color:#808030; ">,</span> result
+  assert_equal expected<span style="color:#808030; ">,</span> subject<span style="color:#808030; ">.</span>to_string
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>In the above test we create a linked list with three nodes and then test the insertion of a new node at position 1 (the second node of our list). We are asserting that the insert method returns the node it has created. And then we use our to_string method to make sure our linked list has the desired order.</p>
+<p>First let's implement a private method to return a node at a given position because in the case of insert we are going to need the node directly before and after the given insertion position.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> node_at(node, position, counter=0)
+  <span style="color:#800000; font-weight:bold; ">return</span> node <span style="color:#800000; font-weight:bold; ">if</span> position <span style="color:#808030; ">=</span><span style="color:#808030; ">=</span> counter
+  node_at<span style="color:#808030; ">(</span>node<span style="color:#808030; ">.</span>next_node<span style="color:#808030; ">,</span> position<span style="color:#808030; ">,</span> counter <span style="color:#808030; ">+</span><span style="color:#808030; ">=</span> <span style="color:#008c00; ">1</span><span style="color:#808030; ">)</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>We continue with our recursive pattern and say node_at takes in a starting node, a destination position and a counter. If no counter is given, the counter defaults to 0. We will return the node if position equals counter. So if we pass in the head, position 0, and counter 0, we will get the head returned to us. If position and counter are not equal, then we call node_at and pass in the next node, the original position and our incremented counter. So if originally we pass in the head, position 1 and counter 0, on our second pass through the function the counter will be incremented to 1, which equals our destination position and so the head's next node will be returned.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> insert(position, surname)
+  node <span style="color:#808030; ">=</span> new_node<span style="color:#808030; ">(</span>surname<span style="color:#808030; ">)</span>
+  prior_node <span style="color:#808030; ">=</span> node_at<span style="color:#808030; ">(</span>head<span style="color:#808030; ">,</span> position <span style="color:#808030; ">-</span> <span style="color:#008c00; ">1</span><span style="color:#808030; ">)</span>
+  next_node <span style="color:#808030; ">=</span> node_at<span style="color:#808030; ">(</span>head<span style="color:#808030; ">,</span> position<span style="color:#808030; ">)</span>
+  prior_node<span style="color:#808030; ">.</span>next_node <span style="color:#808030; ">=</span> node
+  node<span style="color:#808030; ">.</span>next_node <span style="color:#808030; ">=</span> next_node
+  <span style="color:#800000; font-weight:bold; ">return</span> node
+en
+</pre>
+<p>Now we use our recently implemented private node_at method to get the prior node and the next node surrounding the desired position. For our test, our position parameter is 1 so the prior node's position should be 0 (desired position - 1). We also want to get the next node (e.g. the node that will follow our soon to be inserted node), which is at the desired position.</p>
+<p>Next we set the prior_nodes's next node to be our new node. And then we can set our new node's next node to be the remaining nodes in the linked list (next_node). We will then return our next node.</p>
+<p>The above method can be paired down a bit as follows:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> insert(position, surname)
+  node <span style="color:#808030; ">=</span> new_node<span style="color:#808030; ">(</span>surname<span style="color:#808030; ">)</span>
+  next_node <span style="color:#808030; ">=</span> node_at<span style="color:#808030; ">(</span>head<span style="color:#808030; ">,</span> position<span style="color:#808030; ">)</span>
+  node_at<span style="color:#808030; ">(</span>head<span style="color:#808030; ">,</span> position <span style="color:#808030; ">-</span> <span style="color:#008c00; ">1</span><span style="color:#808030; ">)</span><span style="color:#808030; ">.</span>next_node <span style="color:#808030; ">=</span> node
+  node<span style="color:#808030; ">.</span>next_node <span style="color:#808030; ">=</span> next_node
+  <span style="color:#800000; font-weight:bold; ">return</span> node
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<h3>Step 8: Find</h3>
+<p>Next we want to implement a find method that takes in two arguments - a starting position and a count of the number of nodes to return. For example:</p>
+<pre style="color:#000000;background:#ffffff;">&gt; <span style="color:#400000; ">list</span><span style="color:#808030; ">.</span>to_string
+<span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"The McKinney family, followed by the Lawson family, followed by the Brooks family, followed by the Henderson family"</span>
+&gt; <span style="color:#400000; ">list</span><span style="color:#808030; ">.</span><span style="color:#400000; ">find</span><span style="color:#808030; ">(</span><span style="color:#008c00; ">2</span><span style="color:#808030; ">,</span> <span style="color:#008c00; ">1</span><span style="color:#808030; ">)</span>
+<span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"The Brooks family"</span>
+&gt; <span style="color:#400000; ">list</span><span style="color:#808030; ">.</span><span style="color:#400000; ">find</span><span style="color:#808030; ">(</span><span style="color:#008c00; ">1</span><span style="color:#808030; ">,</span> <span style="color:#008c00; ">3</span><span style="color:#808030; ">)</span>
+<span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"The Lawson family, followed by the Brooks family, followed by the Henderson family"</span>
+</pre>
+<p>Let's write two tests. The first will test the find method with a starting position of 1, the second will test the find method when the position is greater than 1.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> test_find_from_start
+  expected <span style="color:#808030; ">=</span> <span style="color:#0000e6; ">'The Lawson family, followed by the Brooks family, followed by the Henderson family'</span>
+  subject <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'McKinney'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Lawson'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Brooks'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Henderson'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Davis'</span><span style="color:#808030; ">)</span>
+
+  result <span style="color:#808030; ">=</span> subject<span style="color:#808030; ">.</span><span style="color:#400000; ">find</span><span style="color:#808030; ">(</span><span style="color:#008c00; ">1</span><span style="color:#808030; ">,</span> <span style="color:#008c00; ">3</span><span style="color:#808030; ">)</span>
+
+  assert_equal expected<span style="color:#808030; ">,</span> result
+<span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">def</span> test_find_from_middle
+  expected <span style="color:#808030; ">=</span> <span style="color:#0000e6; ">'The Brooks family'</span>
+  subject <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'McKinney'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Lawson'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Brooks'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Henderson'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Davis'</span><span style="color:#808030; ">)</span>
+
+  result <span style="color:#808030; ">=</span> subject<span style="color:#808030; ">.</span><span style="color:#400000; ">find</span><span style="color:#808030; ">(</span><span style="color:#008c00; ">2</span><span style="color:#808030; ">,</span> <span style="color:#008c00; ">1</span><span style="color:#808030; ">)</span>
+
+  assert_equal expected<span style="color:#808030; ">,</span> result
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The first test will help us check to make sure that if we want to find from position 1, we can stop our find 3 nodes later (before the end of the linked list). The second test will help us check that we can find starting from position 2, and we can stop immediately by passing in a 1 for the count argument.</p>
+<p>We can re-use the node_at, sentence_starter, and stringify_node methods with a few augmentations. We can update sentence_starter to take in a node parameter. By default we can set this to be the head of the linked list so as not to break our other tests.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> sentence_starter(node=head)
+  <span style="color:#0000e6; ">"The </span><span style="color:#000000; background:#ffffe8; ">#{node</span><span style="color:#808030; background:#ffffe8; ">.</span><span style="color:#000000; background:#ffffe8; ">surname}</span><span style="color:#0000e6; "> family"</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>We can update stringify_node to take in two additional arguments, a terminal - e.g. the position we would like to stop at - and a counter. We will assign both of these parameters default values so as not to break our other tests.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> stringify_node(node, sentence, terminal=nil, counter=1)
+  <span style="color:#800000; font-weight:bold; ">return</span> <span style="color:#400000; ">concat</span><span style="color:#808030; ">(</span>sentence<span style="color:#808030; ">,</span> node<span style="color:#808030; ">)</span> <span style="color:#800000; font-weight:bold; ">if</span> node<span style="color:#808030; ">.</span>tail? || terminal <span style="color:#808030; ">=</span><span style="color:#808030; ">=</span> counter
+  stringify_node<span style="color:#808030; ">(</span>node<span style="color:#808030; ">.</span>next_node<span style="color:#808030; ">,</span> <span style="color:#400000; ">concat</span><span style="color:#808030; ">(</span>sentence<span style="color:#808030; ">,</span> node<span style="color:#808030; ">)</span><span style="color:#808030; ">,</span> terminal<span style="color:#808030; ">,</span> counter <span style="color:#808030; ">+</span><span style="color:#808030; ">=</span> <span style="color:#008c00; ">1</span><span style="color:#808030; ">)</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Now in addition to ending our sentence concatenation if the node is the tail of the linked list we add an additional or condition that says we should stop concatenating if the terminal is equal to the counter. In other words, stop if we have traversed down the linked list the number of times equal to the terminal parameter.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> find(start, count)
+  found_node <span style="color:#808030; ">=</span> node_at<span style="color:#808030; ">(</span>head<span style="color:#808030; ">,</span> <span style="color:#400000; ">start</span><span style="color:#808030; ">)</span>
+  sentence <span style="color:#808030; ">=</span> sentence_starter<span style="color:#808030; ">(</span>found_node<span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">return</span> sentence <span style="color:#800000; font-weight:bold; ">if</span> <span style="color:#400000; ">count</span> <span style="color:#808030; ">=</span><span style="color:#808030; ">=</span> <span style="color:#008c00; ">1</span>
+  stringify_node<span style="color:#808030; ">(</span>found_node<span style="color:#808030; ">.</span>next_node<span style="color:#808030; ">,</span> sentence<span style="color:#808030; ">,</span> <span style="color:#400000; ">count</span> <span style="color:#808030; ">-</span><span style="color:#808030; ">=</span> <span style="color:#008c00; ">1</span><span style="color:#808030; ">)</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Our find method leverages our node_at method by immediately grabbing the 'found_node' which corresponds to the node at the position defined by the start parameter. In the case of our first test, that would be Lawson. In the case of our second test where we want to find the node at position 2, we return Brooks. Our linked list is zero indexed, so the node at position 0 is the head.</p>
+<p>Next we begin our sentence by calling sentence_starter and passing in the found node. This will return 'The Lawson family' for our first test or 'The Brooks family' for our second test.</p>
+<p>Now, if our count is 1, meaning we only want to return 1 node, our job is finished. We can just return the sentence as is. So in the case of the second test, we return 'The Lawson family' and our test passes.</p>
+<p>If, on the other hand, we want to return additional stringified nodes (e.g. the count is greater than 1), then we call stringify_node with our newly updated interface and pass in the count argument minus 1. We subtract 1 because we have already found one node of the total number of nodes we need to return.</p>
+<p>The above code will pass all our tests, so let's refactor and clean it up:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> find(start, count)
+  node <span style="color:#808030; ">=</span> node_at<span style="color:#808030; ">(</span>head<span style="color:#808030; ">,</span> <span style="color:#400000; ">start</span><span style="color:#808030; ">)</span>
+  <span style="color:#800000; font-weight:bold; ">return</span> sentence_starter<span style="color:#808030; ">(</span>node<span style="color:#808030; ">)</span> <span style="color:#800000; font-weight:bold; ">if</span> <span style="color:#400000; ">count</span> <span style="color:#808030; ">=</span><span style="color:#808030; ">=</span> <span style="color:#008c00; ">1</span>
+  stringify_node<span style="color:#808030; ">(</span>node<span style="color:#808030; ">.</span>next_node<span style="color:#808030; ">,</span> sentence_starter<span style="color:#808030; ">(</span>node<span style="color:#808030; ">)</span><span style="color:#808030; ">,</span> <span style="color:#400000; ">count</span> <span style="color:#808030; ">-</span><span style="color:#808030; ">=</span> <span style="color:#008c00; ">1</span><span style="color:#808030; ">)</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<h3>Step 9: Includes?</h3>
+<p>Let's add an includes? method that takes in a surname argument and returns true if there is a node containing that surname in our linked list. First, let's write two tests - one for the happy path where our list does include the particular node and one for the sad path.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> test_includes_returns_true_when_given_surname_is_present
+  subject <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'McKinney'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Lawson'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Brooks'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Henderson'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Davis'</span><span style="color:#808030; ">)</span>
+
+  result <span style="color:#808030; ">=</span> subject<span style="color:#808030; ">.</span>includes?<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Henderson'</span><span style="color:#808030; ">)</span>
+
+  assert_equal <span style="color:#800000; font-weight:bold; ">true</span><span style="color:#808030; ">,</span> result
+<span style="color:#800000; font-weight:bold; ">end</span>
+
+<span style="color:#800000; font-weight:bold; ">def</span> test_includes_returns_false_when_given_surname_is_not_present
+  subject <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'McKinney'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Lawson'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Brooks'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Henderson'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Davis'</span><span style="color:#808030; ">)</span>
+
+  result <span style="color:#808030; ">=</span> subject<span style="color:#808030; ">.</span>includes?<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Williams'</span><span style="color:#808030; ">)</span>
+
+  assert_equal <span style="color:#800000; font-weight:bold; ">false</span><span style="color:#808030; ">,</span> result
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>In our first test, our result should be true because Henderson is included in the list. In our second test, our result should be false because Williams is not included in the list.</p>
+<p>We'll next need to define a private method that we can call recursively to find a node by the surname. If a node is found we should get true as a result.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> find_by_surname(node, surname)
+  <span style="color:#800000; font-weight:bold; ">return</span> <span style="color:#800000; font-weight:bold; ">true</span> <span style="color:#800000; font-weight:bold; ">if</span> node<span style="color:#808030; ">.</span>surname <span style="color:#808030; ">=</span><span style="color:#808030; ">=</span> surname
+  <span style="color:#800000; font-weight:bold; ">return</span> <span style="color:#800000; font-weight:bold; ">false</span> <span style="color:#800000; font-weight:bold; ">if</span> node<span style="color:#808030; ">.</span>tail?
+  find_by_surname<span style="color:#808030; ">(</span>node<span style="color:#808030; ">.</span>next_node<span style="color:#808030; ">,</span> surname<span style="color:#808030; ">)</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>We will pass our find_by_surname method a starting node and a surname to find. First, we will want to return true if the node has the sought after surname. Next, we will want to return false if the node is the tail of our linked list. If that is the case it means we have gotten to the end of our linked list and have not found the sought after surname. Finally, if neither of those conditions are met, recursively call find_by_surname on the next node.</p>
+<p>We can add an includes? public method to wrap this find_by_surname and that will pass our tests!</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> includes?(surname)
+  find_by_surname<span style="color:#808030; ">(</span>head<span style="color:#808030; ">,</span> surname<span style="color:#808030; ">)</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<h3>Step 10: PoP</h3>
+<p dir="ltr">Our last new method to implement will be pop, which will remove the last node from our list with the following behavior.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#808030; ">.</span><span style="color:#808030; ">.</span><span style="color:#808030; ">.</span><span style="color:#808030; ">.</span>
+&gt; <span style="color:#400000; ">list</span><span style="color:#808030; ">.</span>to_string
+<span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"The McKinney family, followed by the Lawson family, followed by the Brooks family, followed by the Henderson family"</span>
+&gt; <span style="color:#400000; ">list</span><span style="color:#808030; ">.</span><span style="color:#400000; ">pop</span>
+The Henderson family has died of dysentery
+<span style="color:#808030; ">=</span>&gt; &lt;Node surname<span style="color:#808030; ">=</span><span style="color:#0000e6; ">"Henderson"</span> next_node<span style="color:#808030; ">=</span><span style="color:#800000; font-weight:bold; ">nil</span> <span style="color:#696969; ">#5678904567890&gt;</span>
+&gt; <span style="color:#400000; ">list</span><span style="color:#808030; ">.</span><span style="color:#400000; ">pop</span>
+The Brooks family has died of dysentery
+<span style="color:#808030; ">=</span>&gt; &lt;Node surname<span style="color:#808030; ">=</span><span style="color:#0000e6; ">"Brooks"</span> next_node<span style="color:#808030; ">=</span><span style="color:#800000; font-weight:bold; ">nil</span> <span style="color:#696969; ">#5678904567890&gt;</span>
+&gt; <span style="color:#400000; ">list</span><span style="color:#808030; ">.</span>to_string
+<span style="color:#808030; ">=</span>&gt; <span style="color:#0000e6; ">"The McKinney family, followed by the Lawson family"</span>
+</pre>
+<p>First let's write a test.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> test_pop
+  subject <span style="color:#808030; ">=</span> LinkedList<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'McKinney'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Lawson'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Brooks'</span><span style="color:#808030; ">)</span>
+  subject<span style="color:#808030; ">.</span>append<span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Henderson'</span><span style="color:#808030; ">)</span>
+
+  result <span style="color:#808030; ">=</span> subject<span style="color:#808030; ">.</span><span style="color:#400000; ">pop</span>
+
+  assert_equal <span style="color:#0000e6; ">'Henderson'</span><span style="color:#808030; ">,</span> result<span style="color:#808030; ">.</span>surname
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Here we create a linked list. We call pop and expect to be returned a node with surname 'Henderson', which corresponds to our tail node's surname. Notice that we are not making assertions about messages printed to console. We can manually test those after we create our pop implementation.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> pop
+  new_tail <span style="color:#808030; ">=</span> node_at<span style="color:#808030; ">(</span>head<span style="color:#808030; ">,</span> <span style="color:#400000; ">count</span> <span style="color:#808030; ">-</span> <span style="color:#008c00; ">2</span><span style="color:#808030; ">)</span>
+  old_tail <span style="color:#808030; ">=</span> new_tail<span style="color:#808030; ">.</span>next_node
+  new_tail<span style="color:#808030; ">.</span>next_node <span style="color:#808030; ">=</span> <span style="color:#800000; font-weight:bold; ">nil</span>
+  <span style="color:#400000; ">puts</span> <span style="color:#0000e6; ">"The </span><span style="color:#000000; background:#ffffe8; ">#{old_tail</span><span style="color:#808030; background:#ffffe8; ">.</span><span style="color:#000000; background:#ffffe8; ">surname}</span><span style="color:#0000e6; "> family has died of dysentery"</span>
+  old_tail
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>Here we first find the new tail of our linked list, which is the node two less than the entire count of nodes. In our test, our linked list has 4 nodes. If we try to find the node_at(head, 4) we will get nil because our count is zero indexed. If we try to find the node_at(head, 3) we will get the tail of our list, which is not what we want. We want to find the new tail, which is the second to last node on our list, or node_at(head, 2) or node_at(head, count - 2).</p>
+<p>We next want to grab our old tail, which we can get easily by calling new_tail.next_node. Next we want to clear out the new_tails's next node, effectively making it the new tail of our linked list.</p>
+<p>After that we print our message and then return the old_tail.</p>
+<p>To refactor this, let's remember the principles of encapsulation and separation of concerns. I kind of like the idea that a node should be able to empty itself rather than have the linked list set it's next_node to be nil.</p>
+<p>So let's jump back to our node test. First we will need a node. We will add some dummy data to the next node attribute of our node. We will then call clear on our node and assert that it should now respond true to tail?, which means that its next node is nil.</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> test_it_can_remove_next_node
+  subject <span style="color:#808030; ">=</span> Node<span style="color:#808030; ">.</span><span style="color:#800000; font-weight:bold; ">new</span><span style="color:#808030; ">(</span><span style="color:#0000e6; ">'Burke'</span><span style="color:#808030; ">)</span>
+  data <span style="color:#808030; ">=</span> <span style="color:#0000e6; ">'pants'</span>
+
+  subject<span style="color:#808030; ">.</span>next_node <span style="color:#808030; ">=</span> data
+  subject<span style="color:#808030; ">.</span><span style="color:#400000; ">clear</span>!
+
+  assert_equal <span style="color:#800000; font-weight:bold; ">true</span><span style="color:#808030; ">,</span> subject<span style="color:#808030; ">.</span>tail?
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The implementation for this test could be something like:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> clear!
+  self.next_node <span style="color:#808030; ">=</span> <span style="color:#800000; font-weight:bold; ">nil</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>We can now use this clear method in our linked list:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#800000; font-weight:bold; ">def</span> pop
+  new_tail <span style="color:#808030; ">=</span> node_at<span style="color:#808030; ">(</span>head<span style="color:#808030; ">,</span> <span style="color:#400000; ">count</span> <span style="color:#808030; ">-</span> <span style="color:#008c00; ">2</span><span style="color:#808030; ">)</span>
+  old_tail <span style="color:#808030; ">=</span> new_tail<span style="color:#808030; ">.</span>next_node
+  new_tail<span style="color:#808030; ">.</span><span style="color:#400000; ">clear</span>!
+  <span style="color:#400000; ">puts</span> <span style="color:#0000e6; ">"The </span><span style="color:#000000; background:#ffffe8; ">#{old_tail</span><span style="color:#808030; background:#ffffe8; ">.</span><span style="color:#000000; background:#ffffe8; ">surname}</span><span style="color:#0000e6; "> family has died of dysentery"</span>
+  old_tail
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<h3>conclusion</h3>
+<p>It is great to use the expressiveness and fun of the Ruby programming language to practice algorithmic thinking, recursion, and building data structures.</p>
+<p>You can find the completed project described in this post in my <a href="https://github.com/PlanetEfficacy/perilous_journey/tree/master">Perilous Journey Github repository</a>.</p>
+</body></html>

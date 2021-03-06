@@ -1,0 +1,168 @@
+---
+layout: post
+title: So System Tests are a Thing Now
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _thumbnail_id: '60'
+---
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h2>Part 3 System Tests</h2>
+<p>In the last <a target="_blank" href="http://www.jessespevack.com/blog/2017/10/25/live-blogging-a-book-review-app-ii">post</a> we used the Rails g scaffold command to build full CRUD functionality for our authors model. In this post we will be refactoring our work in order to implement system tests and take advantage of some of the functionality rolled into the latest version of RSpec.</p>
+<p>After reading the <a target="_blank" href="http://www.jessespevack.com/blog/2017/10/23/live-blogging-a-book-review-app">first post</a> in this series, my friend <a target="_blank" href="https://twitter.com/notmarkmiranda">Mark Miranda</a> pointed out that RSpec 3.7 and Rails 5.1 now includes both capybara and and database cleaner functionality. I did some <a href="https://medium.com/table-xi/a-quick-guide-to-rails-system-tests-in-rspec-b6e9e8a8b5f6">reading</a> and it sounds like the RSpec team has made some huge improvements. Furthermore, the Rails team seems to be advocating for a move from integration tests to the newer <a href="https://twitter.com/dhh/status/796782788263321600">system tests</a>. Between Mark and DHH, it looks like we'll be going back to our author integration tests and seeing just how these new fangled system tests actually work.</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:750px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:78%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509164252273-90BP7CCLDWZMIGACLBBT/ke17ZwdGBToddI8pDm48kCYQy5acdl0Lmmp-moaZrkpZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIhj6d5C3mr9ICPjrBWn1kEs_6zBsnWYSxJ_0F5mhYMl8KMshLAGzx4R3EDFOm1kBS/capybara.jpg" alt="capybara.jpg"></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509164252273-90BP7CCLDWZMIGACLBBT/ke17ZwdGBToddI8pDm48kCYQy5acdl0Lmmp-moaZrkpZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIhj6d5C3mr9ICPjrBWn1kEs_6zBsnWYSxJ_0F5mhYMl8KMshLAGzx4R3EDFOm1kBS/capybara.jpg" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509164252273-90BP7CCLDWZMIGACLBBT/ke17ZwdGBToddI8pDm48kCYQy5acdl0Lmmp-moaZrkpZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIhj6d5C3mr9ICPjrBWn1kEs_6zBsnWYSxJ_0F5mhYMl8KMshLAGzx4R3EDFOm1kBS/capybara.jpg" data-image-dimensions="750x585" data-image-focal-point="0.5,0.5" alt="capybara.jpg" data-load="false" data-image-id="59f404dbe2c483f7f6cbe7d4" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<h2>Tear Down</h2>
+<p>A good refactor often involves tearing code down. To begin our transition to system tests that take advantage of Rails' new integration with capybara, we'll remove one gems from our gem file. For now let's comment database_cleaner out.</p>
+<p><code># gem 'database_cleaner'</code></p>
+<p>I tried doing this by also removing the capybara gem, but that just lead to RSpec skipping the feature / system test. My guess is the gem is still required, but there is some under the hood integration that we'll be benefiting from moving forward.</p>
+<p>Next we'll add the following two configurations to our rails helper file:</p>
+<pre style="color:#000000;background:#ffffff;"><span style="color:#696969; "># spec/rails_helper.rb</span>
+config<span style="color:#808030; ">.</span>before<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">each</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">type</span>: :<span style="color:#005fd2; ">system</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+  driven_by :<span style="color:#005fd2; ">rack_test</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+
+config<span style="color:#808030; ">.</span>before<span style="color:#808030; ">(</span>:<span style="color:#005fd2; ">each</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">type</span>: :<span style="color:#005fd2; ">system</span><span style="color:#808030; ">,</span> <span style="color:#005fd2; ">js</span>: <span style="color:#800000; font-weight:bold; ">true</span><span style="color:#808030; ">)</span><span style="color:#800000; font-weight:bold; "> do</span>
+  driven_by :<span style="color:#005fd2; ">selenium_chrome_headless</span>
+<span style="color:#800000; font-weight:bold; ">end</span>
+</pre>
+<p>The above configurations say that for our default system tests we want to use rack_test. Rack test is the fastest driver for system tests on Rails because it does not involve opening a headless or actual browser to perform the test. Of course, that means we cannot test javascript behavior. The second configuration says that we will use selenium driver and a headless chrome browser when we flag a system test with js: true. If and when we add javascript behavior to this app, I'll go back an add the selenium webdriver gem to this project.</p>
+<p>Next we will remove the database_cleaner support file we no longer need. Since Capybara is now part of Rails, tests using Capybara no longer have the danger of not cleaning up as expected.</p>
+<p><code>$ rm spec/support/database_cleaner.rb</code></p>
+<p>We edited our gem file so do not forget to run bundle:</p>
+<p><code>$ bundle</code></p>
+<h2>System Tests</h2>
+<p>There is not much left to do to fully move our feature test to the new system test paradigm. The next step is to rename our spec/features folder to spec/system.</p>
+<p>We can add a flag to our system test formerly known as a feature test, like this:</p>
+<p><code>feature 'author CRUD', type: :system do</code></p>
+<p>But, as long as we have the following line in our rails_helper file, Rails should automatically infer that tests in the spec/system folder should be treated as system tests.</p>
+<p><code>config.infer_spec_type_from_file_location!</code></p>
+<p>After that running rspec shows all tests passing!</p>
+
+
+
+
+
+
+
+
+  
+
+    
+  
+    <div class="
+          image-block-outer-wrapper
+          layout-caption-below
+          design-layout-inline
+          
+          
+          
+        " data-test="image-block-inline-outer-wrapper">
+
+      
+
+      
+        <figure class="
+              sqs-block-image-figure
+              intrinsic
+            " style="max-width:2416px;">
+          
+        
+        
+
+        
+          
+            
+          <div style="padding-bottom:49.66887664794922%;" class="
+                image-block-wrapper
+                
+          
+        
+                has-aspect-ratio
+              " data-animation-role="image" data-animation-override>
+            <noscript><img src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509163906708-51E2965IIIN4RNFMGXEF/ke17ZwdGBToddI8pDm48kLxWSXgZ1HViwcrGgBruXnp7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UZOjfc2XHZpqiJo0HEaC59rNOJZ5T2uZvzL98nI6kTcdH3bqxw7fF48mhrq5Ulr0Hg/image-asset.png" alt=""></noscript>
+<img class="thumb-image" src="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509163906708-51E2965IIIN4RNFMGXEF/ke17ZwdGBToddI8pDm48kLxWSXgZ1HViwcrGgBruXnp7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UZOjfc2XHZpqiJo0HEaC59rNOJZ5T2uZvzL98nI6kTcdH3bqxw7fF48mhrq5Ulr0Hg/image-asset.png" data-image="https://images.squarespace-cdn.com/content/v1/54ff9145e4b0d42b6a3b0734/1509163906708-51E2965IIIN4RNFMGXEF/ke17ZwdGBToddI8pDm48kLxWSXgZ1HViwcrGgBruXnp7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UZOjfc2XHZpqiJo0HEaC59rNOJZ5T2uZvzL98nI6kTcdH3bqxw7fF48mhrq5Ulr0Hg/image-asset.png" data-image-dimensions="2416x1200" data-image-focal-point="0.5,0.5" alt="" data-load="false" data-image-id="59f4038124a694055a4aaacb" data-type="image">
+          </div>
+        
+          
+        
+
+        
+      
+        </figure>
+      
+
+    </div>
+  
+
+
+  
+
+
+<h2>Further Reading</h2>
+<p>System tests are fairly new at this point. I found two sources that helped me get through this transition in one piece. First, RSpec's official release <a target="_blank" href="http://rspec.info/blog/2017/10/rspec-3-7-has-been-released/">notes</a> confirmed for me that system tests were not just a rumor. Next, Noel Rappin's <a href="https://medium.com/table-xi/a-quick-guide-to-rails-system-tests-in-rspec-b6e9e8a8b5f6">post</a> gives a really good walk through of setting up system tests.</p>
+<p>You can start from this point of the live blog journey by cloning / forking <a target="_blank" href="https://github.com/PlanetEfficacy/bookshelf/tree/iteration_1_authors_genres">this branch of my bookshelf repo</a>.</p>
+</body></html>
