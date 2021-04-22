@@ -1,7 +1,7 @@
 ---
 layout: post
 title: How I use a Hash Instead of Case Statement in Ruby 
-subtitle: Case Statements are Lame. Impress your friends with Hashes instead. 
+subtitle: Case Statements are Yesterday's News. Impress your friends with Hashes instead. 
 readtime: true
 cover-img: '/assets/img/ruby_logo.png'
 categories: []
