@@ -43,7 +43,7 @@ The point here is that for some reason negative logic always seems tougher to un
 
 -----
 
-# Ruby is Too expressive to Warrant the use of Negatives. 
+# Ruby is too Expressive to Warrant the use of Negatives. 
 
 The human brain evolved hundreds of thousands of years ago to be good at a great many things, but tracking negative logic is not one of them. At least that's the case for my particular human brain.
 
@@ -142,7 +142,7 @@ In my experience, this could be filed in the edge case category as typically che
 
 -----
 
-# The only Acceptable Use for Unless
+# Acceptable uses for Unless
 
 There is only one acceptable use for unless and that is as a guard statement at the very start of a method. It may not use any compound, multi-clause logic. Nor may it be placed anywhere but the very first line of a method because we do not hate our colleagues.
 
@@ -170,6 +170,7 @@ end
 **The Worst**
 
 ```ruby
+# This is an if
 unless !condition
   ...
 end
