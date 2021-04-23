@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Stop Being So Negative 
-subtitle: Ruby is Too Expressive to Warrant the use of Negatives 
+subtitle: Ruby is too Expressive to Warrant the use of Negatives 
 readtime: true
 cover-img: '/assets/img/ruby_logo.png'
 categories: []
